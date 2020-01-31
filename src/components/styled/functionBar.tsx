@@ -44,7 +44,6 @@ const getStyledButton = (component: React.FunctionComponent<React.SVGProps<SVGSV
     height: 42px;
     width: 42px;
     padding: 10px;
-    box-sizing: border-box;
 
     & path {
       fill: ${props => getNormalColor(props)};

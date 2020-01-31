@@ -10,7 +10,7 @@ export const Container = styled.div`
 
 export const MenuBarContainer = styled.div`
   display: flex;
-  height: 24px;
+  height: 25px;
   width: 100%;
   background-color: ${props => props.theme.colors.N700};
   border-bottom: 1px solid ${props => props.theme.colors.N800};
@@ -19,7 +19,7 @@ export const MenuBarContainer = styled.div`
 
 export const FunctionBarcontainer = styled.div`
   display: flex;
-  height: 42px;
+  height: 43px;
   width: 100%;
   background-color: ${props => props.theme.colors.N700};
   border-bottom: 1px solid ${props => props.theme.colors.N800};

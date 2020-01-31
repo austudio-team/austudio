@@ -6,7 +6,7 @@ export const TooltipPop = styled.div<{ show?: boolean }>`
   top: 100%;
   left: 0;
   line-height: 22px;
-  height: 22px;
+  height: 24px;
   padding: 0 12px;
   font-size: 14px;
   color: ${props => props.theme.colors.N300};

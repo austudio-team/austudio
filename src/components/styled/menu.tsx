@@ -34,7 +34,6 @@ export const MenuDropdownItem = styled.div`
   height: 24px;
   line-height: 24px;
   width: 100%;
-  box-sizing: border-box;
   padding: 0 12px;
   color: ${props => props.theme.colors.N300};
   font-size: 12px;
