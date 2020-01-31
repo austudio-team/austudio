@@ -8,5 +8,6 @@ module.exports = function override(config, env) {
   config.resolve.alias['@layout'] = path.resolve(__dirname, 'src/layout/');
   config.resolve.alias['@typings'] = path.resolve(__dirname, 'src/typings/');
   config.resolve.alias['@redux'] = path.resolve(__dirname, 'src/redux/');
+  config.resolve.alias['@assets'] = path.resolve(__dirname, 'src/assets/');
   return config;
 }

@@ -11,7 +11,9 @@
       "@typings": ["src/typings"],
       "@typings/*": ["src/typings/*"],
       "@redux": ["src/redux"],
-      "@redux/*": ["src/redux/*"]
+      "@redux/*": ["src/redux/*"],
+      "@assets": ["src/assets"],
+      "@assets/*": ["src/assets/*"]
     }
   }
 }

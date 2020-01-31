@@ -25,6 +25,7 @@ export const MenuDropdown = styled.div<MenuEntryProps>`
   left: 0;
   padding: 4px 0;
   min-width: 200px;
+  z-index: 999;
   background-color: ${props => props.theme.colors.N700};
   border: 1px solid ${props => props.theme.colors.N500};
 `;

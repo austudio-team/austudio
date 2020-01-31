@@ -18,6 +18,7 @@ export const MenuBarContainer = styled.div`
 `;
 
 export const FunctionBarcontainer = styled.div`
+  display: flex;
   height: 42px;
   width: 100%;
   background-color: ${props => props.theme.colors.N700};
