@@ -14,6 +14,9 @@ const theme: DefaultTheme = {
     P100: '#cf7dff',
     P300: '#b94df7',
     P500: '#8835b8',
+    R100: '#f28d5a',
+    R300: '#ee6f2e',
+    R500: '#9c481e',
   },
 }
 

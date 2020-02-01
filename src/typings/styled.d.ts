@@ -18,6 +18,9 @@ declare module 'styled-components' {
       P100: string,
       P300: string,
       P500: string,
+      R100: string,
+      R300: string,
+      R500: string,
     },
   }
 }

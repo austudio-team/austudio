@@ -1,9 +1,10 @@
-import React, { ReactNode, useCallback, useState, useRef, useEffect } from 'react';
+import React, { ReactNode, useCallback, useState, useRef, useEffect, CSSProperties } from 'react';
 import { TooltipPop } from '@components/styled/tooltip';
 
 interface TooltipProps {
   children: ReactNode;
   title: string;
+  style?: CSSProperties;
 }
 
 const Tooltip: React.FC<TooltipProps> = props => {
@@ -31,7 +32,7 @@ const Tooltip: React.FC<TooltipProps> = props => {
       onMouseEnter={mouseEnter}
       onMouseLeave={mouseLeave}
       onClick={mouseLeave}
-      style={{ position: 'relative' }}
+      style={{ ...props.style, position: 'relative' }}
     >
       {props.children}
       <TooltipPop show={show}>{props.title}</TooltipPop>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FunctionBarcontainer } from '@components/styled';
-import { ButtonGroup, UndoButton, RedoButton, PointerButton, CutButton } from '@components/styled/functionBar';
+import { ButtonGroup, UndoButton, RedoButton, PointerButton, CutButton, FolderButton } from '@components/styled/functionBar';
 import Tooltip from '@components/tooltip';
 
 const FunctionBar: React.FC = () => {
@@ -13,6 +13,9 @@ const FunctionBar: React.FC = () => {
       <ButtonGroup>
         <Tooltip title="Select"><PointerButton active /></Tooltip>
         <Tooltip title="Cut"><CutButton /></Tooltip>
+      </ButtonGroup>
+      <ButtonGroup>
+        <Tooltip title="Library"><FolderButton /></Tooltip>
       </ButtonGroup>
     </FunctionBarcontainer>
   );
