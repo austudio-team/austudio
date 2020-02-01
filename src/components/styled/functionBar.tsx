@@ -42,7 +42,7 @@ const normalColorMap: ColorMap = {
   hover: {
     active: theme.colors.P100,
     normal: theme.colors.N100,
-    disable: theme.colors.P500,
+    disable: theme.colors.N500,
     disableAndActive: theme.colors.P500,
   }
 };
