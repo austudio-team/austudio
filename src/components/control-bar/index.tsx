@@ -10,7 +10,7 @@ const ControlBar: React.FC = () => {
   return (
     <FunctionBarcontainer>
       <ButtonGroup>
-        <TextButton icon={Plus} text="Add Track" width={180} />
+        <TextButton icon={Plus} text="Add Track" width={181} />
       </ButtonGroup>
       <ButtonGroup>
         <Tooltip title="Stop"><StopButton /></Tooltip>

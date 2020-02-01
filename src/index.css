@@ -20,6 +20,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body * {
+  line-height: initial;
+}
+
 #root {
   height: 100%;
   width: 100%;
