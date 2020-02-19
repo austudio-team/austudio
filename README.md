@@ -1,5 +1,7 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+[![Build Status](https://www.travis-ci.com/austudio-team/austudio.svg?branch=master)](https://www.travis-ci.com/austudio-team/austudio)
+
 ## Available Scripts
 
 In the project directory, you can run:
