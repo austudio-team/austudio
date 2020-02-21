@@ -1,7 +1,7 @@
 language: node_js
 env:
   global:
-  - secure: XeIeZm4hfUFwcmjJtFJjRDroG6H10ak6u9ClZOZXfJlRjpMAUyhVhPiUsc+7y6XcifFTPOdmWmQKAcxV/yBws/0s29HVQwvXhWyeZn0nfyyLIH3LuzOiwW1W2DDPxXaFeJSSG5ERmDdg5E0tLDRM4uJQsYGPyX9E6bMOczGhn/2vzhuGOIMpDx3MLfDnTfteFjSXfv+37FCxIbnuKVuhSuJuXhEISZuXw3TTCcyZuf/r69aJ+S2vG6g6JYjugc/DXPdbN1cY/nN8QBLRKKGyAXvq5hDnHuQKcyoGYIslG9dbBsVWlP/GmhyHeA9QfUo+CZC87wSpn20W8B81/ccRgccRf/ZUXkK7cymzQQyji3ZjWZTo7MQsM2nAK5fHLeiOcwcgWi+dluUxWqBB10WGMZZmaGLPIhsnnia6kQoSpOgR3HrMp1/+ivFvwQKDac9WV41tsPOxCggIgDNqVZJCOXY0wOqPvOcnHGkciTg5EFVSG7/VX0zY2cX46IFduP9V+T5dDovF116wzHLp83ndtfqwDFRg5/Ux7Xhvy3ejqQamLDmI1FjWTyuxqMN/uVBG1SVPONcY1Xp+AsBVdCmR3GzZC3fm7DOw0hP3ZLehv0YpsijJAZ+1vesn0uWV464QVAofCLDuQBjcJySkQgeLA73kWzPeO5AAtg/K33ougKw=
+    secure: XeIeZm4hfUFwcmjJtFJjRDroG6H10ak6u9ClZOZXfJlRjpMAUyhVhPiUsc+7y6XcifFTPOdmWmQKAcxV/yBws/0s29HVQwvXhWyeZn0nfyyLIH3LuzOiwW1W2DDPxXaFeJSSG5ERmDdg5E0tLDRM4uJQsYGPyX9E6bMOczGhn/2vzhuGOIMpDx3MLfDnTfteFjSXfv+37FCxIbnuKVuhSuJuXhEISZuXw3TTCcyZuf/r69aJ+S2vG6g6JYjugc/DXPdbN1cY/nN8QBLRKKGyAXvq5hDnHuQKcyoGYIslG9dbBsVWlP/GmhyHeA9QfUo+CZC87wSpn20W8B81/ccRgccRf/ZUXkK7cymzQQyji3ZjWZTo7MQsM2nAK5fHLeiOcwcgWi+dluUxWqBB10WGMZZmaGLPIhsnnia6kQoSpOgR3HrMp1/+ivFvwQKDac9WV41tsPOxCggIgDNqVZJCOXY0wOqPvOcnHGkciTg5EFVSG7/VX0zY2cX46IFduP9V+T5dDovF116wzHLp83ndtfqwDFRg5/Ux7Xhvy3ejqQamLDmI1FjWTyuxqMN/uVBG1SVPONcY1Xp+AsBVdCmR3GzZC3fm7DOw0hP3ZLehv0YpsijJAZ+1vesn0uWV464QVAofCLDuQBjcJySkQgeLA73kWzPeO5AAtg/K33ougKw=
 notifications:
   webhooks:
     urls:
@@ -18,8 +18,7 @@ install:
 - yarn
 script:
 - yarn build
-after_success:
+after_success: 
 - tar czvf tmp.tar.gz -C ./build .
-- 'curl -F info="{\"mode\": \"build\", \"branchName\": \"${TRAVIS_BRANCH}\", \"description\":
-  \"${TRAVIS_COMMIT_MESSAGE}(${TRAVIS_COMMIT})\", \"token\": \"${token}\"}" -F file=@tmp.tar.gz
-  https://austudio.delbertbeta.cc/template/api/versions'
+- >-
+  curl -F info="{\"mode\": \"build\", \"branchName\": \"${TRAVIS_BRANCH}\", \"description\": \"${TRAVIS_COMMIT_MESSAGE}(${TRAVIS_COMMIT})\", \"token\": \"${token}\"}" -F file=@tmp.tar.gz https://austudio.delbertbeta.cc/template/api/versions
