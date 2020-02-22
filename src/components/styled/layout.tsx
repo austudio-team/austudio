@@ -31,3 +31,4 @@ export const EditorContainer = styled.div`
   width: 100%;
   background-color: ${props => props.theme.colors.N800};
 `;
+
