@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { DropdownContainer, DropdownMenuContainer } from './styled';
+import { DropdownContainer, DropdownMenuContainer, DropdownInnerContainer } from './styled';
 
 interface DropdownProps {
   value: string;
@@ -9,7 +9,7 @@ interface DropdownProps {
 }
 
 const Dropdown: React.FC<DropdownProps> = props => {
-  const { width, closeOnInnerClose, margin, value = '' } = props;
+  const { width, margin, value = '' } = props;
   const container = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<boolean>(false);
 
@@ -33,12 +33,15 @@ const Dropdown: React.FC<DropdownProps> = props => {
 
   return (
     <DropdownContainer
+      ref={container}
       cssMargin={margin}
       cssWidth={width}
-      onClick={handleContainerClick}
-      ref={container}
     >
-      <span>{value}</span>
+      <DropdownInnerContainer
+        onClick={handleContainerClick}
+      >
+        <span>{value}</span>
+      </DropdownInnerContainer>
       {open && <DropdownMenuContainer />}
     </DropdownContainer>
   );

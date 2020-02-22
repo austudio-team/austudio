@@ -1,10 +1,9 @@
 import React from 'react';
-import { Container, EditorContainer } from '../components/styled';
+import { Container } from '../components/styled';
 import MenuBar from '@components/menu-bar';
 import FunctionBar from '@components/function-bar';
 import ControlBar from '@components/control-bar';
-import { Dropdown } from '@components/dropdown';
-import AudioChannel from '@components/audio-channel';
+import Editor from '@components/editor';
 
 const Layout: React.FC = () => {
   return (
@@ -12,9 +11,7 @@ const Layout: React.FC = () => {
       <MenuBar />
       <FunctionBar />
       <ControlBar />
-      <Dropdown value="Effect" width={200} />
-      <AudioChannel />
-      <EditorContainer />
+      <Editor />
     </Container>
   );
 }

@@ -9,6 +9,10 @@ export const DropdownContainer = styled.div<DropdownContainerProps>`
   position: relative;
   width: ${props => props.cssWidth ? `${props.cssWidth}px` : '100%'};
   margin: ${props => props.cssMargin || 'initial'};
+`;
+
+export const DropdownInnerContainer = styled.div`
+  width: 100%;
   height: 22px;
   border: 1px solid ${props => props.theme.colors.N400};
   color: ${props => props.theme.colors.N100};
@@ -33,11 +37,12 @@ export const DropdownContainer = styled.div<DropdownContainerProps>`
 export const DropdownMenuContainer = styled.div`
   position: absolute;
   top: 100%;
-  left: -1px;
-  width: calc(100% + 2px);
+  left: 0;
+  width: 100%;
   min-height: 22px;
   max-height: 300px;
   overflow-y: auto;
   background-color: ${props => props.theme.colors.N500};
   border: 1px solid ${props => props.theme.colors.N400};
+  border-top: none;
 `;

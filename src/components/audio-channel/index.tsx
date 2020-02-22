@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { AudioChannelContainer, TopChannel, MiddleChannel, BottomChannel, ChannelName, 
-  ChannelButtonGroup, ChannelButton, VolumnRange, PannerRange } from './styled';
+  ChannelButtonGroup, ChannelButton, Range, RangeContainer } from './styled';
 import Tooltip from '@components/tooltip';
+import { Dropdown } from '@components/dropdown';
 
 const AudioChannel: React.FC = () => {
-  const [vol, setVol] = useState<number>(0);
+  const [vol, setVol] = useState<number>(100);
   const volHandler = useCallback((e: any) => {
     setVol(parseFloat(e.target.value));
   }, []);
@@ -25,10 +26,38 @@ const AudioChannel: React.FC = () => {
         </ChannelButtonGroup>
       </TopChannel>
       <MiddleChannel>
-        <Tooltip title={volStr}><VolumnRange defaultValue="100" onChange={volHandler} id="volume" type="range" min="0" max="100" step="1"></VolumnRange></Tooltip>
-        <Tooltip title={pannerStr}><PannerRange defaultValue="0" onChange={pannerHandler} id="panner" type="range" min="-100" max="100" step="1"></PannerRange></Tooltip>
+        <RangeContainer>
+          <span>V:</span>
+          <Tooltip title={volStr}>
+            <Range
+              defaultValue="100"
+              onChange={volHandler}
+              id="volume"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+            />
+          </Tooltip>
+        </RangeContainer>
+        <RangeContainer>
+          <span>P:</span>
+          <Tooltip title={pannerStr}>
+            <Range
+              defaultValue="0"
+              onChange={pannerHandler}
+              id="panner"
+              type="range"
+              min="-100"
+              max="100"
+              step="1"
+            />
+          </Tooltip>
+        </RangeContainer>
       </MiddleChannel>
-      <BottomChannel></BottomChannel>
+      <BottomChannel>
+        <Dropdown value="Effects" width={200} margin="0 0 6px 6px" />
+      </BottomChannel>
     </AudioChannelContainer>
   );
 };
