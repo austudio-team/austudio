@@ -3,6 +3,7 @@ import { Container, EditorContainer } from '../components/styled';
 import MenuBar from '@components/menu-bar';
 import FunctionBar from '@components/function-bar';
 import ControlBar from '@components/control-bar';
+import AudioChannel from '@components/audio-channel';
 
 const Layout: React.FC = () => {
   return (
@@ -10,6 +11,7 @@ const Layout: React.FC = () => {
       <MenuBar />
       <FunctionBar />
       <ControlBar />
+      <AudioChannel />
       <EditorContainer />
     </Container>
   );
