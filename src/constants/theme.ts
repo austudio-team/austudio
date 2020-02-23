@@ -18,6 +18,9 @@ const theme: DefaultTheme = {
     R300: '#ee6f2e',
     R500: '#9c481e',
   },
-}
+  animation: {
+    normal: 'cubic-bezier(.6,0,.32,1)',
+  },
+};
 
 export { theme };
