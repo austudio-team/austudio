@@ -45,4 +45,5 @@ export const DropdownMenuContainer = styled.div`
   background-color: ${props => props.theme.colors.N500};
   border: 1px solid ${props => props.theme.colors.N400};
   border-top: none;
+  z-index: 1;
 `;
