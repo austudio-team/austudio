@@ -1,23 +1,47 @@
 import styled from 'styled-components';
+import { editorChannelWidth, editorMarginTop } from './constants';
+
 
 export const AudioChannelWrapper = styled.div`
-  margin-top: 18px;
+  margin-top: ${editorMarginTop}px;
+  width: ${editorChannelWidth}px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+`;
+
+export const AudioChannelScroller = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
 `;
 
 export const TrackWrapper = styled.div`
   position: relative;
   width: 100%;
-  margin-top: 18px;
+  margin-top: ${editorMarginTop}px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+`;
+
+export const TrackScroller = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
 `;
 
 export const TrackIndicator = styled.div`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: ${editorMarginTop}px;
+  left: ${editorChannelWidth}px;
   width: 1px;
   height: 100%;
   background-color: ${props => props.theme.colors.P300};
   cursor: move;
+  z-index: 100;
 
   &::before {
     content: ' ';
