@@ -1,4 +1,4 @@
-import { editorMarginTop } from "./constants";
+import { editorMarginTop, editorChannelWidth } from "./constants";
 
 export function scrollYLimiter(
   e: WheelEvent,
@@ -10,12 +10,18 @@ export function scrollYLimiter(
   scrollY.current = Math.max(scrollY.current, editorHeight.current - editorScrollHeight.current - editorMarginTop);
 }
 
-export function watchHeight(
+export function indicatorLimiter(screenX: number, editorWidth: number) {
+  return Math.max(Math.min(screenX, editorWidth), editorChannelWidth);
+}
+
+export function watchEditorRect(
   editorHeight: React.MutableRefObject<number>,
+  editorWidth: React.MutableRefObject<number>,
   channelScroller: React.RefObject<HTMLDivElement>,
 ) {
   if (channelScroller.current) {
     editorHeight.current = channelScroller.current.clientHeight;
+    editorWidth.current = channelScroller.current.clientWidth;
   }
 }
 
