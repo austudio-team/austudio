@@ -35,7 +35,7 @@ const Editor: React.FC<Props> = props => {
 
   useEffect(() => {
     watchScrollHeight(editorScrollHeight, channelWrapperRef);
-  }, []);
+  }, [channelList]);
   useEffect(() => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
@@ -109,7 +109,7 @@ const Editor: React.FC<Props> = props => {
         <AudioChannelScroller ref={channelWrapperRef}>
           {
             channelList.map(v => (
-              <AudioChannel key={v} />
+              <AudioChannel channelId={v} key={v} />
             ))
           }
         </AudioChannelScroller>

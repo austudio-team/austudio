@@ -10,7 +10,7 @@ export const AudioChannelContainer = styled.div`
   margin-left: 1px;
   margin-right: 2px;
   background-color: ${props => props.theme.colors.N700};
-  color: ${props => props.theme.colors.N100};
+  color: ${props => props.theme.colors.N200};
   & + & {
     margin-top: 4px;
   }
@@ -44,7 +44,11 @@ export const ChannelButtonGroup = styled.div`
   background-color: ${props => props.theme.colors.N600};
 `;
 
-export const ChannelButton = styled.div`
+interface ChannelButtonProps {
+  active?: boolean;
+}
+
+export const ChannelButton = styled.div<ChannelButtonProps>`
   position: relative;
   display: flex;
   align-items: center;
@@ -52,6 +56,21 @@ export const ChannelButton = styled.div`
   width: 24px;
   height: 100%;
   border-left: 1px solid ${props => props.theme.colors.N800};
+  color: ${p => p.active ? p.theme.colors.P300 : 'inherit'};
+  background-color: ${p => p.active ? p.theme.colors.N800 : 'inherit'};
+
+  &:hover {
+    color: ${p => p.active ? p.theme.colors.P100 : p.theme.colors.N100};
+    background-color: ${props => props.theme.colors.N500};
+  }
+`;
+
+export const RecordButton = styled(ChannelButton)<ChannelButtonProps>`
+  color: ${p => p.active ? p.theme.colors.R300 : 'inherit'};
+  
+  &:hover {
+    color: ${p => p.active ? p.theme.colors.R100 : p.theme.colors.N100};
+  }
 `;
 
 export const MiddleChannel = styled.div`
