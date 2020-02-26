@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { AudioChannelContainer, TopChannel, MiddleChannel, BottomChannel, ChannelName, 
   ChannelButtonGroup, ChannelButton, Range, RangeContainer, RecordButton } from './styled';
 import Tooltip from '@components/tooltip';
@@ -32,24 +32,30 @@ type Props = ConnectedProps<typeof connector> & AudioChannelProps;
 
 const AudioChannel: React.FC<Props> = props => {
   const { channel, updateMute, updateRecord,
-          updatePan, updateName, updateSolo, updateVol } = props;
+          updatePan, updateSolo, updateVol } = props;
+
   const volHandler = useCallback((e: any) => {
     updateVol(channel.id, parseInt(e.target.value));
-  }, []);
+  }, [channel.id, updateVol]);
   const volStr = 'Volumn(' + channel.vol + '%)';
+
   const pannerHandler = useCallback((e: any) => {
     updatePan(channel.id, parseInt(e.target.value));
-  }, []);
+  }, [channel.id, updatePan]);
   const pannerStr = 'Panner(' + channel.pan + '%)';
+
   const handleSolo = useCallback(() => {
     updateSolo(channel.id, !channel.solo);
-  }, [channel, updateSolo]);
+  }, [channel.id, channel.solo, updateSolo]);
+
   const handleMute = useCallback(() => {
     updateMute(channel.id, !channel.mute);
-  }, [channel, updateMute]);
+  }, [channel.id, channel.mute, updateMute]);
+
   const handleRecord = useCallback(() => {
     updateRecord(channel.id, !channel.record);
-  }, [channel, updateRecord]);
+  }, [channel.id, channel.record, updateRecord]);
+
   return (
     <AudioChannelContainer>
       <TopChannel>

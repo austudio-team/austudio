@@ -40,6 +40,27 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
       const { id, value } = action.payload;
       targetId = id;
       newChannel = { ...state.channel[id], record: value };
+      let lastRecordChannel: any = {};
+      // 只允许同时存在一个录音轨道
+      // eslint-disable-next-line
+      for (const [k, v] of Object.entries(state.channel)) {
+        if (v.record) {
+          lastRecordChannel = {
+            ...v,
+            record: false,
+          };
+        }
+      }
+      if (lastRecordChannel.id) {
+        return {
+          ...state,
+          channel: {
+            ...state.channel,
+            [targetId]: newChannel,
+            [lastRecordChannel.id]: lastRecordChannel,
+          },
+        };
+      }
       break;
     }
     case ChannelAction.UPDATE_SOLO: {
