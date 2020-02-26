@@ -22,5 +22,8 @@ declare module 'styled-components' {
       R300: string,
       R500: string,
     },
+    animation: {
+      normal: string,
+    },
   }
 }

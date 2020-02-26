@@ -3,8 +3,7 @@ import styled from 'styled-components';
 export const AudioChannelContainer = styled.div`
   position: relative;
   height: 122px;
-  min-width: 219px;
-  max-width: 219px;
+  width: 219px;
   display: flex;
   flex-direction: column;
   font-size: 11px;
@@ -70,6 +69,7 @@ export const Range = styled.input`
   width: 162px;
   transform: translateY(-2px);
   outline: none;
+  cursor: ew-resize;
 `;
 
 export const BottomChannel = styled.div`

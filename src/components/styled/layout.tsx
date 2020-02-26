@@ -27,9 +27,11 @@ export const FunctionBarcontainer = styled.div`
 `;
 
 export const EditorContainer = styled.div`
+  position: relative;
   display: flex;
   flex-grow: 1;
   width: 100%;
+  overflow: hidden;
   background-color: ${props => props.theme.colors.N800};
 `;
 
