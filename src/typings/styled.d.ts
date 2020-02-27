@@ -18,9 +18,10 @@ declare module 'styled-components' {
       P100: string,
       P300: string,
       P500: string,
-      R100: string,
+      P700: string,
       R300: string,
       R500: string,
+      R700: string,
     },
     animation: {
       normal: string,

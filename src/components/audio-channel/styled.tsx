@@ -60,16 +60,16 @@ export const ChannelButton = styled.div<ChannelButtonProps>`
   background-color: ${p => p.active ? p.theme.colors.N800 : 'inherit'};
 
   &:hover {
-    color: ${p => p.active ? p.theme.colors.P100 : p.theme.colors.N100};
+    color: ${p => p.active ? p.theme.colors.P300 : p.theme.colors.N100};
     background-color: ${props => props.theme.colors.N500};
   }
 `;
 
 export const RecordButton = styled(ChannelButton)<ChannelButtonProps>`
-  color: ${p => p.active ? p.theme.colors.R300 : 'inherit'};
+  color: ${p => p.active ? p.theme.colors.R500 : 'inherit'};
   
   &:hover {
-    color: ${p => p.active ? p.theme.colors.R100 : p.theme.colors.N100};
+    color: ${p => p.active ? p.theme.colors.R300 : p.theme.colors.N100};
   }
 `;
 

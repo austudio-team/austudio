@@ -3,6 +3,7 @@ import { Audio } from '@redux/types/library';
 import { ReactComponent as MusicIcon } from '@assets/svg/music.svg';
 import { AudioIconWrapper, StyledAudioItem, AudioInfoFileName,
           AudioInfoWrapper, AudioInfoFileLength } from './styled';
+import { millisecondToString } from '@utils/time';
 
 interface AudioItemProps {
   audioInfo: Audio;
@@ -16,7 +17,7 @@ const AudioItem: React.FC<AudioItemProps> = props => {
       </AudioIconWrapper>
       <AudioInfoWrapper>
         <AudioInfoFileName>{props.audioInfo.fileName}</AudioInfoFileName>
-        <AudioInfoFileLength>{props.audioInfo.length}</AudioInfoFileLength>
+        <AudioInfoFileLength>{millisecondToString(props.audioInfo.length, false)}</AudioInfoFileLength>
       </AudioInfoWrapper>
     </StyledAudioItem>
   );

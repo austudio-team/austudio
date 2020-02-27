@@ -32,7 +32,7 @@ export const AudioManageContainer = styled.div<AudioManageContainerProps>`
   width: 360px;
   height: 100%;
   background: ${props => transparentize(0.9, props.theme.colors.N800)};
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px) brightness(60%);
   animation: ${props => props.show ? inKeyframe : outKeyframe} 0.3s ${props => props.theme.animation.normal} forwards;
   color: ${p => p.theme.colors.N100};
   font-size: 13px;

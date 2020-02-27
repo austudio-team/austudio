@@ -2,8 +2,14 @@ import { LibraryAction, LibraryActionType, LibraryState, Audio } from "@redux/ty
 import { v4 as uuidv4 } from 'uuid';
 
 const initialState: LibraryState = {
-  audioInfo: {},
-  audioList: [],
+  audioInfo: {
+    'test': {
+      fileName: 'Audio音频.mp3',
+      id: 'test',
+      length: 6000,
+    }
+  },
+  audioList: ['test'],
 }
 
 export function libraryReducer(state: LibraryState = initialState, action: LibraryActionType): LibraryState {

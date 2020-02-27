@@ -34,31 +34,31 @@ export interface ColorMap {
 
 const normalColorMap: ColorMap = {
   normal: {
-    active: theme.colors.P300,
+    active: theme.colors.P500,
     disable: theme.colors.N500,
     normal: theme.colors.N300,
-    disableAndActive: theme.colors.P500,
+    disableAndActive: theme.colors.P700,
   },
   hover: {
-    active: theme.colors.P100,
+    active: theme.colors.P300,
     normal: theme.colors.N100,
     disable: theme.colors.N500,
-    disableAndActive: theme.colors.P500,
+    disableAndActive: theme.colors.P700,
   }
 };
 
 const redColorMap: ColorMap = {
   normal: {
-    active: theme.colors.P300,
-    disable: theme.colors.R500,
-    normal: theme.colors.R300,
-    disableAndActive: theme.colors.P500,
+    active: theme.colors.P500,
+    disable: theme.colors.P700,
+    normal: theme.colors.R500,
+    disableAndActive: theme.colors.P700,
   },
   hover: {
-    active: theme.colors.P100,
-    normal: theme.colors.R100,
-    disable: theme.colors.R500,
-    disableAndActive: theme.colors.P500,
+    active: theme.colors.P300,
+    normal: theme.colors.R300,
+    disable: theme.colors.P700,
+    disableAndActive: theme.colors.P700,
   }
 }
 

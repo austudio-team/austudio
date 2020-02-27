@@ -13,7 +13,9 @@
       "@redux": ["src/redux"],
       "@redux/*": ["src/redux/*"],
       "@assets": ["src/assets"],
-      "@assets/*": ["src/assets/*"]
+      "@assets/*": ["src/assets/*"],
+      "@utils": ["src/utils"],
+      "@utils/*": ["src/utils/*"]
     }
   }
 }
