@@ -4,10 +4,14 @@ import { toggleLibrary } from '@redux/actions/functionBar';
 import { ConnectedProps, connect } from 'react-redux';
 import { FunctionState } from '@redux/types/functionBar';
 import { librarySelector } from '@redux/selectors/functionBar';
-import { AudioManageContainer, CloseIcon, Title } from './styled';
+import { AudioManageContainer, CloseIcon, Title, AudioItemWrapper } from './styled';
+import { audioListSelector, audioMapSelector } from '@redux/selectors/library';
+import AudioItem from './AudioItem';
 
 const mapState = (state: RootState) => ({
   libraryState: librarySelector(state.funtionBar),
+  audioList: audioListSelector(state.library),
+  audioInfo: audioMapSelector(state.library),
 });
 
 const mapDispatch = {
@@ -19,7 +23,7 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
 
 const AudioManage: React.FC<Props> = props => {
-  const { libraryState, toggleLibrary } = props;
+  const { libraryState, toggleLibrary, audioInfo, audioList } = props;
   const [inited, setInited] = useState<boolean>(false);
   useEffect(() => {
     if (!inited && libraryState === FunctionState.ACTIVE) {
@@ -32,6 +36,13 @@ const AudioManage: React.FC<Props> = props => {
     >
       <Title>LIBRARY</Title>
       <CloseIcon onClick={toggleLibrary} />
+      <AudioItemWrapper>
+        {
+          audioList.map(v => (
+            <AudioItem audioInfo={audioInfo[v]} key={v} />
+          ))
+        }
+      </AudioItemWrapper>
     </AudioManageContainer>
   ) : null;
 };
