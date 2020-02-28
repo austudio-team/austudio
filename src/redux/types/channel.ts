@@ -12,6 +12,15 @@ interface ChannelMap {
   [id: string]: Channel;
 }
 
+export interface AudioSlice {
+  id: string;
+  offset: number;
+  start: number;
+  end: number;
+  stretch: number;
+  audioId: string;
+}
+
 export interface Channel {
   name: string;
   id: string;
@@ -20,6 +29,7 @@ export interface Channel {
   record: boolean;
   vol: number;
   pan: number;
+  slices: AudioSlice[];
 }
 
 export interface ChannelState {

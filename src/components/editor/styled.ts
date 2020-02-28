@@ -39,7 +39,7 @@ export const TrackIndicator = styled.div`
   left: ${editorChannelWidth}px;
   width: 1px;
   height: 100%;
-  background-color: ${props => props.theme.colors.P300};
+  background-color: ${props => props.theme.colors.P500};
   cursor: move;
   z-index: 100;
 
@@ -52,7 +52,7 @@ export const TrackIndicator = styled.div`
     width: 0;
     height: 0;
     border: 8px solid transparent;
-    border-top: 16px solid ${props => props.theme.colors.P300};
+    border-top: 16px solid ${props => props.theme.colors.P500};
     cursor: move;
   }
 `;

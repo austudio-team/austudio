@@ -8,12 +8,14 @@ import { scrollYLimiter, watchScrollHeight, watchEditorRect, indicatorLimiter } 
 import { RootState } from '@redux/reducers';
 import { channelListSelector } from '@redux/selectors/channel';
 import { connect, ConnectedProps } from 'react-redux';
+import { selectBlock } from '@redux/actions/editor';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
 });
 
 const mapDispatch = {
+  selectBlock,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -31,7 +33,7 @@ const Editor: React.FC<Props> = props => {
   const editorWidth = useRef<number>(0);
   const editorScrollHeight = useRef<number>(0);
 
-  const { channelList } = props;
+  const { channelList, selectBlock } = props;
 
   useEffect(() => {
     watchScrollHeight(editorScrollHeight, channelWrapperRef);
@@ -100,6 +102,10 @@ const Editor: React.FC<Props> = props => {
     }
   }, [dragging, setDragging]);
 
+  const trackScrollerClickHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    selectBlock(null);
+  }, [selectBlock])
+
   return (
     <EditorContainer
       ref={editorRef}
@@ -119,10 +125,10 @@ const Editor: React.FC<Props> = props => {
         onMouseDown={indicatorMouseDown}
       />
       <TrackWrapper>
-        <TrackScroller ref={trackWrapperRef}>
+        <TrackScroller ref={trackWrapperRef} onClick={trackScrollerClickHandler}>
         {
             channelList.map(v => (
-              <Track key={v} />
+              <Track channelId={v} key={v} />
             ))
           }
         </TrackScroller>
