@@ -11,3 +11,7 @@ export function audioMapSelector(state: LibraryState) {
 export function audioItemSelector(state: LibraryState, audioId: string) {
   return state.audioInfo[audioId];
 }
+
+export function draggingAudioSelector(state: LibraryState) {
+  return state.draggingAudioId;
+}

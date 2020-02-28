@@ -7,7 +7,7 @@ export function scrollYLimiter(
   editorScrollHeight: React.MutableRefObject<number>,
 ) {
   scrollY.current = Math.min(0, scrollY.current - e.deltaY);
-  scrollY.current = Math.max(scrollY.current, editorHeight.current - editorScrollHeight.current - editorMarginTop);
+  scrollY.current = Math.max(scrollY.current, editorHeight.current - editorScrollHeight.current - editorMarginTop - 40);
 }
 
 export function indicatorLimiter(screenX: number, editorWidth: number) {

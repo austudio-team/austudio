@@ -1,5 +1,7 @@
 export enum LibraryAction {
   'ADD_AUDIO' = 'ADD_AUDIO',
+  'DRAG_START' = 'LIB_DRAG_START',
+  'DRAG_END' = 'LIB_DRAG_END',
 }
 
 export interface Audio {
@@ -13,6 +15,7 @@ export interface LibraryState {
     [id: string]: Audio;
   };
   audioList: string[];
+  draggingAudioId: string | null;
 }
 
 export interface AddAudioAction {
@@ -23,4 +26,15 @@ export interface AddAudioAction {
   }
 }
 
-export type LibraryActionType = AddAudioAction;
+export interface LibraryDragStartAction {
+  type: typeof LibraryAction.DRAG_START,
+  payload: {
+    audioId: string,
+  }
+}
+
+export interface LibraryDragEndAction {
+  type: typeof LibraryAction.DRAG_END,
+}
+
+export type LibraryActionType = AddAudioAction | LibraryDragStartAction | LibraryDragEndAction;

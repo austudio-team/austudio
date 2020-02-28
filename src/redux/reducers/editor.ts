@@ -2,6 +2,8 @@ import { EditorState, EditorAction, EditorActionType } from "@redux/types/editor
 
 const initialState: EditorState = {
   selectedBlock: null,
+  zoom: 10,
+  maxLength: 0,
 }
 
 export function editorReducer(state: EditorState = initialState, action: EditorActionType): EditorState {

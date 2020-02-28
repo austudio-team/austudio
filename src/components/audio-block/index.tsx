@@ -5,7 +5,7 @@ import { RootState } from '@redux/reducers';
 import { audioItemSelector } from '@redux/selectors/library';
 import { connect, ConnectedProps } from 'react-redux';
 import { getLength } from './utils';
-import { isBlockSelectedSelector } from '@redux/selectors/editor';
+import { isBlockSelectedSelector, zoomSelector } from '@redux/selectors/editor';
 import { selectBlock } from '@redux/actions/editor';
 
 interface AudioBlockProps {
@@ -14,6 +14,7 @@ interface AudioBlockProps {
 
 const mapState = (state: RootState, ownProps: AudioBlockProps) => ({
   audio: audioItemSelector(state.library, ownProps.slice.audioId),
+  zoom: zoomSelector(state.editor),
   selected: isBlockSelectedSelector(state.editor, ownProps.slice.id),
 });
 
@@ -26,10 +27,10 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & AudioBlockProps;
 
 const AudioBlock: React.FC<Props> = props => {
-  const { audio, slice, selected, selectBlock } = props;
+  const { audio, slice, selected, selectBlock, zoom } = props;
   const length = getLength(slice, audio);
-  const width = Math.ceil(length / 10) + 2;
-  const offset = Math.ceil(slice.offset / 10);
+  const width = Math.ceil(length / zoom) + 2;
+  const offset = Math.ceil(slice.offset / zoom);
 
   const clickHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();

@@ -7,6 +7,7 @@ import { librarySelector } from '@redux/selectors/functionBar';
 import { AudioManageContainer, CloseIcon, Title, AudioItemWrapper } from './styled';
 import { audioListSelector, audioMapSelector } from '@redux/selectors/library';
 import AudioItem from './AudioItem';
+import { libraryDragStart, libraryDragEnd } from '@redux/actions/library';
 
 const mapState = (state: RootState) => ({
   libraryState: librarySelector(state.funtionBar),
@@ -16,6 +17,8 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
   toggleLibrary,
+  libraryDragStart,
+  libraryDragEnd,
 }
 
 const connector = connect(mapState, mapDispatch);
@@ -23,13 +26,14 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
 
 const AudioManage: React.FC<Props> = props => {
-  const { libraryState, toggleLibrary, audioInfo, audioList } = props;
+  const { libraryState, toggleLibrary, audioInfo, audioList, libraryDragStart, libraryDragEnd } = props;
   const [inited, setInited] = useState<boolean>(false);
   useEffect(() => {
     if (!inited && libraryState === FunctionState.ACTIVE) {
       setInited(true);
     }
   }, [inited, libraryState]);
+
   return inited ? (
     <AudioManageContainer
       show={libraryState === FunctionState.ACTIVE}
@@ -39,7 +43,12 @@ const AudioManage: React.FC<Props> = props => {
       <AudioItemWrapper>
         {
           audioList.map(v => (
-            <AudioItem audioInfo={audioInfo[v]} key={v} />
+            <AudioItem
+              onDragStart={libraryDragStart}
+              onDragEnd={libraryDragEnd}
+              audioInfo={audioInfo[v]}
+              key={v}
+            />
           ))
         }
       </AudioItemWrapper>

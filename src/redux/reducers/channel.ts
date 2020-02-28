@@ -1,5 +1,6 @@
 import { ChannelState, ChannelActionType, ChannelAction } from "@redux/types/channel";
 import { genenrateDefaultChannel, generateNewChannel } from "@redux/utils/channel";
+import { v4 as uuidv4 } from 'uuid';
 
 const initialState: ChannelState = genenrateDefaultChannel();
 
@@ -74,6 +75,22 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
       targetId = id;
       newChannel = { ...state.channel[id], vol: value };
       break;
+    }
+    case ChannelAction.CREATE_SLICE: {
+      const { channelId, slice } = action.payload;
+      return {
+        ...state,
+        channel: {
+          ...state.channel,
+          [channelId]: {
+            ...state.channel[channelId],
+            slices: [...state.channel[channelId].slices, {
+              ...slice,
+              id: uuidv4(),
+            }]
+          }
+        }
+      }
     }
     default:
       return state;
