@@ -37,12 +37,15 @@ const AudioBlock: React.FC<Props> = props => {
     if (!selected) {
       selectBlock(slice.id);
     }
-  }, [slice.id, selected, selectBlock])
+  }, [slice.id, selected, selectBlock]);
+
+
+
   return (
     <StyledAudioBlock
       selected={selected}
       onMouseDown={mouseDownHandler}
-      style={{width, left: offset}}
+      style={{ width, transform: `translateX(${offset}px)` }}
     >
       <AudioName>{audio.fileName}</AudioName>
     </StyledAudioBlock>

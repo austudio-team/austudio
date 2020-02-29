@@ -79,8 +79,8 @@ const Editor: React.FC<Props> = props => {
     const tWrapper = trackWrapperRef.current;
     if (cWrapper && tWrapper) {
       scrollYLimiter(deltaY, editorY, editorHeight, editorScrollHeight);
-      cWrapper.style.top = `${editorY.current}px`;
-      tWrapper.style.top = `${editorY.current}px`;
+      cWrapper.style.transform = `translateY(${editorY.current}px)`;
+      tWrapper.style.transform = `translateY(${editorY.current}px)`;
       eventEmitter.emit(EditorEvent.editorScrollYChanged, { scrollTop: -editorY.current });
     }
   }, []);
@@ -89,7 +89,7 @@ const Editor: React.FC<Props> = props => {
     const tWrapper = trackWrapperRef.current;
     if (tWrapper) {
       scrollXLimiter(deltaX, editorX, editorWidth, maxLength / zoom);
-      tWrapper.style.left = `${editorX.current}px`;
+      tWrapper.style.transform = `translateX(${editorX.current}px)`;
       eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
     }
   }, [maxLength, zoom]);
