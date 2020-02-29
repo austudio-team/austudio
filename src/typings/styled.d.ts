@@ -11,6 +11,7 @@ declare module 'styled-components' {
       N200: string,
       N300: string,
       N400: string,
+      N450: string,
       N500: string,
       N600: string,
       N700: string,

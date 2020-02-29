@@ -1,13 +1,13 @@
-import { editorMarginTop, editorChannelWidth } from "./constants";
+import { editorMarginTop, editorChannelWidth, editorMarginBottom } from "./constants";
 
 export function scrollYLimiter(
-  e: WheelEvent,
+  deltaY: number,
   scrollY: React.MutableRefObject<number>,
   editorHeight: React.MutableRefObject<number>,
   editorScrollHeight: React.MutableRefObject<number>,
 ) {
-  scrollY.current = Math.min(0, scrollY.current - e.deltaY);
-  scrollY.current = Math.max(scrollY.current, editorHeight.current - editorScrollHeight.current - editorMarginTop - 40);
+  scrollY.current = Math.min(0, scrollY.current - deltaY);
+  scrollY.current = Math.max(scrollY.current, editorHeight.current - editorScrollHeight.current - editorMarginTop - editorMarginBottom);
 }
 
 export function indicatorLimiter(screenX: number, editorWidth: number) {
