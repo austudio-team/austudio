@@ -16,6 +16,7 @@ import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeE
 import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
+import { usePrevious } from '@hooks';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
@@ -93,6 +94,15 @@ const Editor: React.FC<Props> = props => {
     }
   }, [maxLength, zoom]);
 
+  // 调整 zoom 时，调整 x 轴位置
+  const prevZoom = usePrevious(zoom);
+  useEffect(() => {
+    const scale = zoom / prevZoom;
+    editorX.current = editorX.current / scale;
+    scrollXUpdater(0);
+  }, [zoom, scrollXUpdater, prevZoom]);
+
+  // 处理鼠标滚轮/触摸板滚动
   useEffect(() => {
     if (editorRef.current) {
       const dom = editorRef.current;
