@@ -10,6 +10,7 @@ export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
   background-color: ${p => p.theme.colors.N500};
   top: 0;
   color: ${p => p.theme.colors.N200};
+  z-index: ${p => p.selected ? '99 !important' : 'initial'};
   /* 用 before 实现悬浮边框 */
   &::before {
     content: ' ';
@@ -22,6 +23,7 @@ export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
     border: ${p => (
       p.selected ? `1px solid ${p.theme.colors.P100}` : 'none'
     )};
+    pointer-events: none;
   }
 `;
 
