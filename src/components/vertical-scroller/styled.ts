@@ -9,6 +9,7 @@ export const ScrollerWrapper = styled.div`
   top: ${editorMarginTop}px;
   bottom: 0;
   background-color: ${p => p.theme.colors.N800};
+  z-index: 100;
 `;
 
 export const ScrollerBar = styled.div`

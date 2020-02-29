@@ -10,5 +10,6 @@ export const ZoomWrapper = styled.div`
   bottom: 0;
   right: ${scrollerSize}px;
   background-color: ${p => p.theme.colors.N800};
+  z-index: 100;
 `;
 
