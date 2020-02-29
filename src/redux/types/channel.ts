@@ -6,6 +6,9 @@ export enum ChannelAction {
   'UPDATE_NAME' = 'UPDATE_NAME',
   'UPDATE_MUTE' = 'UPDATE_MUTE',
   'UPDATE_RECORD' = 'UPDATE_RECORD',
+  'CREATE_SLICE' = 'CREATE_SLICE',
+  'UPDATE_SLICE' = 'UPDATE_SLICE',
+  'DELETE_SLICE' = 'DELETE_SLICE',
 }
 
 interface ChannelMap {
@@ -89,6 +92,33 @@ export interface UpdateNameAction {
   };
 }
 
+export type AudioSliceParam = Omit<AudioSlice, 'id'>;
+
+export interface CreateSliceAction {
+  type: typeof ChannelAction.CREATE_SLICE;
+  payload: {
+    channelId: string,
+    slice: AudioSliceParam,
+  };
+}
+
+export interface UpdateSliceAction {
+  type: typeof ChannelAction.UPDATE_SLICE;
+  payload: {
+    channelId: string,
+    sliceId: string;
+    slice: AudioSliceParam,
+  };
+}
+
+export interface DeleteSliceAction {
+  type: typeof ChannelAction.DELETE_SLICE;
+  payload: {
+    channelId: string,
+    sliceId: string,
+  };
+}
+
 export type ChannelActionType =
   AddChannelAction
   | UpdateMuteAction
@@ -96,4 +126,7 @@ export type ChannelActionType =
   | UpdateRecordAction
   | UpdateSoloAction
   | UpdateVolAction
-  | UpdateNameAction;
+  | UpdateNameAction
+  | CreateSliceAction
+  | UpdateSliceAction
+  | DeleteSliceAction;

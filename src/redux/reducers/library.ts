@@ -10,6 +10,7 @@ const initialState: LibraryState = {
     }
   },
   audioList: ['test'],
+  draggingAudioId: null,
 }
 
 export function libraryReducer(state: LibraryState = initialState, action: LibraryActionType): LibraryState {
@@ -22,12 +23,26 @@ export function libraryReducer(state: LibraryState = initialState, action: Libra
         id: uuidv4(),
       };
       return {
+        ...state,
         audioInfo: {
           ...state.audioInfo,
           [newAudio.id]: newAudio,
         },
         audioList: [...state.audioList, newAudio.id],
       };
+    }
+    case LibraryAction.DRAG_START: {
+      const { audioId } = action.payload;
+      return {
+        ...state,
+        draggingAudioId: audioId,
+      };
+    }
+    case LibraryAction.DRAG_END: {
+      return {
+        ...state,
+        draggingAudioId: null,
+      }
     }
     default:
       return state;
