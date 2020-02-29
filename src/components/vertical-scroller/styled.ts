@@ -1,14 +1,15 @@
 import styled from "styled-components";
-import { editorMarginTop } from "@components/editor/constants";
+import { editorMarginTop, scrollerSize } from "@components/editor/constants";
 
 export const ScrollerWrapper = styled.div`
   display: block;
   position: absolute;
-  width: 14px;
+  width: ${scrollerSize}px;
   right: 0;
   top: ${editorMarginTop}px;
   bottom: 0;
   background-color: ${p => p.theme.colors.N800};
+  z-index: 100;
 `;
 
 export const ScrollerBar = styled.div`
