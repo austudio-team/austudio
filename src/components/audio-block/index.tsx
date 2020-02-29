@@ -32,7 +32,7 @@ const AudioBlock: React.FC<Props> = props => {
   const width = Math.ceil(length / zoom) + 2;
   const offset = Math.ceil(slice.offset / zoom);
 
-  const clickHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const mouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
     if (!selected) {
       selectBlock(slice.id);
@@ -41,7 +41,7 @@ const AudioBlock: React.FC<Props> = props => {
   return (
     <StyledAudioBlock
       selected={selected}
-      onClick={clickHandler}
+      onMouseDown={mouseDownHandler}
       style={{width, left: offset}}
     >
       <AudioName>{audio.fileName}</AudioName>

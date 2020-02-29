@@ -10,5 +10,6 @@ module.exports = function override(config, env) {
   config.resolve.alias['@redux'] = path.resolve(__dirname, 'src/redux/');
   config.resolve.alias['@assets'] = path.resolve(__dirname, 'src/assets/');
   config.resolve.alias['@utils'] = path.resolve(__dirname, 'src/utils/');
+  config.resolve.alias['@events'] = path.resolve(__dirname, 'src/events/');
   return config;
 }

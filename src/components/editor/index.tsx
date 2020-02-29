@@ -9,6 +9,10 @@ import { RootState } from '@redux/reducers';
 import { channelListSelector } from '@redux/selectors/channel';
 import { connect, ConnectedProps } from 'react-redux';
 import { selectBlock } from '@redux/actions/editor';
+import VerticalScroller from '@components/vertical-scroller';
+import { editorMarginTop, editorMarginBottom } from './constants';
+import eventEmitter from '@utils/event';
+import { EditorEvent, EditorScrollYShouldChangeEvent } from '@events';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
@@ -28,47 +32,62 @@ const Editor: React.FC<Props> = props => {
   const trackWrapperRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const editorY = useRef<number>(0);
-  const editorX = useRef<number>(0);
+  // const editorX = useRef<number>(0);
   const editorHeight = useRef<number>(0);
   const editorWidth = useRef<number>(0);
   const editorScrollHeight = useRef<number>(0);
 
   const { channelList, selectBlock } = props;
 
+  const heightReporter = useCallback(() => {
+    eventEmitter.emit(EditorEvent.editorHeightChange, {
+      clientHeight: editorHeight.current - editorMarginTop,
+      scrollHeight: editorScrollHeight.current + editorMarginBottom,
+    });
+  }, []);
+
   useEffect(() => {
     watchScrollHeight(editorScrollHeight, channelWrapperRef);
-  }, [channelList]);
+    heightReporter();
+  }, [channelList, heightReporter]);
+
   useEffect(() => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
+      heightReporter();
     };
     handler();
     window.addEventListener('resize', handler);
     return () => {
       window.removeEventListener('resize', handler);
     }
+  }, [heightReporter]);
+  
+  const scrollYUpdater = useCallback((deltaY: number) => {
+    const cWrapper = channelWrapperRef.current;
+    const tWrapper = trackWrapperRef.current;
+    if (cWrapper && tWrapper) {
+      scrollYLimiter(deltaY, editorY, editorHeight, editorScrollHeight);
+      cWrapper.style.top = `${editorY.current}px`;
+      tWrapper.style.top = `${editorY.current}px`;
+      eventEmitter.emit(EditorEvent.editorScrollYChanged, { scrollTop: -editorY.current });
+    }
   }, []);
+
   useEffect(() => {
     if (editorRef.current) {
       const dom = editorRef.current;
       const handler = (e: WheelEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const cWrapper = channelWrapperRef.current;
-        const tWrapper = trackWrapperRef.current;
-        if (cWrapper && tWrapper) {
-          editorX.current += e.deltaX;
-          scrollYLimiter(e, editorY, editorHeight, editorScrollHeight);
-          cWrapper.style.top = `${editorY.current}px`;
-          tWrapper.style.top = `${editorY.current}px`;
-        }
+        scrollYUpdater(e.deltaY);
       }
       dom.addEventListener('wheel', handler);
       return () => {
         dom.removeEventListener('wheel', handler);
       }
     }
-  }, []);
+  }, [scrollYUpdater]);
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback(() => {
@@ -102,7 +121,14 @@ const Editor: React.FC<Props> = props => {
     }
   }, [dragging, setDragging]);
 
-  const trackScrollerClickHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  useEffect(() => {
+    eventEmitter.on(EditorEvent.editorScrollYShouldChange, (p: EditorScrollYShouldChangeEvent) => {
+      editorY.current = -p.scrollTop;
+      scrollYUpdater(0);
+    });
+  }, [scrollYUpdater]);
+
+  const trackScrollerMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     selectBlock(null);
   }, [selectBlock])
 
@@ -125,14 +151,15 @@ const Editor: React.FC<Props> = props => {
         onMouseDown={indicatorMouseDown}
       />
       <TrackWrapper>
-        <TrackScroller ref={trackWrapperRef} onClick={trackScrollerClickHandler}>
+        <TrackScroller ref={trackWrapperRef} onMouseDown={trackScrollerMouseDownHandler}>
         {
-            channelList.map(v => (
-              <Track channelId={v} key={v} />
-            ))
-          }
+          channelList.map(v => (
+            <Track channelId={v} key={v} />
+          ))
+        }
         </TrackScroller>
       </TrackWrapper>
+      <VerticalScroller />
     </EditorContainer>
   );
 };
