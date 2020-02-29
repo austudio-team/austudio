@@ -4,7 +4,7 @@ import AudioChannel from '@components/audio-channel';
 import { AudioChannelWrapper, TrackWrapper, TrackIndicator, AudioChannelScroller, TrackScroller } from './styled';
 import Track from '@components/track';
 import AudioManage from '@components/audio-manage';
-import { scrollYLimiter, watchScrollHeight, watchEditorRect, indicatorLimiter } from './utils';
+import { scrollYLimiter, watchScrollHeight, watchEditorRect, indicatorLimiter, scrollXLimiter } from './utils';
 import { RootState } from '@redux/reducers';
 import { channelListSelector } from '@redux/selectors/channel';
 import { connect, ConnectedProps } from 'react-redux';
@@ -12,11 +12,15 @@ import { selectBlock } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom } from './constants';
 import eventEmitter from '@utils/event';
-import { EditorEvent, EditorScrollYShouldChangeEvent } from '@events';
+import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent } from '@events';
 import ZoomSlider from '@components/zoom-slider';
+import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
+import HorizontalScroller from '@components/horizontal-scroller';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
+  maxLength: maxLengthSelector(state.editor),
+  zoom: zoomSelector(state.editor),
 });
 
 const mapDispatch = {
@@ -33,12 +37,14 @@ const Editor: React.FC<Props> = props => {
   const trackWrapperRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const editorY = useRef<number>(0);
-  // const editorX = useRef<number>(0);
+  const editorX = useRef<number>(0);
   const editorHeight = useRef<number>(0);
   const editorWidth = useRef<number>(0);
   const editorScrollHeight = useRef<number>(0);
 
-  const { channelList, selectBlock } = props;
+  const { channelList, selectBlock, maxLength, zoom } = props;
+
+  const maxWidth = maxLength / zoom;
 
   const heightReporter = useCallback(() => {
     eventEmitter.emit(EditorEvent.editorHeightChange, {
@@ -56,6 +62,9 @@ const Editor: React.FC<Props> = props => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
       heightReporter();
+      eventEmitter.emit(EditorEvent.editorWidthChange, {
+        clientWidth: editorWidth.current,
+      });
     };
     handler();
     window.addEventListener('resize', handler);
@@ -75,6 +84,15 @@ const Editor: React.FC<Props> = props => {
     }
   }, []);
 
+  const scrollXUpdater = useCallback((deltaX: number) => {
+    const tWrapper = trackWrapperRef.current;
+    if (tWrapper) {
+      scrollXLimiter(deltaX, editorX, editorWidth, maxLength / zoom);
+      tWrapper.style.left = `${editorX.current}px`;
+      eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
+    }
+  }, [maxLength, zoom]);
+
   useEffect(() => {
     if (editorRef.current) {
       const dom = editorRef.current;
@@ -82,13 +100,14 @@ const Editor: React.FC<Props> = props => {
         e.stopPropagation();
         e.preventDefault();
         scrollYUpdater(e.deltaY);
+        scrollXUpdater(e.deltaX);
       }
       dom.addEventListener('wheel', handler);
       return () => {
         dom.removeEventListener('wheel', handler);
       }
     }
-  }, [scrollYUpdater]);
+  }, [scrollYUpdater, scrollXUpdater]);
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback(() => {
@@ -129,6 +148,13 @@ const Editor: React.FC<Props> = props => {
     });
   }, [scrollYUpdater]);
 
+  useEffect(() => {
+    eventEmitter.on(EditorEvent.editorScrollXShouldChange, (p: EditorScrollXShouldChangeEvent) => {
+      editorX.current = -p.scrollLeft;
+      scrollXUpdater(0);
+    });
+  }, [scrollXUpdater]);
+
   const trackScrollerMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     selectBlock(null);
   }, [selectBlock])
@@ -155,13 +181,14 @@ const Editor: React.FC<Props> = props => {
         <TrackScroller ref={trackWrapperRef} onMouseDown={trackScrollerMouseDownHandler}>
         {
           channelList.map(v => (
-            <Track channelId={v} key={v} />
+            <Track width={maxWidth} channelId={v} key={v} />
           ))
         }
         </TrackScroller>
       </TrackWrapper>
       <VerticalScroller />
       <ZoomSlider />
+      <HorizontalScroller maxWidth={maxWidth} />
     </EditorContainer>
   );
 };
