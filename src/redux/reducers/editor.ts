@@ -13,6 +13,12 @@ export function editorReducer(state: EditorState = initialState, action: EditorA
         ...state,
         selectedBlock: action.payload.id,
       }
+    case EditorAction.UPDATE_ZOOM: {
+      return {
+        ...state,
+        zoom: action.payload.zoom,
+      }
+    }
     default:
       return state;
   }

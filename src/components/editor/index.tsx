@@ -13,6 +13,7 @@ import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom } from './constants';
 import eventEmitter from '@utils/event';
 import { EditorEvent, EditorScrollYShouldChangeEvent } from '@events';
+import ZoomSlider from '@components/zoom-slider';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
@@ -160,6 +161,7 @@ const Editor: React.FC<Props> = props => {
         </TrackScroller>
       </TrackWrapper>
       <VerticalScroller />
+      <ZoomSlider />
     </EditorContainer>
   );
 };
