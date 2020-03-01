@@ -54,6 +54,25 @@ const Editor: React.FC<Props> = props => {
     });
   }, []);
 
+  const scrollYUpdater = useCallback((deltaY: number) => {
+    scrollYLimiter(deltaY, editorY, editorHeight, editorScrollHeight);
+    eventEmitter.emit(EditorEvent.editorScrollYChanged, { scrollTop: -editorY.current });
+  }, []);
+
+  const scrollXUpdater = useCallback((deltaX: number) => {
+    scrollXLimiter(deltaX, editorX, editorWidth, maxLength / zoom);
+    eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
+  }, [maxLength, zoom]);
+
+  const rerenderScroll = useCallback(() => {
+    const cWrapper = channelWrapperRef.current;
+    const tWrapper = trackWrapperRef.current;
+    if (cWrapper && tWrapper) {
+      cWrapper.style.transform = `translateY(${editorY.current}px)`;
+      tWrapper.style.transform = `translateX(${editorX.current}px) translateY(${editorY.current}px)`;
+    }
+  }, []);
+
   useEffect(() => {
     watchScrollHeight(editorScrollHeight, channelWrapperRef);
     heightReporter();
@@ -62,6 +81,8 @@ const Editor: React.FC<Props> = props => {
   useEffect(() => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
+      scrollYUpdater(0);
+      rerenderScroll();
       heightReporter();
       eventEmitter.emit(EditorEvent.editorWidthChange, {
         clientWidth: editorWidth.current,
@@ -72,27 +93,7 @@ const Editor: React.FC<Props> = props => {
     return () => {
       window.removeEventListener('resize', handler);
     }
-  }, [heightReporter]);
-  
-  const scrollYUpdater = useCallback((deltaY: number) => {
-    const cWrapper = channelWrapperRef.current;
-    const tWrapper = trackWrapperRef.current;
-    if (cWrapper && tWrapper) {
-      scrollYLimiter(deltaY, editorY, editorHeight, editorScrollHeight);
-      cWrapper.style.transform = `translateY(${editorY.current}px)`;
-      tWrapper.style.transform = `translateY(${editorY.current}px)`;
-      eventEmitter.emit(EditorEvent.editorScrollYChanged, { scrollTop: -editorY.current });
-    }
-  }, []);
-
-  const scrollXUpdater = useCallback((deltaX: number) => {
-    const tWrapper = trackWrapperRef.current;
-    if (tWrapper) {
-      scrollXLimiter(deltaX, editorX, editorWidth, maxLength / zoom);
-      tWrapper.style.transform = `translateX(${editorX.current}px)`;
-      eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
-    }
-  }, [maxLength, zoom]);
+  }, [heightReporter, rerenderScroll, scrollYUpdater]);
 
   // 调整 zoom 时，调整 x 轴位置
   const prevZoom = usePrevious(zoom);
@@ -100,7 +101,8 @@ const Editor: React.FC<Props> = props => {
     const scale = zoom / prevZoom;
     editorX.current = editorX.current / scale;
     scrollXUpdater(0);
-  }, [zoom, scrollXUpdater, prevZoom]);
+    rerenderScroll();
+  }, [zoom, scrollXUpdater, prevZoom, rerenderScroll]);
 
   // 处理鼠标滚轮/触摸板滚动
   useEffect(() => {
@@ -111,13 +113,14 @@ const Editor: React.FC<Props> = props => {
         e.preventDefault();
         scrollYUpdater(e.deltaY);
         scrollXUpdater(e.deltaX);
+        rerenderScroll();
       }
       dom.addEventListener('wheel', handler);
       return () => {
         dom.removeEventListener('wheel', handler);
       }
     }
-  }, [scrollYUpdater, scrollXUpdater]);
+  }, [scrollYUpdater, scrollXUpdater, rerenderScroll]);
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback(() => {
@@ -155,15 +158,17 @@ const Editor: React.FC<Props> = props => {
     eventEmitter.on(EditorEvent.editorScrollYShouldChange, (p: EditorScrollYShouldChangeEvent) => {
       editorY.current = -p.scrollTop;
       scrollYUpdater(0);
+      rerenderScroll();
     });
-  }, [scrollYUpdater]);
+  }, [scrollYUpdater, rerenderScroll]);
 
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollXShouldChange, (p: EditorScrollXShouldChangeEvent) => {
       editorX.current = -p.scrollLeft;
       scrollXUpdater(0);
+      rerenderScroll();
     });
-  }, [scrollXUpdater]);
+  }, [scrollXUpdater, rerenderScroll]);
 
   const trackScrollerMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     selectBlock(null);
