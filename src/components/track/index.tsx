@@ -55,7 +55,7 @@ const Track: React.FC<Props> = props => {
     <TrackContainer style={{ width }} onDrop={dropHandler} onDragOver={dragOverHandler}>
       {
         channel.slices.map(v => (
-          <AudioBlock slice={v} key={v.id} />
+          <AudioBlock channelId={channel.id} slice={v} key={v.id} />
         ))
       }
     </TrackContainer>

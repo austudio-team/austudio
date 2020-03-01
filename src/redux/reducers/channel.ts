@@ -1,4 +1,4 @@
-import { ChannelState, ChannelActionType, ChannelAction } from "@redux/types/channel";
+import { ChannelState, ChannelActionType, ChannelAction, AudioSlice } from "@redux/types/channel";
 import { genenrateDefaultChannel, generateNewChannel } from "@redux/utils/channel";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -90,6 +90,38 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
             }]
           }
         }
+      };
+    }
+    case ChannelAction.UPDATE_SLICE: {
+      const { slice, sliceId, channelId } = action.payload;
+      const channel = state.channel[channelId];
+      const slices = [...channel.slices];
+      let index = 0;
+      let tempSlice: AudioSlice | null = null;
+      for (const [i, v] of slices.entries()) {
+        if (v.id === sliceId) {
+          index = i;
+          tempSlice = {
+            ...v,
+            ...slice,
+          };
+          break;
+        }
+      }
+      if (tempSlice) {
+        slices.splice(index, 1, tempSlice);
+        return {
+          ...state,
+          channel: {
+            ...state.channel,
+            [channelId]: {
+              ...channel,
+              slices,
+            }
+          }
+        }
+      } else {
+        return state;
       }
     }
     default:

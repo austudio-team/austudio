@@ -76,7 +76,7 @@ export function createSlice(channelId: string, slice: AudioSliceParam): CreateSl
   };
 }
 
-export function updateSlice(channelId: string, sliceId: string, slice: AudioSliceParam): UpdateSliceAction {
+export function updateSlice(channelId: string, sliceId: string, slice: Partial<AudioSliceParam>): UpdateSliceAction {
   return {
     type: ChannelAction.UPDATE_SLICE,
     payload: {
