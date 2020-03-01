@@ -46,7 +46,8 @@ const AudioBlock: React.FC<Props> = props => {
     }
     setDragging(true);
     clickXRef.current = e.clientX;
-  }, [slice.id, selected, selectBlock, setDragging]);
+    draggingX.current = offset;
+  }, [slice.id, selected, selectBlock, setDragging, offset]);
 
   useEffect(() => {
     if (dragging) {
