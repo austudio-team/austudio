@@ -25,7 +25,7 @@ const ZoomSlider: React.FC<Props> = props => {
   }, [updateZoom])
   return (
     <ZoomWrapper>
-      <StyledSlider min={1} max={100} value={zoom} onChange={handleZoomChange} step={5} />
+      <StyledSlider min={10} max={100} value={zoom} onChange={handleZoomChange} step={10} />
     </ZoomWrapper>
   );
 }

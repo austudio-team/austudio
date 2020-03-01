@@ -2,8 +2,9 @@ import { EditorState, EditorAction, EditorActionType } from "@redux/types/editor
 
 const initialState: EditorState = {
   selectedBlock: null,
-  zoom: 10,
-  maxLength: 0,
+  zoom: 100,
+  // 暂时设置为 10 min
+  maxLength: 1000 * 60 * 10,
 }
 
 export function editorReducer(state: EditorState = initialState, action: EditorActionType): EditorState {

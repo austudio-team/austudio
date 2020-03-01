@@ -4,7 +4,7 @@ import AudioChannel from '@components/audio-channel';
 import { AudioChannelWrapper, TrackWrapper, TrackIndicator, AudioChannelScroller, TrackScroller } from './styled';
 import Track from '@components/track';
 import AudioManage from '@components/audio-manage';
-import { scrollYLimiter, watchScrollHeight, watchEditorRect, indicatorLimiter } from './utils';
+import { scrollYLimiter, watchScrollHeight, watchEditorRect, indicatorLimiter, scrollXLimiter } from './utils';
 import { RootState } from '@redux/reducers';
 import { channelListSelector } from '@redux/selectors/channel';
 import { connect, ConnectedProps } from 'react-redux';
@@ -12,11 +12,16 @@ import { selectBlock } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom } from './constants';
 import eventEmitter from '@utils/event';
-import { EditorEvent, EditorScrollYShouldChangeEvent } from '@events';
+import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent } from '@events';
 import ZoomSlider from '@components/zoom-slider';
+import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
+import HorizontalScroller from '@components/horizontal-scroller';
+import { usePrevious } from '@hooks';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
+  maxLength: maxLengthSelector(state.editor),
+  zoom: zoomSelector(state.editor),
 });
 
 const mapDispatch = {
@@ -33,18 +38,39 @@ const Editor: React.FC<Props> = props => {
   const trackWrapperRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLDivElement>(null);
   const editorY = useRef<number>(0);
-  // const editorX = useRef<number>(0);
+  const editorX = useRef<number>(0);
   const editorHeight = useRef<number>(0);
   const editorWidth = useRef<number>(0);
   const editorScrollHeight = useRef<number>(0);
 
-  const { channelList, selectBlock } = props;
+  const { channelList, selectBlock, maxLength, zoom } = props;
+
+  const maxWidth = maxLength / zoom;
 
   const heightReporter = useCallback(() => {
     eventEmitter.emit(EditorEvent.editorHeightChange, {
       clientHeight: editorHeight.current - editorMarginTop,
       scrollHeight: editorScrollHeight.current + editorMarginBottom,
     });
+  }, []);
+
+  const scrollYUpdater = useCallback((deltaY: number) => {
+    scrollYLimiter(deltaY, editorY, editorHeight, editorScrollHeight);
+    eventEmitter.emit(EditorEvent.editorScrollYChanged, { scrollTop: -editorY.current });
+  }, []);
+
+  const scrollXUpdater = useCallback((deltaX: number) => {
+    scrollXLimiter(deltaX, editorX, editorWidth, maxLength / zoom);
+    eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
+  }, [maxLength, zoom]);
+
+  const rerenderScroll = useCallback(() => {
+    const cWrapper = channelWrapperRef.current;
+    const tWrapper = trackWrapperRef.current;
+    if (cWrapper && tWrapper) {
+      cWrapper.style.transform = `translateY(${editorY.current}px)`;
+      tWrapper.style.transform = `translateX(${editorX.current}px) translateY(${editorY.current}px)`;
+    }
   }, []);
 
   useEffect(() => {
@@ -55,26 +81,30 @@ const Editor: React.FC<Props> = props => {
   useEffect(() => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
+      scrollYUpdater(0);
+      rerenderScroll();
       heightReporter();
+      eventEmitter.emit(EditorEvent.editorWidthChange, {
+        clientWidth: editorWidth.current,
+      });
     };
     handler();
     window.addEventListener('resize', handler);
     return () => {
       window.removeEventListener('resize', handler);
     }
-  }, [heightReporter]);
-  
-  const scrollYUpdater = useCallback((deltaY: number) => {
-    const cWrapper = channelWrapperRef.current;
-    const tWrapper = trackWrapperRef.current;
-    if (cWrapper && tWrapper) {
-      scrollYLimiter(deltaY, editorY, editorHeight, editorScrollHeight);
-      cWrapper.style.top = `${editorY.current}px`;
-      tWrapper.style.top = `${editorY.current}px`;
-      eventEmitter.emit(EditorEvent.editorScrollYChanged, { scrollTop: -editorY.current });
-    }
-  }, []);
+  }, [heightReporter, rerenderScroll, scrollYUpdater]);
 
+  // 调整 zoom 时，调整 x 轴位置
+  const prevZoom = usePrevious(zoom);
+  useEffect(() => {
+    const scale = zoom / prevZoom;
+    editorX.current = editorX.current / scale;
+    scrollXUpdater(0);
+    rerenderScroll();
+  }, [zoom, scrollXUpdater, prevZoom, rerenderScroll]);
+
+  // 处理鼠标滚轮/触摸板滚动
   useEffect(() => {
     if (editorRef.current) {
       const dom = editorRef.current;
@@ -82,13 +112,15 @@ const Editor: React.FC<Props> = props => {
         e.stopPropagation();
         e.preventDefault();
         scrollYUpdater(e.deltaY);
+        scrollXUpdater(e.deltaX);
+        rerenderScroll();
       }
       dom.addEventListener('wheel', handler);
       return () => {
         dom.removeEventListener('wheel', handler);
       }
     }
-  }, [scrollYUpdater]);
+  }, [scrollYUpdater, scrollXUpdater, rerenderScroll]);
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback(() => {
@@ -126,8 +158,17 @@ const Editor: React.FC<Props> = props => {
     eventEmitter.on(EditorEvent.editorScrollYShouldChange, (p: EditorScrollYShouldChangeEvent) => {
       editorY.current = -p.scrollTop;
       scrollYUpdater(0);
+      rerenderScroll();
     });
-  }, [scrollYUpdater]);
+  }, [scrollYUpdater, rerenderScroll]);
+
+  useEffect(() => {
+    eventEmitter.on(EditorEvent.editorScrollXShouldChange, (p: EditorScrollXShouldChangeEvent) => {
+      editorX.current = -p.scrollLeft;
+      scrollXUpdater(0);
+      rerenderScroll();
+    });
+  }, [scrollXUpdater, rerenderScroll]);
 
   const trackScrollerMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     selectBlock(null);
@@ -155,13 +196,14 @@ const Editor: React.FC<Props> = props => {
         <TrackScroller ref={trackWrapperRef} onMouseDown={trackScrollerMouseDownHandler}>
         {
           channelList.map(v => (
-            <Track channelId={v} key={v} />
+            <Track width={maxWidth} channelId={v} key={v} />
           ))
         }
         </TrackScroller>
       </TrackWrapper>
       <VerticalScroller />
       <ZoomSlider />
+      <HorizontalScroller maxWidth={maxWidth} />
     </EditorContainer>
   );
 };

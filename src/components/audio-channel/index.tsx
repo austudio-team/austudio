@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { AudioChannelContainer, TopChannel, MiddleChannel, BottomChannel, ChannelName, 
-  ChannelButtonGroup, ChannelButton, Range, RangeContainer, RecordButton } from './styled';
+  ChannelButtonGroup, ChannelButton, RangeContainer, RecordButton } from './styled';
 import Tooltip from '@components/tooltip';
 import { Dropdown } from '@components/dropdown';
 import { RootState } from '@redux/reducers';
@@ -8,6 +8,7 @@ import { ConnectedProps, connect } from 'react-redux';
 import { channelItemSelector } from '@redux/selectors/channel';
 import { updateMute, updateRecord, updatePan,
         updateName, updateSolo, updateVol } from '@redux/actions/channel';
+import { StyledSlider } from '@components/styled/slider';
 
 interface AudioChannelProps {
   channelId: string;
@@ -34,13 +35,13 @@ const AudioChannel: React.FC<Props> = props => {
   const { channel, updateMute, updateRecord,
           updatePan, updateSolo, updateVol } = props;
 
-  const volHandler = useCallback((e: any) => {
-    updateVol(channel.id, parseInt(e.target.value));
+  const volHandler = useCallback((e: number) => {
+    updateVol(channel.id, e);
   }, [channel.id, updateVol]);
   const volStr = 'Volumn(' + channel.vol + '%)';
 
-  const pannerHandler = useCallback((e: any) => {
-    updatePan(channel.id, parseInt(e.target.value));
+  const pannerHandler = useCallback((e: number) => {
+    updatePan(channel.id, e);
   }, [channel.id, updatePan]);
   const pannerStr = 'Panner(' + channel.pan + '%)';
 
@@ -76,28 +77,26 @@ const AudioChannel: React.FC<Props> = props => {
         <RangeContainer>
           <span>V:</span>
           <Tooltip title={volStr}>
-            <Range
-              defaultValue={channel.vol}
+            <StyledSlider
+              style={{ width: 162, marginLeft: 12 }}
+              value={channel.vol}
               onChange={volHandler}
-              id="volume"
-              type="range"
-              min="0"
-              max="100"
-              step="1"
+              min={0}
+              max={100}
+              step={1}
             />
           </Tooltip>
         </RangeContainer>
         <RangeContainer>
           <span>P:</span>
           <Tooltip title={pannerStr}>
-            <Range
+            <StyledSlider
+              style={{ width: 162, marginLeft: 12 }}
               value={channel.pan}
               onChange={pannerHandler}
-              id="panner"
-              type="range"
-              min="-100"
-              max="100"
-              step="1"
+              min={-100}
+              max={100}
+              step={1}
             />
           </Tooltip>
         </RangeContainer>

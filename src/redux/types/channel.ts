@@ -107,7 +107,7 @@ export interface UpdateSliceAction {
   payload: {
     channelId: string,
     sliceId: string;
-    slice: AudioSliceParam,
+    slice: Partial<AudioSliceParam>,
   };
 }
 
