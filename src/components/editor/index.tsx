@@ -12,7 +12,7 @@ import { selectBlock } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom } from './constants';
 import eventEmitter from '@utils/event';
-import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent, editorRequestAutoScrollEvent } from '@events';
+import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent, EditorRequestAutoScrollEvent } from '@events';
 import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
@@ -185,7 +185,7 @@ const Editor: React.FC<Props> = props => {
         requestAnimationFrame(raf);
       }
     }
-    const handler = ({ delta }: editorRequestAutoScrollEvent) => {
+    const handler = ({ delta }: EditorRequestAutoScrollEvent) => {
       autoScrollXDelta.current = delta;
       if (!autoScrollXEnabled.current) {
         autoScrollXEnabled.current = true;
@@ -213,7 +213,7 @@ const Editor: React.FC<Props> = props => {
         requestAnimationFrame(raf);
       }
     }
-    const handler = ({ delta }: editorRequestAutoScrollEvent) => {
+    const handler = ({ delta }: EditorRequestAutoScrollEvent) => {
       autoScrollYDelta.current = delta;
       if (!autoScrollYEnabled.current) {
         autoScrollYEnabled.current = true;
@@ -252,8 +252,8 @@ const Editor: React.FC<Props> = props => {
       <TrackWrapper>
         <TrackScroller ref={trackWrapperRef} onMouseDown={trackScrollerMouseDownHandler}>
         {
-          channelList.map(v => (
-            <Track width={maxWidth} channelId={v} key={v} />
+          channelList.map((v, i) => (
+            <Track width={maxWidth} channelId={v} key={v} index={i} />
           ))
         }
         </TrackScroller>

@@ -9,6 +9,7 @@ export enum EditorEvent {
   'editorRequestAutoScrollY' = 'editorRequestAutoScrollY',
   'editorCancelAutoScrollX' = 'editorCancelAutoScrollX',
   'editorCancelAutoScrollY' = 'editorCancelAutoScrollY',
+  'editorTrackMouseEnter' = 'editorTrackMouseEnter',
 }
 
 export interface EditorHeightChangeEvent {
@@ -36,6 +37,11 @@ export interface EditorScrollXShouldChangeEvent {
   scrollLeft: number;
 }
 
-export interface editorRequestAutoScrollEvent {
+export interface EditorRequestAutoScrollEvent {
   delta: number;
+}
+
+export interface EditorTrackMouseEnterEvent {
+  channelId: string;
+  channelIndex: number;
 }

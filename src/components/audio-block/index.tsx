@@ -10,11 +10,12 @@ import { selectBlock } from '@redux/actions/editor';
 import { updateSlice } from '@redux/actions/channel';
 import { editorChannelWidth } from '@components/editor/constants';
 import eventEmitter from '@utils/event';
-import { EditorEvent, EditorScrollXChangeEvent } from '@events';
+import { EditorEvent, EditorScrollXChangeEvent, EditorTrackMouseEnterEvent } from '@events';
 
 interface AudioBlockProps {
   slice: AudioSlice;
   channelId: string;
+  channelIndex: number,
 }
 
 const mapState = (state: RootState, ownProps: AudioBlockProps) => ({
@@ -33,7 +34,7 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & AudioBlockProps;
 
 const AudioBlock: React.FC<Props> = props => {
-  const { audio, slice, selected, selectBlock, zoom, updateSlice, channelId } = props;
+  const { audio, slice, selected, selectBlock, zoom, updateSlice, channelId, channelIndex } = props;
   const length = getLength(slice, audio);
   const width = Math.ceil(length / zoom) + 2;
   const offset = Math.ceil(slice.offset / zoom);
@@ -45,6 +46,7 @@ const AudioBlock: React.FC<Props> = props => {
   const editorDraggingScrollLeft = useRef<number>(0);
   const editorScrollLeft = useRef<number>(0);
   const mouseMovement = useRef<number>(0);
+  const mouseEnterInfoRef = useRef<EditorTrackMouseEnterEvent | null>(null);
 
   const computeDraggingX = useCallback(() => {
     const editorScrollDelta = editorScrollLeft.current - editorDraggingScrollLeft.current;
@@ -60,8 +62,15 @@ const AudioBlock: React.FC<Props> = props => {
           const tempDraggingX = computeDraggingX();
           if (draggingX.current !== tempDraggingX) {
             draggingX.current = tempDraggingX;
-            audioBlockRef.current.style.transform = `translateX(${draggingX.current}px)`;
           }
+          let translateY = 0;
+          if (mouseEnterInfoRef.current) {
+            const { channelIndex: newChannelIndex } = mouseEnterInfoRef.current;
+            if (newChannelIndex !== channelIndex) {
+              translateY = (newChannelIndex - channelIndex) * 126;
+            }
+          }
+          audioBlockRef.current.style.transform = `translate(${draggingX.current}px, ${translateY}px)`;
           raf = requestAnimationFrame(rafHandler);
         }
       }
@@ -70,7 +79,7 @@ const AudioBlock: React.FC<Props> = props => {
         cancelAnimationFrame(raf);
       }
     }
-  }, [dragging, computeDraggingX]);
+  }, [dragging, computeDraggingX, channelIndex]);
 
   const mouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
@@ -112,8 +121,8 @@ const AudioBlock: React.FC<Props> = props => {
             eventEmitter.emit(EditorEvent.editorRequestAutoScrollY, {
               delta: deltaY,
             });
-          } else if (e.clientY < 120) {
-            const deltaY = (e.clientY - 120) * 0.3;
+          } else if (e.clientY < 140) {
+            const deltaY = (e.clientY - 140) * 0.3;
             eventEmitter.emit(EditorEvent.editorRequestAutoScrollY, {
               delta: deltaY,
             });
@@ -137,13 +146,32 @@ const AudioBlock: React.FC<Props> = props => {
 
   useEffect(() => {
     if (dragging) {
+      const handler = (e: EditorTrackMouseEnterEvent) => {
+        mouseEnterInfoRef.current = e;
+      };
+      eventEmitter.on(EditorEvent.editorTrackMouseEnter, handler);
+      return () => {
+        eventEmitter.off(EditorEvent.editorTrackMouseEnter, handler);
+      }
+    }
+  }, [dragging]);
+
+  useEffect(() => {
+    if (dragging) {
       const handler = (e: MouseEvent) => {
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollY);
         setDragging(false);
+        let newChannel = null;
+        if (mouseEnterInfoRef.current) {
+          const { channelId: newChannelId } = mouseEnterInfoRef.current;
+          if (newChannelId !== channelId) {
+            newChannel = newChannelId;
+          }
+        }
         updateSlice(channelId, slice.id, {
           offset: computeDraggingX() * zoom,
-        });
+        }, newChannel);
       }
       window.addEventListener('mouseup', handler);
       return () => {
@@ -152,11 +180,19 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [dragging, setDragging, channelId, slice.id, updateSlice, zoom, computeDraggingX]);
 
+  const mouseOverHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    // 防止 Block 的 MouseEnter 上升到 Track，导致拖拽时来回在原轨道和新轨道之间鬼畜
+    if (dragging) {
+      e.stopPropagation();
+    }
+  }, [dragging]);
+
   return (
     <StyledAudioBlock
       ref={audioBlockRef}
       selected={selected}
       onMouseDown={mouseDownHandler}
+      onMouseOver={mouseOverHandler}
       style={{ width, transform: `translateX(${offset}px)` }}
     >
       <AudioName>{audio.fileName}</AudioName>
