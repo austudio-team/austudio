@@ -41,7 +41,7 @@ const AudioBlock: React.FC<Props> = props => {
   const clickXRef = useRef<number>(0);
   const draggingX = useRef<number>(0);
   const [dragging, setDragging] = useState<boolean>(false);
-  const editorSize = useRef<number>(0);
+  const editorSize = useRef<{height: number, width: number}>({ height: 0, width: 0 });
   const editorDraggingScrollLeft = useRef<number>(0);
   const editorScrollLeft = useRef<number>(0);
   const mouseMovement = useRef<number>(0);
@@ -80,7 +80,7 @@ const AudioBlock: React.FC<Props> = props => {
     setDragging(true);
     clickXRef.current = e.clientX;
     draggingX.current = offset;
-    editorSize.current = document.documentElement.clientWidth;
+    editorSize.current = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
     editorDraggingScrollLeft.current = editorScrollLeft.current;
     mouseMovement.current = 0;
   }, [slice.id, selected, selectBlock, setDragging, offset]);
@@ -91,18 +91,34 @@ const AudioBlock: React.FC<Props> = props => {
         if (audioBlockRef.current) {
           mouseMovement.current = e.clientX - clickXRef.current;
           let deltaX = 0;
+          // x
+          const { width, height } = editorSize.current;
           if (e.clientX < editorChannelWidth + 20) {
             deltaX = e.clientX - editorChannelWidth - 20;
             eventEmitter.emit(EditorEvent.editorRequestAutoScrollX, {
               delta: deltaX,
             });
-          } else if (e.clientX > editorSize.current - 100) {
-            deltaX = 100 - (editorSize.current - e.clientX);
+          } else if (e.clientX > width - 100) {
+            deltaX = 100 - (width - e.clientX);
             eventEmitter.emit(EditorEvent.editorRequestAutoScrollX, {
               delta: deltaX,
             });
           } else {
             eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
+          }
+          // y
+          if (e.clientY > height - 50) {
+            const deltaY = (50 - (height - e.clientY)) * 0.3;
+            eventEmitter.emit(EditorEvent.editorRequestAutoScrollY, {
+              delta: deltaY,
+            });
+          } else if (e.clientY < 120) {
+            const deltaY = (e.clientY - 120) * 0.3;
+            eventEmitter.emit(EditorEvent.editorRequestAutoScrollY, {
+              delta: deltaY,
+            });
+          } else {
+            eventEmitter.emit(EditorEvent.editorCancelAutoScrollY);
           }
         }
       }
