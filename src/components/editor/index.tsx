@@ -12,7 +12,7 @@ import { selectBlock } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom } from './constants';
 import eventEmitter from '@utils/event';
-import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent } from '@events';
+import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent, editorRequestAutoScrollEvent } from '@events';
 import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
@@ -173,6 +173,63 @@ const Editor: React.FC<Props> = props => {
   const trackScrollerMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     selectBlock(null);
   }, [selectBlock])
+
+  // 自动滚动逻辑
+  const autoScrollXDelta = useRef<number>(0);
+  const autoScrollXEnabled = useRef<boolean>(false);
+  useEffect(() => {
+    const raf = () => {
+      scrollXUpdater(autoScrollXDelta.current);
+      rerenderScroll();
+      if (autoScrollXEnabled.current) {
+        requestAnimationFrame(raf);
+      }
+    }
+    const handler = ({ delta }: editorRequestAutoScrollEvent) => {
+      autoScrollXDelta.current = delta;
+      if (!autoScrollXEnabled.current) {
+        autoScrollXEnabled.current = true;
+        requestAnimationFrame(raf);
+      }
+    };
+    const cancelHandler = () => {
+      autoScrollXEnabled.current = false;
+    }
+    eventEmitter.on(EditorEvent.editorRequestAutoScrollX, handler);
+    eventEmitter.on(EditorEvent.editorCancelAutoScrollX, cancelHandler);
+    return () => {
+      eventEmitter.off(EditorEvent.editorRequestAutoScrollX, handler);
+      eventEmitter.off(EditorEvent.editorCancelAutoScrollX, cancelHandler);
+    }
+  }, [scrollXUpdater, rerenderScroll]);
+
+  const autoScrollYDelta = useRef<number>(0);
+  const autoScrollYEnabled = useRef<boolean>(false);
+  useEffect(() => {
+    const raf = () => {
+      scrollYUpdater(autoScrollYDelta.current);
+      rerenderScroll();
+      if (autoScrollYEnabled.current) {
+        requestAnimationFrame(raf);
+      }
+    }
+    const handler = ({ delta }: editorRequestAutoScrollEvent) => {
+      autoScrollYDelta.current = delta;
+      if (!autoScrollYEnabled.current) {
+        autoScrollYEnabled.current = true;
+        requestAnimationFrame(raf);
+      }
+    };
+    const cancelHandler = () => {
+      autoScrollYEnabled.current = false;
+    }
+    eventEmitter.on(EditorEvent.editorRequestAutoScrollY, handler);
+    eventEmitter.on(EditorEvent.editorCancelAutoScrollY, cancelHandler);
+    return () => {
+      eventEmitter.off(EditorEvent.editorRequestAutoScrollY, handler);
+      eventEmitter.off(EditorEvent.editorCancelAutoScrollY, cancelHandler);
+    }
+  }, [scrollYUpdater, rerenderScroll]);
 
   return (
     <EditorContainer
