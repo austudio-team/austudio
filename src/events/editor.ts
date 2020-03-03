@@ -1,5 +1,3 @@
-import eventEmitter from '@utils/event';
-
 export enum EditorEvent {
   'editorHeightChange' = 'editorHeightChange',
   'editorWidthChange' = 'editorWidthChange',
@@ -7,6 +5,11 @@ export enum EditorEvent {
   'editorScrollYShouldChange' = 'editorScrollYShouldChange',
   'editorScrollXChanged' = 'editorScrollXChanged',
   'editorScrollXShouldChange' = 'editorScrollXShouldChange',
+  'editorRequestAutoScrollX' = 'editorRequestAutoScrollX',
+  'editorRequestAutoScrollY' = 'editorRequestAutoScrollY',
+  'editorCancelAutoScrollX' = 'editorCancelAutoScrollX',
+  'editorCancelAutoScrollY' = 'editorCancelAutoScrollY',
+  'editorTrackMouseEnter' = 'editorTrackMouseEnter',
 }
 
 export interface EditorHeightChangeEvent {
@@ -34,6 +37,11 @@ export interface EditorScrollXShouldChangeEvent {
   scrollLeft: number;
 }
 
-eventEmitter.on(EditorEvent.editorHeightChange, ({ clientHeight, scrollHeight }: EditorHeightChangeEvent) => {
+export interface EditorRequestAutoScrollEvent {
+  delta: number;
+}
 
-});
+export interface EditorTrackMouseEnterEvent {
+  channelId: string;
+  channelIndex: number;
+}

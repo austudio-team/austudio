@@ -106,6 +106,7 @@ export interface UpdateSliceAction {
   type: typeof ChannelAction.UPDATE_SLICE;
   payload: {
     channelId: string,
+    newChannelId: string | null;
     sliceId: string;
     slice: Partial<AudioSliceParam>,
   };

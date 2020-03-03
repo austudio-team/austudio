@@ -12,7 +12,7 @@ import { selectBlock } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom } from './constants';
 import eventEmitter from '@utils/event';
-import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent } from '@events';
+import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent, EditorRequestAutoScrollEvent } from '@events';
 import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
@@ -174,6 +174,63 @@ const Editor: React.FC<Props> = props => {
     selectBlock(null);
   }, [selectBlock])
 
+  // 自动滚动逻辑
+  const autoScrollXDelta = useRef<number>(0);
+  const autoScrollXEnabled = useRef<boolean>(false);
+  useEffect(() => {
+    const raf = () => {
+      scrollXUpdater(autoScrollXDelta.current);
+      rerenderScroll();
+      if (autoScrollXEnabled.current) {
+        requestAnimationFrame(raf);
+      }
+    }
+    const handler = ({ delta }: EditorRequestAutoScrollEvent) => {
+      autoScrollXDelta.current = delta;
+      if (!autoScrollXEnabled.current) {
+        autoScrollXEnabled.current = true;
+        requestAnimationFrame(raf);
+      }
+    };
+    const cancelHandler = () => {
+      autoScrollXEnabled.current = false;
+    }
+    eventEmitter.on(EditorEvent.editorRequestAutoScrollX, handler);
+    eventEmitter.on(EditorEvent.editorCancelAutoScrollX, cancelHandler);
+    return () => {
+      eventEmitter.off(EditorEvent.editorRequestAutoScrollX, handler);
+      eventEmitter.off(EditorEvent.editorCancelAutoScrollX, cancelHandler);
+    }
+  }, [scrollXUpdater, rerenderScroll]);
+
+  const autoScrollYDelta = useRef<number>(0);
+  const autoScrollYEnabled = useRef<boolean>(false);
+  useEffect(() => {
+    const raf = () => {
+      scrollYUpdater(autoScrollYDelta.current);
+      rerenderScroll();
+      if (autoScrollYEnabled.current) {
+        requestAnimationFrame(raf);
+      }
+    }
+    const handler = ({ delta }: EditorRequestAutoScrollEvent) => {
+      autoScrollYDelta.current = delta;
+      if (!autoScrollYEnabled.current) {
+        autoScrollYEnabled.current = true;
+        requestAnimationFrame(raf);
+      }
+    };
+    const cancelHandler = () => {
+      autoScrollYEnabled.current = false;
+    }
+    eventEmitter.on(EditorEvent.editorRequestAutoScrollY, handler);
+    eventEmitter.on(EditorEvent.editorCancelAutoScrollY, cancelHandler);
+    return () => {
+      eventEmitter.off(EditorEvent.editorRequestAutoScrollY, handler);
+      eventEmitter.off(EditorEvent.editorCancelAutoScrollY, cancelHandler);
+    }
+  }, [scrollYUpdater, rerenderScroll]);
+
   return (
     <EditorContainer
       ref={editorRef}
@@ -195,8 +252,8 @@ const Editor: React.FC<Props> = props => {
       <TrackWrapper>
         <TrackScroller ref={trackWrapperRef} onMouseDown={trackScrollerMouseDownHandler}>
         {
-          channelList.map(v => (
-            <Track width={maxWidth} channelId={v} key={v} />
+          channelList.map((v, i) => (
+            <Track width={maxWidth} channelId={v} key={v} index={i} />
           ))
         }
         </TrackScroller>

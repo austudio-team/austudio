@@ -93,7 +93,7 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
       };
     }
     case ChannelAction.UPDATE_SLICE: {
-      const { slice, sliceId, channelId } = action.payload;
+      const { slice, sliceId, channelId, newChannelId } = action.payload;
       const channel = state.channel[channelId];
       const slices = [...channel.slices];
       let index = 0;
@@ -109,14 +109,33 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
         }
       }
       if (tempSlice) {
-        slices.splice(index, 1, tempSlice);
-        return {
-          ...state,
-          channel: {
-            ...state.channel,
-            [channelId]: {
-              ...channel,
-              slices,
+        if (newChannelId) {
+          slices.splice(index, 1);
+          const targetChannel = state.channel[newChannelId];
+          return {
+            ...state,
+            channel: {
+              ...state.channel,
+              [channelId]: {
+                ...channel,
+                slices,
+              },
+              [newChannelId]: {
+                ...targetChannel,
+                slices: [...targetChannel.slices, tempSlice],
+              }
+            }
+          }
+        } else {
+          slices.splice(index, 1, tempSlice);
+          return {
+            ...state,
+            channel: {
+              ...state.channel,
+              [channelId]: {
+                ...channel,
+                slices,
+              }
             }
           }
         }

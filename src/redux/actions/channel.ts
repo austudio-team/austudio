@@ -76,13 +76,14 @@ export function createSlice(channelId: string, slice: AudioSliceParam): CreateSl
   };
 }
 
-export function updateSlice(channelId: string, sliceId: string, slice: Partial<AudioSliceParam>): UpdateSliceAction {
+export function updateSlice(channelId: string, sliceId: string, slice: Partial<AudioSliceParam>, newChannelId: string | null): UpdateSliceAction {
   return {
     type: ChannelAction.UPDATE_SLICE,
     payload: {
       channelId,
       sliceId,
       slice,
+      newChannelId,
     },
   };
 }

@@ -13,6 +13,7 @@ import eventEmitter from '@utils/event';
 interface TrackProps {
   channelId: string;
   width: number;
+  index: number;
 }
 
 const mapState = (state: RootState, ownProps: TrackProps) => ({
@@ -29,7 +30,7 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & TrackProps;
 
 const Track: React.FC<Props> = props => {
-  const { channel, audioDrop, zoom, width } = props;
+  const { channel, audioDrop, zoom, width, index } = props;
 
   const scrollLeftRef = useRef<number>(0);
 
@@ -40,6 +41,13 @@ const Track: React.FC<Props> = props => {
   const dragOverHandler = useCallback(e => {
     e.preventDefault();
   }, []);
+
+  const mouseOverHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    eventEmitter.emit(EditorEvent.editorTrackMouseEnter, {
+      channelId: channel.id,
+      channelIndex: index,
+    });
+  }, [channel.id, index]);
 
   useEffect(() => {
     const handler = ({ scrollLeft }: EditorScrollXChangeEvent) => {
@@ -52,10 +60,15 @@ const Track: React.FC<Props> = props => {
   }, []);
 
   return (
-    <TrackContainer style={{ width }} onDrop={dropHandler} onDragOver={dragOverHandler}>
+    <TrackContainer
+      style={{ width }}
+      onDrop={dropHandler}
+      onDragOver={dragOverHandler}
+      onMouseOver={mouseOverHandler}
+    >
       {
         channel.slices.map(v => (
-          <AudioBlock channelId={channel.id} slice={v} key={v.id} />
+          <AudioBlock channelId={channel.id} slice={v} key={v.id} channelIndex={index} />
         ))
       }
     </TrackContainer>

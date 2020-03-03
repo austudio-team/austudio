@@ -6,7 +6,7 @@ const initialState: LibraryState = {
     'test': {
       fileName: 'Audio音频.mp3',
       id: 'test',
-      length: 6000,
+      length: 60000,
     }
   },
   audioList: ['test'],

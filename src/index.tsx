@@ -14,3 +14,7 @@ ReactDOM.render((
     </ThemeProvider>
   </Provider>
 ), document.getElementById('root'));
+
+// window.addEventListener('beforeunload', (e) => {
+//   e.returnValue = 'Are you sure to exit? This may lose your changes.';
+// });
