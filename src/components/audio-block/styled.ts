@@ -37,3 +37,12 @@ export const AudioName = styled.div`
   white-space: nowrap;
   background-color: ${p => p.theme.colors.N600};
 `;
+
+export const CutLine = styled.div`
+  position: absolute;
+  height: 100%;
+  width: 1px;
+  top: 0;
+  background-color: ${p => p.theme.colors.N300};
+  pointer-events: none;
+`;

@@ -4,6 +4,19 @@ import { v4 as uuidv4 } from 'uuid';
 
 const initialState: ChannelState = genenrateDefaultChannel();
 
+const getSlice = (slices: AudioSlice[], sliceId: string): [number, AudioSlice | null] => {
+  let index = -1;
+  let tempSlice: AudioSlice | null = null;
+  for (const [i, v] of slices.entries()) {
+    if (v.id === sliceId) {
+      index = i;
+      tempSlice = v;
+      break;
+    }
+  }
+  return [index, tempSlice];
+}
+
 export function channelReducer(state: ChannelState = initialState, action: ChannelActionType): ChannelState {
   let targetId;
   let newChannel;
@@ -96,19 +109,12 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
       const { slice, sliceId, channelId, newChannelId } = action.payload;
       const channel = state.channel[channelId];
       const slices = [...channel.slices];
-      let index = 0;
-      let tempSlice: AudioSlice | null = null;
-      for (const [i, v] of slices.entries()) {
-        if (v.id === sliceId) {
-          index = i;
-          tempSlice = {
-            ...v,
-            ...slice,
-          };
-          break;
+      const [index, targetSlice] = getSlice(slices, sliceId);
+      if (targetSlice) {
+        const tempSlice = {
+          ...targetSlice,
+          ...slice,
         }
-      }
-      if (tempSlice) {
         if (newChannelId) {
           slices.splice(index, 1);
           const targetChannel = state.channel[newChannelId];
@@ -136,6 +142,38 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
                 ...channel,
                 slices,
               }
+            }
+          }
+        }
+      } else {
+        return state;
+      }
+    }
+    case ChannelAction.SPLIT_SLICE: {
+      const { channelId, sliceId, offset } = action.payload;
+      const channel = state.channel[channelId];
+      const slices = [...channel.slices];
+      const [index, targetSlice] = getSlice(slices, sliceId);
+      if (targetSlice) {
+        const splitOffset = (targetSlice.start === -1 ? 0 : targetSlice.start) + offset;
+        const firstSlice: AudioSlice = {
+          ...targetSlice,
+          end: splitOffset,
+        }
+        const secondSlice: AudioSlice = {
+          ...targetSlice,
+          id: uuidv4(),
+          offset: targetSlice.offset + offset,
+          start: splitOffset,
+        }
+        slices.splice(index, 1, firstSlice, secondSlice);
+        return {
+          ...state,
+          channel: {
+            ...state.channel,
+            [channelId]: {
+              ...channel,
+              slices,
             }
           }
         }

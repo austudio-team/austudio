@@ -8,6 +8,7 @@ import { ReactComponent as Play } from '@assets/svg/play.svg';
 import { ReactComponent as Pause } from '@assets/svg/pause.svg';
 import { ReactComponent as Stop } from '@assets/svg/stop.svg';
 import { ReactComponent as Record } from '@assets/svg/record.svg';
+import { ReactComponent as Resize } from '@assets/svg/resize.svg';
 import { theme } from '@constants';
 
 export const ButtonGroup = styled.div`
@@ -126,6 +127,7 @@ const getBorderedButton = (component: React.FunctionComponent<React.SVGProps<SVG
 export const UndoButton = getStyledButton(Undo);
 export const RedoButton = getStyledButton(Redo);
 export const PointerButton = getStyledButton(Pointer);
+export const ResizeButton = getStyledButton(Resize);
 export const CutButton = getStyledButton(Cut);
 export const FolderButton = getStyledButton(Folder);
 export const PlayButton = getBorderedButton(Play);

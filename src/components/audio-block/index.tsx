@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyledAudioBlock, AudioName } from './styled';
+import { StyledAudioBlock, AudioName, CutLine } from './styled';
 import { AudioSlice } from '@redux/types/channel';
 import { RootState } from '@redux/reducers';
 import { audioItemSelector } from '@redux/selectors/library';
@@ -7,10 +7,12 @@ import { connect, ConnectedProps } from 'react-redux';
 import { getLength } from './utils';
 import { isBlockSelectedSelector, zoomSelector } from '@redux/selectors/editor';
 import { selectBlock } from '@redux/actions/editor';
-import { updateSlice } from '@redux/actions/channel';
+import { updateSlice, splitSlice } from '@redux/actions/channel';
 import { editorChannelWidth } from '@components/editor/constants';
 import eventEmitter from '@utils/event';
 import { EditorEvent, EditorScrollXChangeEvent, EditorTrackMouseEnterEvent } from '@events';
+import { cursorTypeSelector } from '@redux/selectors/functionBar';
+import { FunctionBarCursorType } from '@redux/types/functionBar';
 
 interface AudioBlockProps {
   slice: AudioSlice;
@@ -22,11 +24,13 @@ const mapState = (state: RootState, ownProps: AudioBlockProps) => ({
   audio: audioItemSelector(state.library, ownProps.slice.audioId),
   zoom: zoomSelector(state.editor),
   selected: isBlockSelectedSelector(state.editor, ownProps.slice.id),
+  cursorType: cursorTypeSelector(state.functionBar),
 });
 
 const mapDispatch = {
   selectBlock,
   updateSlice,
+  splitSlice,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -34,7 +38,8 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & AudioBlockProps;
 
 const AudioBlock: React.FC<Props> = props => {
-  const { audio, slice, selected, selectBlock, zoom, updateSlice, channelId, channelIndex } = props;
+  const { audio, slice, selected, selectBlock, cursorType,
+          zoom, updateSlice, channelId, channelIndex, splitSlice } = props;
   const length = getLength(slice, audio);
   const width = Math.ceil(length / zoom) + 2;
   const offset = Math.ceil(slice.offset / zoom);
@@ -42,11 +47,14 @@ const AudioBlock: React.FC<Props> = props => {
   const clickXRef = useRef<number>(0);
   const draggingX = useRef<number>(0);
   const [dragging, setDragging] = useState<boolean>(false);
+  const [cutHover, setCutHover] = useState<boolean>(false);
   const editorSize = useRef<{height: number, width: number}>({ height: 0, width: 0 });
   const editorDraggingScrollLeft = useRef<number>(0);
   const editorScrollLeft = useRef<number>(0);
   const mouseMovement = useRef<number>(0);
   const mouseEnterInfoRef = useRef<EditorTrackMouseEnterEvent | null>(null);
+  const cutLineRef = useRef<HTMLDivElement>(null);
+  const cutLineOffsetRef = useRef<number>(0);
 
   const computeDraggingX = useCallback(() => {
     const editorScrollDelta = editorScrollLeft.current - editorDraggingScrollLeft.current;
@@ -86,13 +94,18 @@ const AudioBlock: React.FC<Props> = props => {
     if (!selected) {
       selectBlock(slice.id);
     }
-    setDragging(true);
-    clickXRef.current = e.clientX;
-    draggingX.current = offset;
-    editorSize.current = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
-    editorDraggingScrollLeft.current = editorScrollLeft.current;
-    mouseMovement.current = 0;
-  }, [slice.id, selected, selectBlock, setDragging, offset]);
+    if (cursorType === FunctionBarCursorType.select) {
+      setDragging(true);
+      clickXRef.current = e.clientX;
+      draggingX.current = offset;
+      editorSize.current = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+      editorDraggingScrollLeft.current = editorScrollLeft.current;
+      mouseMovement.current = 0;
+    } else if (cursorType === FunctionBarCursorType.cut && cutHover) {
+      cutLineOffsetRef.current > 2 && cutLineOffsetRef.current < width - 2 &&
+        splitSlice(channelId, slice.id, cutLineOffsetRef.current * zoom);
+    }
+  }, [channelId, slice.id, width, selected, selectBlock, setDragging, offset, cursorType, cutHover, splitSlice, zoom]);
 
   useEffect(() => {
     if (dragging) {
@@ -184,8 +197,22 @@ const AudioBlock: React.FC<Props> = props => {
     // 防止 Block 的 MouseEnter 上升到 Track，导致拖拽时来回在原轨道和新轨道之间鬼畜
     if (dragging) {
       e.stopPropagation();
+    } else if (cursorType === FunctionBarCursorType.cut) {
+      if (!cutHover) setCutHover(true);
     }
-  }, [dragging]);
+  }, [dragging, cursorType, setCutHover, cutHover]);
+
+  const mouseMoveHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (cutHover && cutLineRef.current) {
+      const { offsetX } = e.nativeEvent;
+      cutLineRef.current.style.transform = `translateX(${offsetX}px)`;
+      cutLineOffsetRef.current = offsetX;
+    }
+  }, [cutHover]);
+
+  const mouseLeaveHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (cutHover) setCutHover(false);
+  }, [cutHover, setCutHover]);
 
   return (
     <StyledAudioBlock
@@ -193,9 +220,14 @@ const AudioBlock: React.FC<Props> = props => {
       selected={selected}
       onMouseDown={mouseDownHandler}
       onMouseOver={mouseOverHandler}
+      onMouseMove={mouseMoveHandler}
+      onMouseLeave={mouseLeaveHandler}
       style={{ width, transform: `translateX(${offset}px)` }}
     >
       <AudioName>{audio.fileName}</AudioName>
+      {
+        cursorType === FunctionBarCursorType.cut && cutHover && <CutLine ref={cutLineRef} />
+      }
     </StyledAudioBlock>
   );
 }
