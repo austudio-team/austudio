@@ -9,6 +9,7 @@ export enum ChannelAction {
   'CREATE_SLICE' = 'CREATE_SLICE',
   'UPDATE_SLICE' = 'UPDATE_SLICE',
   'DELETE_SLICE' = 'DELETE_SLICE',
+  'SPLIT_SLICE' = 'SPLIT_SLICE',
 }
 
 interface ChannelMap {
@@ -120,6 +121,15 @@ export interface DeleteSliceAction {
   };
 }
 
+export interface SplitSliceAction {
+  type: typeof ChannelAction.SPLIT_SLICE;
+  payload: {
+    channelId: string,
+    sliceId: string,
+    offset: number,
+  };
+}
+
 export type ChannelActionType =
   AddChannelAction
   | UpdateMuteAction
@@ -130,4 +140,5 @@ export type ChannelActionType =
   | UpdateNameAction
   | CreateSliceAction
   | UpdateSliceAction
-  | DeleteSliceAction;
+  | DeleteSliceAction
+  | SplitSliceAction;

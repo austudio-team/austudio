@@ -7,7 +7,7 @@ import { editorReducer } from './editor';
 
 export const rootReducer = combineReducers({
   menu: menuReducer,
-  funtionBar: functionBarReducer,
+  functionBar: functionBarReducer,
   channel: channelReducer,
   library: libraryReducer,
   editor: editorReducer,

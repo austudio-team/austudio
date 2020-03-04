@@ -10,7 +10,7 @@ import AudioItem from './AudioItem';
 import { libraryDragStart, libraryDragEnd } from '@redux/actions/library';
 
 const mapState = (state: RootState) => ({
-  libraryState: librarySelector(state.funtionBar),
+  libraryState: librarySelector(state.functionBar),
   audioList: audioListSelector(state.library),
   audioInfo: audioMapSelector(state.library),
 });

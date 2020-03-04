@@ -1,19 +1,21 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { FunctionBarcontainer } from '@components/styled';
-import { ButtonGroup, UndoButton, RedoButton, PointerButton, CutButton, FolderButton } from '@components/styled/functionBar';
+import { ButtonGroup, UndoButton, RedoButton, PointerButton, CutButton, FolderButton, ResizeButton } from '@components/styled/functionBar';
 import Tooltip from '@components/tooltip';
 import { RootState } from '@redux/reducers';
-import { toggleLibrary } from '@redux/actions/functionBar';
+import { toggleLibrary, toggleCursorType } from '@redux/actions/functionBar';
 import { ConnectedProps, connect } from 'react-redux';
-import { FunctionState } from '@redux/types/functionBar';
-import { librarySelector } from '@redux/selectors/functionBar';
+import { FunctionState, FunctionBarCursorType } from '@redux/types/functionBar';
+import { librarySelector, cursorTypeSelector } from '@redux/selectors/functionBar';
 
 const mapState = (state: RootState) => ({
-  libraryState: librarySelector(state.funtionBar),
+  libraryState: librarySelector(state.functionBar),
+  cursorType: cursorTypeSelector(state.functionBar),
 });
 
 const mapDispatch = {
   toggleLibrary,
+  toggleCursorType,
 }
 
 const connector = connect(mapState, mapDispatch);
@@ -21,7 +23,11 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
 
 const FunctionBar: React.FC<Props> = props => {
-  const { libraryState, toggleLibrary } = props;
+  const { libraryState, toggleLibrary, cursorType, toggleCursorType } = props;
+  const cursorTypeClickHandler = useCallback((e: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+    const type = e.currentTarget.dataset['type'] as FunctionBarCursorType;
+    toggleCursorType(type);
+  }, [toggleCursorType]);
   return (
     <FunctionBarcontainer>
       <ButtonGroup>
@@ -29,8 +35,27 @@ const FunctionBar: React.FC<Props> = props => {
         <Tooltip title="Redo"><RedoButton disable /></Tooltip>
       </ButtonGroup>
       <ButtonGroup>
-        <Tooltip title="Select"><PointerButton active /></Tooltip>
-        <Tooltip title="Cut"><CutButton /></Tooltip>
+        <Tooltip title="Select">
+          <PointerButton
+            active={cursorType === FunctionBarCursorType.select}
+            data-type={FunctionBarCursorType.select}
+            onClick={cursorTypeClickHandler}
+          />
+        </Tooltip>
+        <Tooltip title="Cut">
+          <CutButton
+            active={cursorType === FunctionBarCursorType.cut}
+            data-type={FunctionBarCursorType.cut}
+            onClick={cursorTypeClickHandler}
+          />
+        </Tooltip>
+        <Tooltip title="Stretch">
+          <ResizeButton
+            active={cursorType === FunctionBarCursorType.stretch}
+            data-type={FunctionBarCursorType.stretch}
+            onClick={cursorTypeClickHandler}
+          />
+        </Tooltip>
       </ButtonGroup>
       <ButtonGroup>
         <Tooltip title="Library">
