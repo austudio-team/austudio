@@ -175,7 +175,7 @@ const AudioBlock: React.FC<Props> = props => {
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollY);
         setDragging(false);
-        let newChannel = null;
+        let newChannel: null | string = null;
         if (mouseEnterInfoRef.current) {
           const { channelId: newChannelId } = mouseEnterInfoRef.current;
           if (newChannelId !== channelId) {
