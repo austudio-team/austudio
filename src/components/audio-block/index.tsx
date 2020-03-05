@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyledAudioBlock, AudioName, CutLine } from './styled';
+import { StyledAudioBlock, AudioName, CutLine, LeftStretcher, RightStretcher } from './styled';
 import { AudioSlice } from '@redux/types/channel';
 import { RootState } from '@redux/reducers';
 import { audioItemSelector } from '@redux/selectors/library';
 import { connect, ConnectedProps } from 'react-redux';
-import { getLength } from './utils';
+import { getLength, computeDraggingX, computeWidth } from './utils';
 import { isBlockSelectedSelector, zoomSelector } from '@redux/selectors/editor';
 import { selectBlock } from '@redux/actions/editor';
 import { updateSlice, splitSlice } from '@redux/actions/channel';
@@ -13,6 +13,7 @@ import eventEmitter from '@utils/event';
 import { EditorEvent, EditorScrollXChangeEvent, EditorTrackMouseEnterEvent } from '@events';
 import { cursorTypeSelector } from '@redux/selectors/functionBar';
 import { FunctionBarCursorType } from '@redux/types/functionBar';
+import { StretchingType } from './types';
 
 interface AudioBlockProps {
   slice: AudioSlice;
@@ -48,6 +49,7 @@ const AudioBlock: React.FC<Props> = props => {
   const draggingX = useRef<number>(0);
   const [dragging, setDragging] = useState<boolean>(false);
   const [cutHover, setCutHover] = useState<boolean>(false);
+  const [stretching, setStretching] = useState<boolean>(false);
   const editorSize = useRef<{height: number, width: number}>({ height: 0, width: 0 });
   const editorDraggingScrollLeft = useRef<number>(0);
   const editorScrollLeft = useRef<number>(0);
@@ -55,19 +57,18 @@ const AudioBlock: React.FC<Props> = props => {
   const mouseEnterInfoRef = useRef<EditorTrackMouseEnterEvent | null>(null);
   const cutLineRef = useRef<HTMLDivElement>(null);
   const cutLineOffsetRef = useRef<number>(0);
+  const stretchingType = useRef<StretchingType>(StretchingType.left);
+  const stretchingStart = useRef<number>(0);
+  const stretchingEnd = useRef<number>(0);
+  const stretchingOffset = useRef<number>(0);
 
-  const computeDraggingX = useCallback(() => {
-    const editorScrollDelta = editorScrollLeft.current - editorDraggingScrollLeft.current;
-    const tempDraggingX = Math.max(0, offset + mouseMovement.current + editorScrollDelta);
-    return tempDraggingX;
-  }, [offset])
-
+  // DragRaf
   useEffect(() => {
     if (dragging) {
       let raf: number;
       const rafHandler = () => {
         if (audioBlockRef.current) {
-          const tempDraggingX = computeDraggingX();
+          const tempDraggingX = computeDraggingX(editorScrollLeft.current, editorDraggingScrollLeft.current, offset, mouseMovement.current);
           if (draggingX.current !== tempDraggingX) {
             draggingX.current = tempDraggingX;
           }
@@ -87,7 +88,48 @@ const AudioBlock: React.FC<Props> = props => {
         cancelAnimationFrame(raf);
       }
     }
-  }, [dragging, computeDraggingX, channelIndex]);
+  }, [dragging, offset, channelIndex]);
+
+  // stretchRaf
+  useEffect(() => {
+    if (stretching) {
+      let raf: number;
+      const rafHandler = () => {
+        if (audioBlockRef.current) {
+          const { width: newWidth, offset: newOffset, start, end } = computeWidth(editorScrollLeft.current,
+                                        editorDraggingScrollLeft.current,
+                                        mouseMovement.current,
+                                        stretchingType.current,
+                                        slice,
+                                        audio,
+                                        zoom);
+          stretchingStart.current = start;
+          stretchingEnd.current = end;
+          stretchingOffset.current = newOffset;
+          
+          if (stretchingType.current === StretchingType.right) {
+            audioBlockRef.current.style.width = `${newWidth + 2}px`;
+          } else {
+            audioBlockRef.current.style.width = `${newWidth + 2}px`;
+            audioBlockRef.current.style.transform = `translateX(${Math.ceil((newOffset - offset) / zoom)}px)`;
+          }
+        }
+        raf = requestAnimationFrame(rafHandler);
+      }
+      rafHandler();
+      return () => {
+        cancelAnimationFrame(raf);
+      }
+    }
+  }, [cursorType, stretching, audio, slice, zoom, offset]);
+
+  const initDrag = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    clickXRef.current = e.clientX;
+    draggingX.current = offset;
+    editorSize.current = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
+    editorDraggingScrollLeft.current = editorScrollLeft.current;
+    mouseMovement.current = 0;
+  }, [offset])
 
   const mouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     e.stopPropagation();
@@ -96,19 +138,15 @@ const AudioBlock: React.FC<Props> = props => {
     }
     if (cursorType === FunctionBarCursorType.select) {
       setDragging(true);
-      clickXRef.current = e.clientX;
-      draggingX.current = offset;
-      editorSize.current = { width: document.documentElement.clientWidth, height: document.documentElement.clientHeight };
-      editorDraggingScrollLeft.current = editorScrollLeft.current;
-      mouseMovement.current = 0;
+      initDrag(e);
     } else if (cursorType === FunctionBarCursorType.cut && cutHover) {
       cutLineOffsetRef.current > 2 && cutLineOffsetRef.current < width - 2 &&
         splitSlice(channelId, slice.id, cutLineOffsetRef.current * zoom);
     }
-  }, [channelId, slice.id, width, selected, selectBlock, setDragging, offset, cursorType, cutHover, splitSlice, zoom]);
+  }, [channelId, slice.id, width, selected, selectBlock, setDragging, cursorType, cutHover, splitSlice, zoom, initDrag]);
 
   useEffect(() => {
-    if (dragging) {
+    if (dragging || stretching) {
       const handler = (e: MouseEvent) => {
         if (audioBlockRef.current) {
           mouseMovement.current = e.clientX - clickXRef.current;
@@ -149,7 +187,7 @@ const AudioBlock: React.FC<Props> = props => {
         window.removeEventListener('mousemove', handler);
       }
     }
-  }, [dragging, offset]);
+  }, [dragging, stretching, offset]);
 
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollXChanged, ({ scrollLeft }: EditorScrollXChangeEvent) => {
@@ -175,7 +213,7 @@ const AudioBlock: React.FC<Props> = props => {
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollY);
         setDragging(false);
-        let newChannel = null;
+        let newChannel: null | string = null;
         if (mouseEnterInfoRef.current) {
           const { channelId: newChannelId } = mouseEnterInfoRef.current;
           if (newChannelId !== channelId) {
@@ -183,15 +221,30 @@ const AudioBlock: React.FC<Props> = props => {
           }
         }
         updateSlice(channelId, slice.id, {
-          offset: computeDraggingX() * zoom,
+          offset: computeDraggingX(editorScrollLeft.current, editorDraggingScrollLeft.current, offset, mouseMovement.current) * zoom,
         }, newChannel);
       }
       window.addEventListener('mouseup', handler);
       return () => {
         window.removeEventListener('mouseup', handler);
       }
+    } else if (stretching) {
+      const handler = (e: MouseEvent) => {
+        eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
+        eventEmitter.emit(EditorEvent.editorCancelAutoScrollY);
+        setStretching(false);
+        updateSlice(channelId, slice.id, {
+          offset: stretchingOffset.current,
+          start: stretchingStart.current,
+          end: stretchingEnd.current,
+        }, null);
+      }
+      window.addEventListener('mouseup', handler);
+      return () => {
+        window.removeEventListener('mouseup', handler);
+      }
     }
-  }, [dragging, setDragging, channelId, slice.id, updateSlice, zoom, computeDraggingX]);
+  }, [dragging, stretching, setStretching, setDragging, channelId, slice.id, updateSlice, zoom, offset]);
 
   const mouseOverHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     // 防止 Block 的 MouseEnter 上升到 Track，导致拖拽时来回在原轨道和新轨道之间鬼畜
@@ -214,6 +267,13 @@ const AudioBlock: React.FC<Props> = props => {
     if (cutHover) setCutHover(false);
   }, [cutHover, setCutHover]);
 
+  const stretcherMouseDownHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    initDrag(e);
+    stretchingType.current = e.currentTarget.dataset.type as StretchingType;
+    setStretching(true);
+  }, [setStretching, initDrag]);
+
   return (
     <StyledAudioBlock
       ref={audioBlockRef}
@@ -228,6 +288,14 @@ const AudioBlock: React.FC<Props> = props => {
       {
         cursorType === FunctionBarCursorType.cut && cutHover && <CutLine ref={cutLineRef} />
       }
+      <LeftStretcher
+        onMouseDown={stretcherMouseDownHandler}
+        data-type={StretchingType.left}
+      />
+      <RightStretcher
+        onMouseDown={stretcherMouseDownHandler}
+        data-type={StretchingType.right}
+      />
     </StyledAudioBlock>
   );
 }
