@@ -9,6 +9,8 @@ export enum EditorEvent {
   'editorRequestAutoScrollY' = 'editorRequestAutoScrollY',
   'editorCancelAutoScrollX' = 'editorCancelAutoScrollX',
   'editorCancelAutoScrollY' = 'editorCancelAutoScrollY',
+  'editorIndicatorChanged' = 'editorIndicatorChanged',
+  'editorIndicatorShouldChange' = 'editorIndicatorShouldChange',
   'editorTrackMouseEnter' = 'editorTrackMouseEnter',
 }
 
@@ -44,4 +46,8 @@ export interface EditorRequestAutoScrollEvent {
 export interface EditorTrackMouseEnterEvent {
   channelId: string;
   channelIndex: number;
+}
+
+export interface EditorIndicatorChangeEvent {
+  offset: number;
 }

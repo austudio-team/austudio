@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { FunctionBarcontainer } from '@components/styled';
 import { ReactComponent as Plus } from '@assets/svg/plus.svg';
 import Tooltip from '@components/tooltip';
@@ -7,6 +7,10 @@ import { ButtonGroup, StopButton, PlayButton, RecordButton } from '@components/s
 import { Time } from './styled';
 import { addChannel } from '@redux/actions/channel';
 import { ConnectedProps, connect } from 'react-redux';
+import { EditorEvent, EditorIndicatorChangeEvent } from '@events';
+import eventEmitter from '@utils/event';
+import { millisecondToString } from '@utils/time';
+import { throttle } from 'lodash';
 
 const mapState = () => ({
 });
@@ -20,6 +24,18 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
 
 const ControlBar: React.FC<Props> = props => {
+  const timeRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = throttle(({ offset }: EditorIndicatorChangeEvent) => {
+      if (timeRef.current) {
+        timeRef.current.innerText = millisecondToString(offset);
+      }
+    }, 100, { leading: true, trailing: true });
+    eventEmitter.on(EditorEvent.editorIndicatorChanged, handler);
+    return () => {
+      eventEmitter.off(EditorEvent.editorIndicatorChanged, handler);
+    }
+  }, []);
   return (
     <FunctionBarcontainer>
       <ButtonGroup>
@@ -31,7 +47,7 @@ const ControlBar: React.FC<Props> = props => {
         <Tooltip title="Record" style={{ marginRight: 6 }}><RecordButton /></Tooltip>
       </ButtonGroup>
       <ButtonGroup>
-        <Time>0:00:00:00</Time>
+        <Time ref={timeRef}>0:00:00:000</Time>
       </ButtonGroup>
     </FunctionBarcontainer>
   );
