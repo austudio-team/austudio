@@ -108,7 +108,6 @@ const AudioBlock: React.FC<Props> = props => {
             
             stretchingOffset.current = newOffset;
             stretchingStretch.current = stretch;
-            console.log(stretch);
 
             if (stretchingType.current === StretchingType.right) {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
