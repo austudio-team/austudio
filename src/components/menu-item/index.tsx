@@ -43,6 +43,7 @@ const MenuItem: React.FC<Props> = props => {
     disableHover.current = true;
   }, [selfOpened, menu, openMenu, closeMenu]);
 
+  // clickOutsideEffect
   useEffect(() => {
     if (selfOpened) {
       const detect = (e: MouseEvent) => {

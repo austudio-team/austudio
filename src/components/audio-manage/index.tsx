@@ -28,6 +28,8 @@ type Props = ConnectedProps<typeof connector>;
 const AudioManage: React.FC<Props> = props => {
   const { libraryState, toggleLibrary, audioInfo, audioList, libraryDragStart, libraryDragEnd } = props;
   const [inited, setInited] = useState<boolean>(false);
+
+  // initEffect
   useEffect(() => {
     if (!inited && libraryState === FunctionState.ACTIVE) {
       setInited(true);

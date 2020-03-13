@@ -19,6 +19,7 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
 
   const { maxWidth } = props;
 
+  // editorWidthChangeEffect
   useEffect(() => {
     const handler = ({ clientWidth }: EditorWidthChangeEvent) => {
       if (scrollBarRef.current) {
@@ -33,6 +34,7 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
     }
   }, [maxWidth]);
 
+  // editorScrollXChangedEffect
   useEffect(() => {
     const handler = ({ scrollLeft }: EditorScrollXChangeEvent) => {
       if (scrollBarRef.current) {
@@ -54,6 +56,8 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
     draggingScrollLeftRef.current = scrollLeftRef.current;
   }, [setDragging])
 
+
+  // mouseMoveEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
@@ -71,6 +75,7 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
     }
   }, [dragging]);
 
+  // mouseUpEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {

@@ -25,6 +25,8 @@ type Props = ConnectedProps<typeof connector>;
 
 const ControlBar: React.FC<Props> = props => {
   const timeRef = useRef<HTMLDivElement>(null);
+
+  // indicatorChangeEffect
   useEffect(() => {
     const handler = throttle(({ offset }: EditorIndicatorChangeEvent) => {
       if (timeRef.current) {
@@ -36,6 +38,7 @@ const ControlBar: React.FC<Props> = props => {
       eventEmitter.off(EditorEvent.editorIndicatorChanged, handler);
     }
   }, []);
+
   return (
     <FunctionBarcontainer>
       <ButtonGroup>

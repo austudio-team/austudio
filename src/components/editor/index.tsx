@@ -95,11 +95,13 @@ const Editor: React.FC<Props> = props => {
     }
   }, [rerenderIndicator]);
 
+  // channelListChangeEffect
   useEffect(() => {
     watchScrollHeight(editorScrollHeight, channelWrapperRef);
     heightReporter();
   }, [channelList, heightReporter]);
 
+  // windowResizeEffect
   useEffect(() => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
@@ -118,6 +120,7 @@ const Editor: React.FC<Props> = props => {
   }, [heightReporter, rerenderScroll, scrollYUpdater]);
 
   // 调整 zoom 时，调整 x 轴位置
+  // zoomChangeEffect
   const prevZoom = usePrevious(zoom);
   useEffect(() => {
     const scale = zoom / prevZoom;
@@ -127,6 +130,7 @@ const Editor: React.FC<Props> = props => {
   }, [zoom, scrollXUpdater, prevZoom, rerenderScroll]);
 
   // 处理鼠标滚轮/触摸板滚动
+  // mouseWheelEffect
   useEffect(() => {
     if (editorRef.current) {
       const dom = editorRef.current;
@@ -149,6 +153,7 @@ const Editor: React.FC<Props> = props => {
     setDragging(true);
   }, []);
 
+  // mouseMoveEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
@@ -176,6 +181,7 @@ const Editor: React.FC<Props> = props => {
     }
   }, [dragging, zoom, rerenderIndicator]);
 
+  // mouseUpEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
@@ -193,6 +199,7 @@ const Editor: React.FC<Props> = props => {
     }
   }, [dragging, setDragging, rerenderIndicator]);
 
+  // scrollYShouldChangeEffect
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollYShouldChange, (p: EditorScrollYShouldChangeEvent) => {
       editorY.current = -p.scrollTop;
@@ -201,6 +208,7 @@ const Editor: React.FC<Props> = props => {
     });
   }, [scrollYUpdater, rerenderScroll]);
 
+  // scrollXShouldChangeEffect
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollXShouldChange, (p: EditorScrollXShouldChangeEvent) => {
       editorX.current = -p.scrollLeft;
@@ -214,6 +222,7 @@ const Editor: React.FC<Props> = props => {
   }, [selectBlock])
 
   // 自动滚动逻辑
+  // autoScrollXEffect
   const autoScrollXDelta = useRef<number>(0);
   const autoScrollXEnabled = useRef<boolean>(false);
   useEffect(() => {
@@ -244,6 +253,7 @@ const Editor: React.FC<Props> = props => {
 
   const autoScrollYDelta = useRef<number>(0);
   const autoScrollYEnabled = useRef<boolean>(false);
+  // autoScrollYEffect
   useEffect(() => {
     const raf = () => {
       scrollYUpdater(autoScrollYDelta.current);

@@ -13,6 +13,7 @@ const VerticalScroller: React.FC = props => {
   const clickYRef = useRef<number>(0);
   const [dragging, setDragging] = useState<boolean>(false);
 
+  // editorHeightChangeEffect
   useEffect(() => {
     const handler = ({ clientHeight, scrollHeight }: EditorHeightChangeEvent) => {
       if (scrollBarRef.current) {
@@ -27,6 +28,7 @@ const VerticalScroller: React.FC = props => {
     }
   }, []);
 
+  // editorScrollYChangedEffect
   useEffect(() => {
     const handler = ({ scrollTop }: EditorScrollYChangeEvent) => {
       if (scrollBarRef.current) {
@@ -47,6 +49,7 @@ const VerticalScroller: React.FC = props => {
     draggingScrollTopRef.current = scrollTopRef.current;
   }, [setDragging])
 
+  // mouseMoveEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
@@ -64,6 +67,7 @@ const VerticalScroller: React.FC = props => {
     }
   }, [dragging]);
 
+  // mouseUpEvent
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {

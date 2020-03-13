@@ -64,6 +64,7 @@ const AudioBlock: React.FC<Props> = props => {
   const stretchingStretch = useRef<number>(0);
 
   // DragRaf
+  // draggingEffect
   useEffect(() => {
     if (dragging) {
       let raf: number;
@@ -92,6 +93,7 @@ const AudioBlock: React.FC<Props> = props => {
   }, [dragging, offset, channelIndex]);
 
   // stretchRaf
+  // stretchingEffect
   useEffect(() => {
     if (stretching) {
       let raf: number;
@@ -166,6 +168,7 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [channelId, slice.id, slice.stretch, width, selected, selectBlock, setDragging, cursorType, cutHover, splitSlice, zoom, initDrag]);
 
+  // mouseMoveEffect
   useEffect(() => {
     if (dragging || stretching) {
       const handler = (e: MouseEvent) => {
@@ -210,12 +213,14 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [dragging, stretching, offset]);
 
+  // editorScrollXChangeEventEffect
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollXChanged, ({ scrollLeft }: EditorScrollXChangeEvent) => {
       editorScrollLeft.current = scrollLeft;
     });
   }, [])
 
+  // trackEnterEventEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: EditorTrackMouseEnterEvent) => {
@@ -228,6 +233,7 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [dragging]);
 
+  // mouseUpEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
@@ -274,7 +280,7 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [dragging, stretching, setStretching, setDragging, channelId, slice.id, updateSlice, zoom, offset, cursorType]);
 
-  const mouseOverHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const cutMouseOverHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     // 防止 Block 的 MouseEnter 上升到 Track，导致拖拽时来回在原轨道和新轨道之间鬼畜
     if (dragging) {
       e.stopPropagation();
@@ -283,7 +289,7 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [dragging, cursorType, setCutHover, cutHover]);
 
-  const mouseMoveHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const cutMouseMoveHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (cutHover && cutLineRef.current) {
       const { offsetX } = e.nativeEvent;
       cutLineRef.current.style.transform = `translateX(${offsetX}px)`;
@@ -291,7 +297,7 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [cutHover]);
 
-  const mouseLeaveHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+  const cutMouseLeaveHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (cutHover) setCutHover(false);
   }, [cutHover, setCutHover]);
 
@@ -307,9 +313,9 @@ const AudioBlock: React.FC<Props> = props => {
       ref={audioBlockRef}
       selected={selected}
       onMouseDown={mouseDownHandler}
-      onMouseOver={mouseOverHandler}
-      onMouseMove={mouseMoveHandler}
-      onMouseLeave={mouseLeaveHandler}
+      onMouseOver={cutMouseOverHandler}
+      onMouseMove={cutMouseMoveHandler}
+      onMouseLeave={cutMouseLeaveHandler}
       style={{ width, transform: `translateX(${offset}px)` }}
     >
       <AudioName>{audio.fileName}</AudioName>

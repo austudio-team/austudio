@@ -49,6 +49,7 @@ const Track: React.FC<Props> = props => {
     });
   }, [channel.id, index]);
 
+  // editorScrollXChangedEffect
   useEffect(() => {
     const handler = ({ scrollLeft }: EditorScrollXChangeEvent) => {
       scrollLeftRef.current = scrollLeft;
