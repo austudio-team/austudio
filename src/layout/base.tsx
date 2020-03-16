@@ -4,12 +4,15 @@ import { Container } from '../components/styled';
 // import FunctionBar from '@components/function-bar';
 // import ControlBar from '@components/control-bar';
 // import Editor from '@components/editor';
-import Filter from '@components/pannels/filter'
+// import Filter from '@components/pannels/filter'
+// import Reverb from '@components/pannels/reverb'
+// import Delay from '@components/pannels/delay'
+import Equalizer from '@components/pannels/equalizer'
 
 const Layout: React.FC = () => {
   return (
     <Container>
-      <Filter></Filter>
+      <Equalizer></Equalizer>
     </Container>
   );
 }
