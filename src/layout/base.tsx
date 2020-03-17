@@ -7,12 +7,14 @@ import { Container } from '../components/styled';
 // import Filter from '@components/pannels/filter'
 // import Reverb from '@components/pannels/reverb'
 // import Delay from '@components/pannels/delay'
-import Equalizer from '@components/pannels/equalizer'
+// import Equalizer from '@components/pannels/equalizer'
+// import Compressor from '@components/pannels/compressor'
+import Tremolo from '@components/pannels/tremolo'
 
 const Layout: React.FC = () => {
   return (
     <Container>
-      <Equalizer></Equalizer>
+      <Tremolo></Tremolo>
     </Container>
   );
 }
