@@ -41,7 +41,7 @@ export const TrackIndicator = styled.div`
   height: 100%;
   background-color: ${props => props.theme.colors.P500};
   cursor: move;
-  z-index: 100;
+  z-index: 101;
 
   &::before {
     content: ' ';

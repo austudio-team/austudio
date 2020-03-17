@@ -4,6 +4,28 @@ interface StyledAudioBlockProps {
   selected?: boolean;
 }
 
+export const LeftStretcher = styled.div`
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 0px solid transparent;
+  border-left: 10px solid ${p => p.theme.colors.N700};
+  cursor: w-resize;
+  opacity: 0;
+`;
+
+export const RightStretcher = styled(LeftStretcher)`
+  right: 0;
+  left: initial;
+  border-right: 10px solid ${p => p.theme.colors.N700};
+  border-left: 5px solid transparent;
+  cursor: e-resize;
+`;
+
 export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
   position: absolute;
   height: 122px;
@@ -11,6 +33,13 @@ export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
   top: 0;
   color: ${p => p.theme.colors.N200};
   z-index: ${p => p.selected ? '99 !important' : 'initial'};
+
+  :hover {
+    ${LeftStretcher} {
+      opacity: 1;
+    }
+  }
+
   /* 用 before 实现悬浮边框 */
   &::before {
     content: ' ';
@@ -20,6 +49,7 @@ export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
     left: 0;
     height: 100%;
     width: 100%;
+    z-index: 2;
     border: ${p => (
       p.selected ? `1px solid ${p.theme.colors.P100}` : 'none'
     )};

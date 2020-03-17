@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { ScrollerWrapper, ScrollerBar } from './styled';
 import eventEmitter from '@utils/event';
 import { EditorEvent, EditorWidthChangeEvent, EditorScrollXChangeEvent } from '@events/editor';
+import { editorChannelWidth } from '@components/editor/constants';
 
 export interface HorizontalScrollerProps {
   maxWidth: number;
@@ -18,11 +19,12 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
 
   const { maxWidth } = props;
 
+  // editorWidthChangeEffect
   useEffect(() => {
     const handler = ({ clientWidth }: EditorWidthChangeEvent) => {
       if (scrollBarRef.current) {
-        scrollBarRef.current.style.width = `${clientWidth / maxWidth * 100}%`;
-        clientWidthRef.current = clientWidth;
+        scrollBarRef.current.style.width = `${(clientWidth - editorChannelWidth) / maxWidth * 100}%`;
+        clientWidthRef.current = clientWidth - editorChannelWidth;
       }
     };
     handler({ clientWidth: clientWidthRef.current });
@@ -32,6 +34,7 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
     }
   }, [maxWidth]);
 
+  // editorScrollXChangedEffect
   useEffect(() => {
     const handler = ({ scrollLeft }: EditorScrollXChangeEvent) => {
       if (scrollBarRef.current) {
@@ -53,6 +56,8 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
     draggingScrollLeftRef.current = scrollLeftRef.current;
   }, [setDragging])
 
+
+  // mouseMoveEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
@@ -70,6 +75,7 @@ const HorizontalScroller: React.FC<HorizontalScrollerProps> = props => {
     }
   }, [dragging]);
 
+  // mouseUpEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {

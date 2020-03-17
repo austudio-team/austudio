@@ -9,7 +9,7 @@ export const ScrollerWrapper = styled.div`
   left: ${editorChannelWidth}px;
   bottom: 0;
   background-color: ${p => p.theme.colors.N800};
-  z-index: 100;
+  z-index: 102;
 
   ::before {
     content: ' ';

@@ -4,13 +4,13 @@ import AudioChannel from '@components/audio-channel';
 import { AudioChannelWrapper, TrackWrapper, TrackIndicator, AudioChannelScroller, TrackScroller } from './styled';
 import Track from '@components/track';
 import AudioManage from '@components/audio-manage';
-import { scrollYLimiter, watchScrollHeight, watchEditorRect, indicatorLimiter, scrollXLimiter } from './utils';
+import { scrollYLimiter, watchScrollHeight, watchEditorRect, scrollXLimiter, indicatorLimiter } from './utils';
 import { RootState } from '@redux/reducers';
 import { channelListSelector } from '@redux/selectors/channel';
 import { connect, ConnectedProps } from 'react-redux';
 import { selectBlock } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
-import { editorMarginTop, editorMarginBottom } from './constants';
+import { editorMarginTop, editorMarginBottom, editorChannelWidth, scrollerSize } from './constants';
 import eventEmitter from '@utils/event';
 import { EditorEvent, EditorScrollYShouldChangeEvent, EditorScrollXShouldChangeEvent, EditorRequestAutoScrollEvent } from '@events';
 import ZoomSlider from '@components/zoom-slider';
@@ -42,6 +42,8 @@ const Editor: React.FC<Props> = props => {
   const editorHeight = useRef<number>(0);
   const editorWidth = useRef<number>(0);
   const editorScrollHeight = useRef<number>(0);
+  const indicatorDraggingX = useRef<number>(-1);
+  const indicatorOffset = useRef<number>(0);
 
   const { channelList, selectBlock, maxLength, zoom } = props;
 
@@ -64,20 +66,42 @@ const Editor: React.FC<Props> = props => {
     eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
   }, [maxLength, zoom]);
 
+  const rerenderIndicator = useCallback(() => {
+    if (indicatorDraggingX.current !== -1) {
+      indicatorOffset.current = (indicatorDraggingX.current - editorChannelWidth - editorX.current) * zoom;
+      eventEmitter.emit(EditorEvent.editorIndicatorChanged, {
+        offset: indicatorOffset.current,
+      });
+    }
+    const offset = indicatorOffset.current / zoom;
+
+    if (indicatorRef.current) {
+      if (offset < -editorX.current || offset > -editorX.current + editorWidth.current - editorChannelWidth - scrollerSize) {
+        indicatorRef.current.style.visibility = 'hidden';
+      } else {
+        indicatorRef.current.style.visibility = 'visible';
+        indicatorRef.current.style.left = `${editorChannelWidth + offset + editorX.current}px`;
+      }
+    }
+  }, [zoom]);
+
   const rerenderScroll = useCallback(() => {
     const cWrapper = channelWrapperRef.current;
     const tWrapper = trackWrapperRef.current;
     if (cWrapper && tWrapper) {
       cWrapper.style.transform = `translateY(${editorY.current}px)`;
       tWrapper.style.transform = `translateX(${editorX.current}px) translateY(${editorY.current}px)`;
+      rerenderIndicator();
     }
-  }, []);
+  }, [rerenderIndicator]);
 
+  // channelListChangeEffect
   useEffect(() => {
     watchScrollHeight(editorScrollHeight, channelWrapperRef);
     heightReporter();
   }, [channelList, heightReporter]);
 
+  // windowResizeEffect
   useEffect(() => {
     const handler = () => {
       watchEditorRect(editorHeight, editorWidth, editorRef);
@@ -96,6 +120,7 @@ const Editor: React.FC<Props> = props => {
   }, [heightReporter, rerenderScroll, scrollYUpdater]);
 
   // 调整 zoom 时，调整 x 轴位置
+  // zoomChangeEffect
   const prevZoom = usePrevious(zoom);
   useEffect(() => {
     const scale = zoom / prevZoom;
@@ -105,6 +130,7 @@ const Editor: React.FC<Props> = props => {
   }, [zoom, scrollXUpdater, prevZoom, rerenderScroll]);
 
   // 处理鼠标滚轮/触摸板滚动
+  // mouseWheelEffect
   useEffect(() => {
     if (editorRef.current) {
       const dom = editorRef.current;
@@ -123,37 +149,57 @@ const Editor: React.FC<Props> = props => {
   }, [scrollYUpdater, scrollXUpdater, rerenderScroll]);
 
   const [dragging, setDragging] = useState<boolean>(false);
-  const indicatorMouseDown = useCallback(() => {
+  const indicatorMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     setDragging(true);
   }, []);
 
+  // mouseMoveEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
-        if (indicatorRef.current) {
-          const left = indicatorLimiter(e.screenX, editorWidth.current);
-          indicatorRef.current.style.left = `${left}px`;
+        if (e.clientX < editorChannelWidth + 20) {
+          const deltaX = e.clientX - editorChannelWidth - 20;
+          eventEmitter.emit(EditorEvent.editorRequestAutoScrollX, {
+            delta: deltaX,
+          });
+        } else if (e.clientX > editorWidth.current - 100) {
+          const deltaX = 100 - (editorWidth.current - e.clientX);
+          eventEmitter.emit(EditorEvent.editorRequestAutoScrollX, {
+            delta: deltaX,
+          });
+        } else {
+          eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
         }
+        const left = indicatorLimiter(e.clientX, editorWidth.current);
+        indicatorDraggingX.current = left;
+        rerenderIndicator();
       }
       window.addEventListener('mousemove', handler);
       return () => {
         window.removeEventListener('mousemove', handler);
       }
     }
-  }, [dragging]);
+  }, [dragging, zoom, rerenderIndicator]);
 
+  // mouseUpEffect
   useEffect(() => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
+        eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
         setDragging(false);
+        requestAnimationFrame(() => {
+          rerenderIndicator();
+          indicatorDraggingX.current = -1;
+        });
       }
       window.addEventListener('mouseup', handler);
       return () => {
         window.removeEventListener('mouseup', handler);
       }
     }
-  }, [dragging, setDragging]);
+  }, [dragging, setDragging, rerenderIndicator]);
 
+  // scrollYShouldChangeEffect
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollYShouldChange, (p: EditorScrollYShouldChangeEvent) => {
       editorY.current = -p.scrollTop;
@@ -162,6 +208,7 @@ const Editor: React.FC<Props> = props => {
     });
   }, [scrollYUpdater, rerenderScroll]);
 
+  // scrollXShouldChangeEffect
   useEffect(() => {
     eventEmitter.on(EditorEvent.editorScrollXShouldChange, (p: EditorScrollXShouldChangeEvent) => {
       editorX.current = -p.scrollLeft;
@@ -175,6 +222,7 @@ const Editor: React.FC<Props> = props => {
   }, [selectBlock])
 
   // 自动滚动逻辑
+  // autoScrollXEffect
   const autoScrollXDelta = useRef<number>(0);
   const autoScrollXEnabled = useRef<boolean>(false);
   useEffect(() => {
@@ -205,6 +253,7 @@ const Editor: React.FC<Props> = props => {
 
   const autoScrollYDelta = useRef<number>(0);
   const autoScrollYEnabled = useRef<boolean>(false);
+  // autoScrollYEffect
   useEffect(() => {
     const raf = () => {
       scrollYUpdater(autoScrollYDelta.current);

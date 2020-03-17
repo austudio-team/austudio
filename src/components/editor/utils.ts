@@ -17,11 +17,11 @@ export function scrollXLimiter(
   editorScrollWidth: number,
 ) {
   scrollX.current = Math.min(0, scrollX.current - deltaX);
-  scrollX.current = Math.max(scrollX.current, editorWidth.current - editorScrollWidth - scrollerSize);
+  scrollX.current = Math.max(scrollX.current, editorWidth.current - editorChannelWidth - editorScrollWidth - scrollerSize);
 }
 
 export function indicatorLimiter(screenX: number, editorWidth: number) {
-  return Math.max(Math.min(screenX, editorWidth), editorChannelWidth);
+  return Math.max(Math.min(screenX, editorWidth - scrollerSize), editorChannelWidth);
 }
 
 export function watchEditorRect(

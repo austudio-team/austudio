@@ -163,7 +163,7 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
         const secondSlice: AudioSlice = {
           ...targetSlice,
           id: uuidv4(),
-          offset: targetSlice.offset + offset,
+          offset: targetSlice.offset + offset * firstSlice.stretch,
           start: splitOffset,
         }
         slices.splice(index, 1, firstSlice, secondSlice);
