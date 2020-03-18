@@ -8,7 +8,7 @@ import { scrollYLimiter, watchScrollHeight, watchEditorRect, scrollXLimiter, ind
 import { RootState } from '@redux/reducers';
 import { channelListSelector } from '@redux/selectors/channel';
 import { connect, ConnectedProps } from 'react-redux';
-import { selectBlock } from '@redux/actions/editor';
+import { selectBlock, updateZoom } from '@redux/actions/editor';
 import VerticalScroller from '@components/vertical-scroller';
 import { editorMarginTop, editorMarginBottom, editorChannelWidth, scrollerSize } from './constants';
 import eventEmitter from '@utils/event';
@@ -17,6 +17,7 @@ import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
 import { usePrevious } from '@hooks';
+import { isMac } from '@utils/browser';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
@@ -26,6 +27,7 @@ const mapState = (state: RootState) => ({
 
 const mapDispatch = {
   selectBlock,
+  updateZoom,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -45,7 +47,7 @@ const Editor: React.FC<Props> = props => {
   const indicatorDraggingX = useRef<number>(-1);
   const indicatorOffset = useRef<number>(0);
 
-  const { channelList, selectBlock, maxLength, zoom } = props;
+  const { channelList, selectBlock, maxLength, zoom, updateZoom } = props;
 
   const maxWidth = maxLength / zoom;
 
@@ -137,16 +139,24 @@ const Editor: React.FC<Props> = props => {
       const handler = (e: WheelEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        scrollYUpdater(e.deltaY);
-        scrollXUpdater(e.deltaX);
-        rerenderScroll();
+        if (isMac ? e.metaKey : e.ctrlKey) {
+          if (zoom > 10 && e.deltaY < 0) {
+            updateZoom(zoom - 10);
+          } else if (zoom < 100 && e.deltaY > 0) {
+            updateZoom(zoom + 10);
+          }
+        } else {
+          scrollYUpdater(e.deltaY);
+          scrollXUpdater(e.deltaX);
+          rerenderScroll();
+        }
       }
       dom.addEventListener('wheel', handler);
       return () => {
         dom.removeEventListener('wheel', handler);
       }
     }
-  }, [scrollYUpdater, scrollXUpdater, rerenderScroll]);
+  }, [scrollYUpdater, scrollXUpdater, rerenderScroll, zoom, updateZoom]);
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {

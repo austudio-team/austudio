@@ -7,13 +7,15 @@ import { connect, ConnectedProps } from 'react-redux';
 import { getLength, computeDraggingX, computeWidth, computeStretch } from './utils';
 import { isBlockSelectedSelector, zoomSelector } from '@redux/selectors/editor';
 import { selectBlock } from '@redux/actions/editor';
-import { updateSlice, splitSlice } from '@redux/actions/channel';
+import { updateSlice, splitSlice, deleteSlice } from '@redux/actions/channel';
 import { editorChannelWidth } from '@components/editor/constants';
 import eventEmitter from '@utils/event';
 import { EditorEvent, EditorScrollXChangeEvent, EditorTrackMouseEnterEvent } from '@events';
 import { cursorTypeSelector } from '@redux/selectors/functionBar';
 import { FunctionBarCursorType } from '@redux/types/functionBar';
 import { StretchingType } from './types';
+import { KeyEventEmitter } from '@utils/keyevent';
+import { KeyEvent } from '@utils/keyevent_declare';
 
 interface AudioBlockProps {
   slice: AudioSlice;
@@ -32,6 +34,7 @@ const mapDispatch = {
   selectBlock,
   updateSlice,
   splitSlice,
+  deleteSlice,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -39,7 +42,7 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & AudioBlockProps;
 
 const AudioBlock: React.FC<Props> = props => {
-  const { audio, slice, selected, selectBlock, cursorType,
+  const { audio, slice, selected, selectBlock, cursorType, deleteSlice,
           zoom, updateSlice, channelId, channelIndex, splitSlice } = props;
   const length = getLength(slice, audio);
   const width = Math.ceil(length / zoom) + 2;
@@ -307,6 +310,18 @@ const AudioBlock: React.FC<Props> = props => {
     stretchingType.current = e.currentTarget.dataset.type as StretchingType;
     setStretching(true);
   }, [setStretching, initDrag]);
+
+  useEffect(() => {
+    const handler = () => {
+      if (selected) {
+        deleteSlice(channelId, slice.id);
+      }
+    }
+    KeyEventEmitter.on(KeyEvent.DelBlock, handler);
+    return () => {
+      KeyEventEmitter.off(KeyEvent.DelBlock, handler);
+    }
+  }, [selected, deleteSlice, channelId, slice.id]);
 
   return (
     <StyledAudioBlock
