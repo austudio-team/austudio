@@ -10,6 +10,7 @@ import { updateMute, updateRecord, updatePan,
         updateName, updateSolo, updateVol } from '@redux/actions/channel';
 import { StyledSlider } from '@components/styled/slider';
 
+
 interface AudioChannelProps {
   channelId: string;
 }
