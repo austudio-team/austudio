@@ -12,6 +12,8 @@ export enum EditorEvent {
   'editorIndicatorChanged' = 'editorIndicatorChanged',
   'editorIndicatorShouldChange' = 'editorIndicatorShouldChange',
   'editorTrackMouseEnter' = 'editorTrackMouseEnter',
+  'requestPlay' = 'requestPlay',
+  'requestPause' = 'requestPause',
 }
 
 export interface EditorHeightChangeEvent {

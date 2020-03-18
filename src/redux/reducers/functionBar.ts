@@ -3,6 +3,8 @@ import { FunctionBarAction, FunctionBarState, FunctionState, FunctionBarActionTy
 const initialState: FunctionBarState = {
   library: FunctionState.NORMAL,
   cursorType: FunctionBarCursorType.select,
+  recording: false,
+  playing: false,
 }
 
 export function functionBarReducer(state: FunctionBarState = initialState, action: FunctionBarActionType): FunctionBarState {
@@ -16,6 +18,26 @@ export function functionBarReducer(state: FunctionBarState = initialState, actio
       return {
         ...state,
         cursorType: action.payload.target,
+      }
+    case FunctionBarAction.REQUEST_PLAY:
+      return {
+        ...state,
+        playing: true,
+      }
+    case FunctionBarAction.REQUEST_PAUSE:
+      return {
+        ...state,
+        playing: false,
+      }
+    case FunctionBarAction.REQUEST_RECORD:
+      return {
+        ...state,
+        recording: true,
+      }
+    case FunctionBarAction.STOP_RECORD:
+      return {
+        ...state,
+        recording: false,
       }
     default:
       return state;

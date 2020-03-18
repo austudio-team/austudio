@@ -7,3 +7,11 @@ export const librarySelector = (state: FunctionBarState) => {
 export const cursorTypeSelector = (state: FunctionBarState) => {
   return state.cursorType;
 }
+
+export const playingSelector = (state: FunctionBarState) => {
+  return state.playing;
+}
+
+export const recordingSelector = (state: FunctionBarState) => {
+  return state.recording;
+}
