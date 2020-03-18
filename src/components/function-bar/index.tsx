@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { FunctionBarcontainer } from '@components/styled';
 import { ButtonGroup, UndoButton, RedoButton, PointerButton, CutButton, FolderButton, ResizeButton } from '@components/styled/functionBar';
 import Tooltip from '@components/tooltip';
@@ -7,6 +7,8 @@ import { toggleLibrary, toggleCursorType } from '@redux/actions/functionBar';
 import { ConnectedProps, connect } from 'react-redux';
 import { FunctionState, FunctionBarCursorType } from '@redux/types/functionBar';
 import { librarySelector, cursorTypeSelector } from '@redux/selectors/functionBar';
+import { KeyEventEmitter } from '@utils/keyevent';
+import { KeyEvent } from '@utils/keyevent_declare';
 
 const mapState = (state: RootState) => ({
   libraryState: librarySelector(state.functionBar),
@@ -28,6 +30,14 @@ const FunctionBar: React.FC<Props> = props => {
     const type = e.currentTarget.dataset['type'] as FunctionBarCursorType;
     toggleCursorType(type);
   }, [toggleCursorType]);
+
+  useEffect(() => {
+    KeyEventEmitter.on(KeyEvent.Select, () => { toggleCursorType(FunctionBarCursorType.select) });
+    KeyEventEmitter.on(KeyEvent.Stretch, () => { toggleCursorType(FunctionBarCursorType.stretch) });
+    KeyEventEmitter.on(KeyEvent.Cut, () => { toggleCursorType(FunctionBarCursorType.cut) });
+    KeyEventEmitter.on(KeyEvent.ToggleLibrary, () => { toggleLibrary() });
+  }, [toggleCursorType, toggleLibrary]);
+
   return (
     <FunctionBarcontainer>
       <ButtonGroup>

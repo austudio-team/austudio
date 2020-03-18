@@ -6,6 +6,9 @@ import { ThemeProvider } from 'styled-components';
 import { theme } from './constants';
 import { Provider } from 'react-redux';
 import store from '@redux';
+import { initKeyEvent } from '@utils/keyevent';
+
+initKeyEvent();
 
 ReactDOM.render((
   <Provider store={store}>

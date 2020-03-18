@@ -14,6 +14,8 @@ import { millisecondToString } from '@utils/time';
 import { throttle } from 'lodash';
 import { playingSelector, recordingSelector } from '@redux/selectors/functionBar';
 import { requestPause, requestPlay, requestRecord, stopRecord } from '@redux/actions/functionBar';
+import { KeyEventEmitter } from '@utils/keyevent';
+import { KeyEvent } from '@utils/keyevent_declare';
 
 const mapState = (state: RootState) => ({
   playing: playingSelector(state.functionBar),
@@ -67,6 +69,23 @@ const ControlBar: React.FC<Props> = props => {
     requestPause();
     // todo...
   }, [requestPause]);
+
+
+  useEffect(() => {
+    const playHandler = () => {
+      if (playing) {
+        handlePauseClick();
+      } else {
+        handlePlayClick();
+      }
+    };
+    KeyEventEmitter.on(KeyEvent.TogglePlay, playHandler);
+    KeyEventEmitter.on(KeyEvent.ToggleRecord, handleRecordClick);
+    return () => {
+      KeyEventEmitter.off(KeyEvent.TogglePlay, playHandler);
+      KeyEventEmitter.off(KeyEvent.ToggleRecord, handleRecordClick);
+    }
+  }, [handlePlayClick, handlePauseClick, handleRecordClick, playing]);
 
   return (
     <FunctionBarcontainer>

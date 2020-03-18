@@ -105,6 +105,26 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
         }
       };
     }
+    case ChannelAction.DELETE_SLICE: {
+      const { channelId, sliceId } = action.payload;
+      const newSlices = [...state.channel[channelId].slices];
+      for (const [i, v] of newSlices.entries()) {
+        if (v.id === sliceId) {
+          newSlices.splice(i, 1);
+          break;
+        }
+      }
+      return {
+        ...state,
+        channel: {
+          ...state.channel,
+          [channelId]: {
+            ...state.channel[channelId],
+            slices: newSlices,
+          }
+        }
+      }
+    }
     case ChannelAction.UPDATE_SLICE: {
       const { slice, sliceId, channelId, newChannelId } = action.payload;
       const channel = state.channel[channelId];
