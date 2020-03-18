@@ -2,7 +2,7 @@ import { ChannelState, Channel } from "@redux/types/channel";
 import { v4 as uuidv4 } from 'uuid';
 
 const prefix = 'Audio Channel ';
-const defaultCount = 6;
+const defaultCount = 10;
 
 const defaultChannel = {
   mute: false,
