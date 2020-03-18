@@ -17,8 +17,12 @@ import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
 import { usePrevious } from '@hooks';
+<<<<<<< HEAD
 import { isMac } from '@utils/browser';
 
+=======
+import EffectPanel from '@components/effect-panel';
+>>>>>>> 5613f6b... feat: add effect-panel and effect audio nodes
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
   maxLength: maxLengthSelector(state.editor),
@@ -320,6 +324,7 @@ const Editor: React.FC<Props> = props => {
       <VerticalScroller />
       <ZoomSlider />
       <HorizontalScroller maxWidth={maxWidth} />
+      <EffectPanel />
     </EditorContainer>
   );
 };

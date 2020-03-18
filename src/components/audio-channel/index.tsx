@@ -12,6 +12,7 @@ import { StyledSlider } from '@components/styled/slider';
 import { createContextMenu } from '@utils/context-menu';
 import ChannelNameInput from './ChannelNameInput';
 
+
 interface AudioChannelProps {
   channelId: string;
 }

@@ -12,6 +12,7 @@ const Layout: React.FC = () => {
       <FunctionBar />
       <ControlBar />
       <Editor />
+      <div style={{ position: 'absolute' }} id="portalNode"></div>
     </Container>
   );
 }
