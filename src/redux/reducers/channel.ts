@@ -1,7 +1,6 @@
 import { ChannelState, ChannelActionType, ChannelAction, AudioSlice } from "@redux/types/channel";
 import { genenrateDefaultChannel, generateNewChannel } from "@redux/utils/channel";
 import { v4 as uuidv4 } from 'uuid';
-import { channel } from "redux-saga";
 
 const initialState: ChannelState = genenrateDefaultChannel();
 
