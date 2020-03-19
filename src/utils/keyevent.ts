@@ -28,15 +28,15 @@ const buildShortCutMap = () => {
 buildShortCutMap();
 
 const handler = (e: KeyboardEvent) => {
-  const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
-  const metaKey = isMac ? e.ctrlKey : e.metaKey;
-
-  const type = get(shortCutMap, [ctrlKey.toString(), metaKey.toString(), e.altKey.toString(), e.code], null);
-
-  console.log(type, e);
+  if ((e.target as Element).tagName !== 'INPUT') {
+    const ctrlKey = isMac ? e.metaKey : e.ctrlKey;
+    const metaKey = isMac ? e.ctrlKey : e.metaKey;
   
-  if (type) {
-    KeyEventEmitter.emit(type);
+    const type = get(shortCutMap, [ctrlKey.toString(), metaKey.toString(), e.altKey.toString(), e.code], null);
+  
+    if (type) {
+      KeyEventEmitter.emit(type);
+    }
   }
 }
 

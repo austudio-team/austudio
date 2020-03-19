@@ -36,6 +36,8 @@ export const ChannelName = styled.div`
   justify-content: center;
   flex-shrink: 1;
   line-height: 12px;
+  white-space: nowrap;
+  overflow: hidden;
 `;
 
 export const ChannelButtonGroup = styled.div`
@@ -103,4 +105,17 @@ export const RangeContainer = styled.div`
   & + & {
     margin-top: 20px;
   }
+`;
+
+export const StyledChannelNameInput = styled.input`
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  outline: 0;
+  border: none;
+  padding: 0 8px;
+  text-align: center;
+  background-color: ${p => p.theme.colors.N300};
 `;

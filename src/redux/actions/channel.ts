@@ -1,4 +1,4 @@
-import { AddChannelAction, ChannelAction, UpdateVolAction, UpdatePanAction, UpdateMuteAction, UpdateRecordAction, UpdateSoloAction, UpdateNameAction, AudioSliceParam, UpdateSliceAction, CreateSliceAction, DeleteSliceAction, SplitSliceAction } from "@redux/types/channel";
+import { AddChannelAction, ChannelAction, UpdateVolAction, UpdatePanAction, UpdateMuteAction, UpdateRecordAction, UpdateSoloAction, UpdateNameAction, AudioSliceParam, UpdateSliceAction, CreateSliceAction, DeleteSliceAction, SplitSliceAction, DeleteChannelAction } from "@redux/types/channel";
 
 export function addChannel(): AddChannelAction {
   return {
@@ -105,6 +105,15 @@ export function splitSlice(channelId: string, sliceId: string, offset: number): 
       channelId,
       sliceId,
       offset,
+    },
+  };
+}
+
+export function deleteChannel(channelId: string): DeleteChannelAction {
+  return {
+    type: ChannelAction.DELETE_CHANNEL,
+    payload: {
+      channelId,
     },
   };
 }

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { AudioChannelContainer, TopChannel, MiddleChannel, BottomChannel, ChannelName, 
   ChannelButtonGroup, ChannelButton, RangeContainer, RecordButton } from './styled';
 import Tooltip from '@components/tooltip';
@@ -7,8 +7,10 @@ import { RootState } from '@redux/reducers';
 import { ConnectedProps, connect } from 'react-redux';
 import { channelItemSelector } from '@redux/selectors/channel';
 import { updateMute, updateRecord, updatePan,
-        updateName, updateSolo, updateVol } from '@redux/actions/channel';
+        updateName, updateSolo, updateVol, deleteChannel } from '@redux/actions/channel';
 import { StyledSlider } from '@components/styled/slider';
+import { createContextMenu } from '@utils/context-menu';
+import ChannelNameInput from './ChannelNameInput';
 
 interface AudioChannelProps {
   channelId: string;
@@ -25,6 +27,7 @@ const mapDispatch = {
   updateName,
   updateSolo,
   updateVol,
+  deleteChannel,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -33,7 +36,10 @@ type Props = ConnectedProps<typeof connector> & AudioChannelProps;
 
 const AudioChannel: React.FC<Props> = props => {
   const { channel, updateMute, updateRecord,
-          updatePan, updateSolo, updateVol } = props;
+          updatePan, updateSolo, updateVol, updateName,
+          deleteChannel } = props;
+
+  const [editing, setEditing] = useState<boolean>(false);
 
   const volHandler = useCallback((e: number) => {
     updateVol(channel.id, e);
@@ -57,10 +63,56 @@ const AudioChannel: React.FC<Props> = props => {
     updateRecord(channel.id, !channel.record);
   }, [channel.id, channel.record, updateRecord]);
 
+  const handleNameDoubleClick = useCallback(() => {
+    if (!editing) setEditing(true);
+  }, [editing, setEditing]);
+
+  const blurHandler = useCallback((value: string) => {
+    if (value !== channel.name) {
+      updateName(channel.id, value);
+    }
+    setEditing(false);
+  }, [setEditing, channel.id, channel.name, updateName]);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    createContextMenu(e, [
+      {
+        name: "Rename",
+        handler: () => { setEditing(true) },
+      },
+      'divider',
+      {
+        name: "Insert above",
+        handler: () => { console.log('hello') },
+      },
+      {
+        name: "Move below",
+        handler: () => { console.log('hello') },
+      },
+      'divider',
+      {
+        name: "Move up",
+        handler: () => { console.log('hello') },
+      },
+      {
+        name: "Move down",
+        handler: () => { console.log('hello') },
+      },
+      'divider',
+      {
+        name: "Delete",
+        handler: () => { deleteChannel(channel.id) },
+      }
+    ]);
+  }, [setEditing, deleteChannel, channel.id]);
+
   return (
-    <AudioChannelContainer>
+    <AudioChannelContainer onContextMenu={handleContextMenu}>
       <TopChannel>
-        <ChannelName>{channel.name}</ChannelName>
+        <ChannelName onDoubleClick={handleNameDoubleClick}>
+          {channel.name}
+          {editing && <ChannelNameInput blurHandler={blurHandler} defaultValue={channel.name} />}
+        </ChannelName>
         <ChannelButtonGroup>
           <Tooltip title="Solo">
             <ChannelButton active={channel.solo} onClick={handleSolo}>S</ChannelButton>

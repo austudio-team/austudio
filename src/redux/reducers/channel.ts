@@ -201,6 +201,18 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
         return state;
       }
     }
+    case ChannelAction.DELETE_CHANNEL: {
+      const index = state.channelList.indexOf(action.payload.channelId);
+      const newChannelList = [...state.channelList];
+      newChannelList.splice(index, 1);
+      const newChannel = { ...state.channel };
+      delete newChannel[action.payload.channelId];
+      return {
+        ...state,
+        channelList: newChannelList,
+        channel: newChannel,
+      };
+    }
     default:
       return state;
   }
