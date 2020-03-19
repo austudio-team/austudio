@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { StyledSlider } from '@components/styled/slider';
 import { Delay } from '@shyrii/web-audio-effects';
-import MP3 from '@assets/music.mp3';
+// import MP3 from '@assets/music.mp3';
 
 const DelayPannel: React.FC = props => {
   const type = useRef<number>(0);
@@ -171,7 +171,7 @@ const DelayPannel: React.FC = props => {
         defaultValue={1}
         step={0.01}
       />
-      <audio src={MP3} ref={audioElementRef}></audio>
+      <audio ref={audioElementRef}></audio>
       <button onClick={playButtonClick} role="switch" aria-checked="false">
 				<span>{playing ? 'Pause' : 'Play'}</span>
 			</button>

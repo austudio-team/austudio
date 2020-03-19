@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { StyledSlider } from '@components/styled/slider';
 import { Reverb } from '@shyrii/web-audio-effects';
-import MP3 from '@assets/music.mp3';
+// import MP3 from '@assets/music.mp3';
 
 const ReverbPannel: React.FC = props => {
   const seconds = useRef<number>(3);
@@ -121,7 +121,7 @@ const ReverbPannel: React.FC = props => {
       <input type="checkbox" onChange={reverseHandler} checked={reverse}></input>
 
       {/* <input id="audio_file" type="file" accept="audio/*" /> */}
-      <audio src={MP3} ref={audioElementRef}></audio>
+      <audio ref={audioElementRef}></audio>
       <button onClick={playButtonClick} role="switch" aria-checked="false">
 				<span>{playing ? 'Pause' : 'Play'}</span>
 			</button>

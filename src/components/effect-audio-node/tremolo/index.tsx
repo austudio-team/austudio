@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { StyledSlider } from '@components/styled/slider';
 import { Tremolo } from '@shyrii/web-audio-effects';
-import MP3 from '@assets/music.mp3';
+// import MP3 from '@assets/music.mp3';
 
 const TremoloPannel: React.FC = props => {
   const speed = useRef<number>(0.7);
@@ -75,7 +75,7 @@ const TremoloPannel: React.FC = props => {
         defaultValue={0.5}
         step={0.1}
       />
-      <audio src={MP3} ref={audioElementRef}></audio>
+      <audio ref={audioElementRef}></audio>
       <button onClick={playButtonClick} role="switch" aria-checked="false">
 				<span>{playing ? 'Pause' : 'Play'}</span>
 			</button>
