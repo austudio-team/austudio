@@ -59,7 +59,7 @@ const EffectPanel: React.FC<Props> = props => {
         window.removeEventListener('mousemove', handler);
       }
     }
-  }, [dragging]);
+  }, [dragging, rerenderScroll]);
 
   // mouseUpEffect
   useEffect(() => {
