@@ -18,6 +18,10 @@ ReactDOM.render((
   </Provider>
 ), document.getElementById('root'));
 
+window.addEventListener('contextmenu', e => {
+  e.preventDefault();
+});
+
 // window.addEventListener('beforeunload', (e) => {
 //   e.returnValue = 'Are you sure to exit? This may lose your changes.';
 // });

@@ -16,6 +16,7 @@ import { FunctionBarCursorType } from '@redux/types/functionBar';
 import { StretchingType } from './types';
 import { KeyEventEmitter } from '@utils/keyevent';
 import { KeyEvent } from '@utils/keyevent_declare';
+import { createContextMenu } from '@utils/context-menu';
 
 interface AudioBlockProps {
   slice: AudioSlice;
@@ -175,7 +176,7 @@ const AudioBlock: React.FC<Props> = props => {
   useEffect(() => {
     if (dragging || stretching) {
       const handler = (e: MouseEvent) => {
-        if (audioBlockRef.current) {
+        if (audioBlockRef.current && e.which === 1) {
           mouseMovement.current = e.clientX - clickXRef.current;
           let deltaX = 0;
           // x
@@ -323,6 +324,15 @@ const AudioBlock: React.FC<Props> = props => {
     }
   }, [selected, deleteSlice, channelId, slice.id]);
 
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    createContextMenu(e, [
+      {
+        name: "Delete",
+        handler: () => { deleteSlice(channelId, slice.id) },
+      }
+    ]);
+  }, [channelId, slice.id, deleteSlice]);
+
   return (
     <StyledAudioBlock
       ref={audioBlockRef}
@@ -332,6 +342,7 @@ const AudioBlock: React.FC<Props> = props => {
       onMouseMove={cutMouseMoveHandler}
       onMouseLeave={cutMouseLeaveHandler}
       style={{ width, transform: `translateX(${offset}px)` }}
+      onContextMenu={handleContextMenu}
     >
       <AudioName>{audio.fileName}</AudioName>
       {
