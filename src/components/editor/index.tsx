@@ -18,7 +18,7 @@ import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
 import { usePrevious } from '@hooks';
 import { isMac } from '@utils/browser';
-
+import EffectPanel from '@components/effect-panel';
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
   maxLength: maxLengthSelector(state.editor),
@@ -320,6 +320,7 @@ const Editor: React.FC<Props> = props => {
       <VerticalScroller />
       <ZoomSlider />
       <HorizontalScroller maxWidth={maxWidth} />
+      <EffectPanel />
     </EditorContainer>
   );
 };

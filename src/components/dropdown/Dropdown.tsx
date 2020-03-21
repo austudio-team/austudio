@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { DropdownContainer, DropdownMenuContainer, DropdownInnerContainer } from './styled';
+import { DropdownContainer, DropdownMenuContainer, DropdownInnerContainer, DropdownItemWrapper, AddEffectWrapper, AddEffectIcon } from './styled';
+import { createContextMenu } from '@utils/context-menu';
+import DropdownItem from './DropdownItem';
 
 interface DropdownProps {
   value: string;
@@ -12,6 +14,7 @@ const Dropdown: React.FC<DropdownProps> = props => {
   const { width, margin, value = '' } = props;
   const container = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<boolean>(false);
+  const [selectItems, setSelectItems] = useState<string[]>([]);
 
   useEffect(() => {
     if (open) {
@@ -31,6 +34,47 @@ const Dropdown: React.FC<DropdownProps> = props => {
     setOpen(!open);
   }, [open, setOpen]);
 
+  const handleEffectMenu = useCallback((e: React.MouseEvent) => {
+    createContextMenu(e, [
+      {
+        name: "Filter",
+        handler: () => { 
+          setSelectItems([...selectItems, 'Filter']);
+        },
+      },
+      {
+        name: "Compressor",
+        handler: () => {
+          setSelectItems([...selectItems, 'Compressor']);
+        },
+      },
+      {
+        name: "Delay",
+        handler: () => {
+          setSelectItems([...selectItems, 'Delay']);
+        },
+      },
+      {
+        name: "Equlizer",
+        handler: () => {
+          setSelectItems([...selectItems, 'Equlizer']);
+        },
+      },
+      {
+        name: "Reverb",
+        handler: () => {
+          setSelectItems([...selectItems, 'Reverb']);
+        },
+      },
+      {
+        name: "Tremolo",
+        handler: () => {
+          setSelectItems([...selectItems, 'Tremolo']);
+        },
+      }
+    ]);
+  }, [selectItems, setSelectItems]);
+
   return (
     <DropdownContainer
       ref={container}
@@ -42,7 +86,20 @@ const Dropdown: React.FC<DropdownProps> = props => {
       >
         <span>{value}</span>
       </DropdownInnerContainer>
-      {open && <DropdownMenuContainer />}
+      {open && (
+        <DropdownMenuContainer>
+          <DropdownItemWrapper>
+          {
+            selectItems.map(v => (
+              <DropdownItem itemName={v}></DropdownItem>
+            ))
+          }
+          </DropdownItemWrapper>
+          <AddEffectWrapper onClick={handleEffectMenu}>
+            <AddEffectIcon />
+          </AddEffectWrapper>
+        </DropdownMenuContainer>
+      )}
     </DropdownContainer>
   );
 };
