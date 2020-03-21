@@ -1,3 +1,5 @@
+import { MenuEvent } from "@events/menu";
+
 export interface MenuItemType {
   key: string,
   name: string,
@@ -7,6 +9,7 @@ export interface MenuItemType {
 export interface SubMenuItemType {
   name: string,
   key: string,
+  action?: string,
 }
 
 export const menu = [
@@ -15,16 +18,23 @@ export const menu = [
     name: 'FILE',
     items: [
       {
-        name: 'Open',
-        key: 'FILE_OPEN'
+        name: 'Import',
+        key: 'FILE_OPEN',
+        action: MenuEvent.MENU_IMPORT,
+      },
+      {
+        name: 'Export',
+        key: 'FILE_EXPORT',
+        action: MenuEvent.MENU_EXPORT,
       },
       {
         name: 'divider',
         key: 'FILE_DIVIDER_1'
       },
       {
-        name: 'Close',
-        key: 'FILE_CLOSE'
+        name: 'Exit',
+        key: 'SYSTEM_CLOSE',
+        action: MenuEvent.MENU_EXIT,
       }
     ]
   },
@@ -35,6 +45,7 @@ export const menu = [
       {
         name: 'About',
         key: 'ABOUT_ABOUT',
+        action: MenuEvent.MENU_ABOUT,
       },
     ]
   }

@@ -23,6 +23,7 @@ export interface AddAudioAction {
   payload: {
     fileName: string,
     length: number,
+    id: string,
   }
 }
 

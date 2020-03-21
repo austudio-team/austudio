@@ -1,10 +1,10 @@
 import { AddAudioAction, LibraryAction, LibraryDragStartAction, LibraryDragEndAction } from "@redux/types/library";
 
-export function addAudio(fileName: string, length: number): AddAudioAction {
+export function addAudio(fileName: string, length: number, id: string): AddAudioAction {
   return {
     type: LibraryAction.ADD_AUDIO,
     payload: {
-      fileName, length,
+      fileName, length, id,
     },
   };
 }

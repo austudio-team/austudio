@@ -7,8 +7,10 @@ import { theme } from './constants';
 import { Provider } from 'react-redux';
 import store from '@redux';
 import { initKeyEvent } from '@utils/keyevent';
+import { getAudioController } from '@audio/AudioController';
 
 initKeyEvent();
+getAudioController({});
 
 ReactDOM.render((
   <Provider store={store}>

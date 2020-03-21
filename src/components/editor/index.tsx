@@ -19,6 +19,8 @@ import HorizontalScroller from '@components/horizontal-scroller';
 import { usePrevious } from '@hooks';
 import { isMac } from '@utils/browser';
 import EffectPanel from '@components/effect-panel';
+import { getAudioController } from '@audio/AudioController';
+
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
   maxLength: maxLengthSelector(state.editor),
@@ -142,7 +144,7 @@ const Editor: React.FC<Props> = props => {
         if (isMac ? e.metaKey : e.ctrlKey) {
           if (zoom > 10 && e.deltaY < 0) {
             updateZoom(zoom - 10);
-          } else if (zoom < 100 && e.deltaY > 0) {
+          } else if (zoom < 300 && e.deltaY > 0) {
             updateZoom(zoom + 10);
           }
         } else {
@@ -290,9 +292,26 @@ const Editor: React.FC<Props> = props => {
     }
   }, [scrollYUpdater, rerenderScroll]);
 
+  const dragOverHandler = useCallback(e => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  }, []);
+
+  const audioFileDropHandler = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { files } = e.dataTransfer;
+    const audioController = getAudioController();
+    if (files) {
+      audioController.handleFile(files);
+    }
+  }, []);
+
   return (
     <EditorContainer
       ref={editorRef}
+      onDrop={audioFileDropHandler}
+      onDragOver={dragOverHandler}
     >
       <AudioManage />
       <AudioChannelWrapper>
