@@ -12,7 +12,6 @@ import { StyledSlider } from '@components/styled/slider';
 import { createContextMenu } from '@utils/context-menu';
 import ChannelNameInput from './ChannelNameInput';
 
-
 interface AudioChannelProps {
   channelId: string;
 }
@@ -155,7 +154,7 @@ const AudioChannel: React.FC<Props> = props => {
         </RangeContainer>
       </MiddleChannel>
       <BottomChannel>
-        <Dropdown value="Effects" width={200} margin="0 0 6px 6px" isShowItems={true}/>
+        <Dropdown value="Effects" width={200} margin="0 0 6px 6px" />
       </BottomChannel>
     </AudioChannelContainer>
   );

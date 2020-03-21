@@ -8,7 +8,6 @@ interface DropdownProps {
   width?: number;
   margin?: string;
   closeOnInnerClose?: boolean;
-  isShowItems?: boolean;
 }
 
 const Dropdown: React.FC<DropdownProps> = props => {
@@ -87,19 +86,20 @@ const Dropdown: React.FC<DropdownProps> = props => {
       >
         <span>{value}</span>
       </DropdownInnerContainer>
-      { open && 
-      <DropdownMenuContainer>
-        <DropdownItemWrapper>
-        {
-          selectItems.map(v => (
-            <DropdownItem itemName={v}></DropdownItem>
-          ))
-        }
-        </DropdownItemWrapper>
-        <AddEffectWrapper onClick={handleEffectMenu}>
-          <AddEffectIcon></AddEffectIcon>
-        </AddEffectWrapper>
-      </DropdownMenuContainer>}
+      {open && (
+        <DropdownMenuContainer>
+          <DropdownItemWrapper>
+          {
+            selectItems.map(v => (
+              <DropdownItem itemName={v}></DropdownItem>
+            ))
+          }
+          </DropdownItemWrapper>
+          <AddEffectWrapper onClick={handleEffectMenu}>
+            <AddEffectIcon />
+          </AddEffectWrapper>
+        </DropdownMenuContainer>
+      )}
     </DropdownContainer>
   );
 };
