@@ -155,7 +155,7 @@ const AudioChannel: React.FC<Props> = props => {
         </RangeContainer>
       </MiddleChannel>
       <BottomChannel>
-        <Dropdown value="Effects" width={200} margin="0 0 6px 6px" />
+        <Dropdown value="Effects" width={200} margin="0 0 6px 6px" isShowItems={true}/>
       </BottomChannel>
     </AudioChannelContainer>
   );
