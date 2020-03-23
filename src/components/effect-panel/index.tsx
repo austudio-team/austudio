@@ -1,20 +1,16 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { EffectPanelContainer, Title, CloseIcon, TitleWrapper, TemplateWrapper, ParamsContainer } from './styled';
-import { Dropdown } from '@components/dropdown';
+// import { Dropdown } from '@components/dropdown';
 import Tooltip from '@components/tooltip';
 import { StyledSlider } from '@components/styled/slider';
 import { RootState } from '@redux/reducers';
-import { librarySelector } from '@redux/selectors/functionBar';
-import { toggleLibrary } from '@redux/actions/functionBar';
 import { FunctionState } from '@redux/types/functionBar';
 import { ConnectedProps, connect } from 'react-redux';
 import {createPortal} from 'react-dom';
 
 const mapState = (state: RootState) => ({
-  libraryState: librarySelector(state.functionBar),
 });
 const mapDispatch = {
-  toggleLibrary,
 }
 const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
@@ -24,15 +20,7 @@ const EffectPanel: React.FC<Props> = props => {
   const panelX = useRef<number>(50);
   const panelY = useRef<number>(100);
 
-  const { libraryState, toggleLibrary } = props;
-  const [inited, setInited] = useState<boolean>(false);
-  
-
-  useEffect(() => {
-    if (!inited && libraryState === FunctionState.ACTIVE) {
-      setInited(true);
-    }
-  }, [inited, libraryState]);
+  const {} = props;
 
   const rerenderScroll = useCallback((moveX, moveY) => {
     const EffectPanel = EffectPanelRef.current;
@@ -75,18 +63,18 @@ const EffectPanel: React.FC<Props> = props => {
   }, [dragging, setDragging]);
 
 
-  return inited ? createPortal((
+  return createPortal((
     <EffectPanelContainer
-      show={libraryState === FunctionState.ACTIVE}
+      // show={libraryState === FunctionState.ACTIVE}
       onMouseDown={handleMouseDown} ref={EffectPanelRef}
     >
       <TitleWrapper>
-        <CloseIcon onClick={toggleLibrary} />
+        <CloseIcon/>
         <Title>AUDIO CHANNEL 2</Title>
       </TitleWrapper>
       <TemplateWrapper>
         <span>Reverb</span>
-        <Dropdown value="Presets" width={150} margin="0 0 0 100px"></Dropdown>
+        {/* <Dropdown value="Presets" width={150} margin="0 0 0 100px"></Dropdown> */}
       </TemplateWrapper>
       <ParamsContainer>
           <span>V:</span>
@@ -101,6 +89,6 @@ const EffectPanel: React.FC<Props> = props => {
           </Tooltip>
         </ParamsContainer>
     </EffectPanelContainer>
-  ), document.querySelector('#portalNode') as HTMLDivElement) : null;
+  ), document.querySelector('#portalNode') as HTMLDivElement);
 }
 export default connector(EffectPanel);
