@@ -5,6 +5,7 @@ import { isMenuOpenedSelector, isThisMenuOpenedSelector } from '@redux/selectors
 import { closeMenu, openMenu } from '@redux/actions/menu';
 import { MenuItemType } from '@constants';
 import { MenuEntry, MenuDropdown, MenuDropdownDivider, MenuDropdownItem } from '@components/styled';
+import eventEmitter from '@utils/event';
 
 export interface MenuItemProps {
   menu: MenuItemType;
@@ -56,7 +57,12 @@ const MenuItem: React.FC<Props> = props => {
       };
     }
     return () => {};
-  }, [selfOpened, closeMenu])
+  }, [selfOpened, closeMenu]);
+
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    eventEmitter.emit(e.currentTarget.dataset['action']!);
+    closeMenu();
+  }, [closeMenu]);
 
   return (
     <div ref={container} style={{ position: 'relative' }}>
@@ -72,7 +78,7 @@ const MenuItem: React.FC<Props> = props => {
         {menu.items.map(v => {
           return v.name === 'divider' ?
             <MenuDropdownDivider key={v.key} /> :
-            <MenuDropdownItem key={v.key}>{v.name}</MenuDropdownItem>;
+            <MenuDropdownItem onClick={handleClick} data-action={v.action} key={v.key}>{v.name}</MenuDropdownItem>;
         })}
       </MenuDropdown>
     </div>

@@ -12,5 +12,6 @@ module.exports = function override(config, env) {
   config.resolve.alias['@utils'] = path.resolve(__dirname, 'src/utils/');
   config.resolve.alias['@events'] = path.resolve(__dirname, 'src/events/');
   config.resolve.alias['@hooks'] = path.resolve(__dirname, 'src/hooks/');
+  config.resolve.alias['@audio'] = path.resolve(__dirname, 'src/audio/');
   return config;
 }

@@ -19,7 +19,9 @@
       "@events": ["src/events"],
       "@events/*": ["src/events/*"],
       "@hooks": ["src/hooks"],
-      "@hooks/*": ["src/hooks/*"]
+      "@hooks/*": ["src/hooks/*"],
+      "@audio": ["src/audio"],
+      "@audio/*": ["src/audio/*"]
     }
   }
 }

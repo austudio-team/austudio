@@ -118,4 +118,5 @@ export const StyledChannelNameInput = styled.input`
   padding: 0 8px;
   text-align: center;
   background-color: ${p => p.theme.colors.N300};
+  color: ${p => p.theme.colors.N800};
 `;
