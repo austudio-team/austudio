@@ -10,8 +10,7 @@ interface EffectPanelContainerProps {
 export const EffectPanelContainer = styled.div<EffectPanelContainerProps>`
   position: absolute;
   z-index: ${p => p.selected ? 201 : 200};
-  width: 360px;
-  height: 600px;
+  width: 280px;
   background: ${p => p.theme.colors.N600};
   color: ${p => p.theme.colors.N100};
   opacity: ${p => p.inited ? 1 : 0};
@@ -59,7 +58,7 @@ export const TemplateWrapper = styled.div`
   position: relative;
   display: flex;
   align-items: center;
-  font-size: 20px;
+  font-size: 18px;
   padding: 0 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 `
@@ -68,6 +67,10 @@ export const ParamsContainer = styled.div`
   position: relative;
   display: flex;
   justify-content: center;
-  font-size: 15px;
-  padding: 0 20px;
+  font-size: 12px;
+  color: ${p => p.theme.colors.N200};
+`
+export const SelectContainer = styled.div`
+  position: absolute;
+  right: 20px;
 `
