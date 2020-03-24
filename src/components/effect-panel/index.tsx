@@ -4,7 +4,7 @@ import { RootState } from '@redux/reducers';
 import { ConnectedProps, connect } from 'react-redux';
 import { channelItemSelector } from '@redux/selectors/channel';
 import { effectByIdSelector } from '@redux/selectors/audioEffect';
-import { closeEffectPanel } from '@redux/actions/audioEffect';
+import { closeEffectPanel, modifyEffect } from '@redux/actions/audioEffect';
 import { effectName, Effects } from '@constants';
 import eventEmitter from '@utils/event';
 import { EffectPanelEvent } from '@events/effectPanel';
@@ -16,20 +16,21 @@ import ReverbPannel from '@components/effect-audio-node/reverb';
 import TremoloPannel from '@components/effect-audio-node/tremolo';
 import { StyledSelect } from '@components/styled/select';
 import { Option } from 'rc-select';
+import EffectAudioNode from '@components/effect-audio-node';
 
 interface EffectPanelProps {
   channelId: string;
   effectId: string;
 }
 
-const mapComponent = {
-  [Effects.COMPRESSOR]: CompressorPannel,
-  [Effects.DELAY]: DelayPannel,
-  [Effects.FILTER]: FilterPannel,
-  [Effects.EQUALIZER]: EqualizerPannel,
-  [Effects.REVERB]: ReverbPannel,
-  [Effects.TREMOLO]: TremoloPannel,
-}
+// const mapComponent = {
+//   [Effects.COMPRESSOR]: CompressorPannel,
+//   [Effects.DELAY]: DelayPannel,
+//   [Effects.FILTER]: FilterPannel,
+//   [Effects.EQUALIZER]: EqualizerPannel,
+//   [Effects.REVERB]: ReverbPannel,
+//   [Effects.TREMOLO]: TremoloPannel,
+// }
 
 const mapState = (state: RootState, ownProps: EffectPanelProps) => ({
   channel: channelItemSelector(state.channel, ownProps.channelId),
@@ -38,6 +39,7 @@ const mapState = (state: RootState, ownProps: EffectPanelProps) => ({
 
 const mapDispatch = {
   closeEffectPanel,
+  modifyEffect,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -51,7 +53,7 @@ const EffectPanel: React.FC<Props> = props => {
   const [inited, setInited] = useState<boolean>(false);
   const [selected, setSelected] = useState<boolean>(false);
 
-  const { channel, effect, effectId, channelId, closeEffectPanel } = props;
+  const { channel, effect, effectId, channelId, closeEffectPanel, modifyEffect } = props;
 
   const rerenderPos = useCallback(() => {
     const EffectPanel = EffectPanelRef.current;
@@ -124,9 +126,11 @@ const EffectPanel: React.FC<Props> = props => {
     return () => {
       eventEmitter.off(EffectPanelEvent.PANEL_SELECTED, handler);
     }
-  }, [setSelected, effectId])
+  }, [setSelected, effectId]);
 
-  let EffectComponent = mapComponent[effect.type];
+  const handleFormChange = useCallback((e) => {
+    modifyEffect(channelId, effect.id, e);
+  }, [channelId, modifyEffect, effect.id]);
 
   return (
     <EffectPanelContainer
@@ -148,7 +152,8 @@ const EffectPanel: React.FC<Props> = props => {
         </SelectContainer>
       </TemplateWrapper>
       <ParamsContainer>
-        <EffectComponent channelId={channelId} effect={effect}></EffectComponent>
+        {/* <EffectComponent channelId={channelId} effect={effect}></EffectComponent> */}
+        <EffectAudioNode effect={effect} onChange={handleFormChange} />
       </ParamsContainer>
     </EffectPanelContainer>
   );

@@ -61,7 +61,7 @@ const Dropdown: React.FC<Props> = props => {
       {
         name: "Filter",
         handler: () => {
-          addEffect(channelId, Effects.COMPRESSOR);
+          addEffect(channelId, Effects.FILTER);
         },
       },
       {
