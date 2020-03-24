@@ -47,7 +47,7 @@ const EffectPanel: React.FC<Props> = props => {
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     eventEmitter.emit(EffectPanelEvent.PANEL_SELECTED, effectId);
     setDragging(true);
-  }, [setDragging, channelId])
+  }, [setDragging, effectId])
 
   // mouseMoveEffect
   useEffect(() => {
@@ -79,7 +79,7 @@ const EffectPanel: React.FC<Props> = props => {
 
   const handleClosePanel = useCallback(() => {
     closeEffectPanel(channelId, effectId);
-  }, [closeEffectPanel]);
+  }, [closeEffectPanel, effectId, channelId]);
 
   // initPosEffect
   useEffect(() => {
@@ -92,7 +92,7 @@ const EffectPanel: React.FC<Props> = props => {
       rerenderPos();
       setInited(true);
     }
-  }, []);
+  }, [effectId, rerenderPos]);
 
   useEffect(() => {
     const handler = (targetEffectId: string) => {

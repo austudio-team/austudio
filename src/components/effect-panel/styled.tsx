@@ -1,4 +1,4 @@
-import styled, { keyframes, css } from 'styled-components';
+import styled, { css } from 'styled-components';
 import { ReactComponent as Close } from '@assets/svg/close.svg';
 import { inAnimation } from '@components/context-menu/styled';
 
