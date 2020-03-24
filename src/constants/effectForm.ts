@@ -1,5 +1,5 @@
 import { Effects } from "./effects";
-import { defaultCompressorParams } from "./effectParams";
+import { defaultCompressorParams, defaultDelayParams, defaultFilterParams, defaultEqulizerParams, defaultReverbParams, defaultTremoloParams } from "./effectParams";
 
 export const EffectForm = {
   [Effects.COMPRESSOR]: [
@@ -37,6 +37,149 @@ export const EffectForm = {
       range: [0, 1],
       step: 0.01,
       defaultValue: defaultCompressorParams.gain,
+    },
+  ],
+  [Effects.DELAY]: [
+    {
+      key: 'type',
+      name: 'Type',
+      range: [0, 2],
+      step: 1,
+      defaultValue: defaultDelayParams.type,
+    },
+    {
+      key: 'delay',
+      name: 'Delay',
+      range: [0, 1],
+      step: 0.01,
+      defaultValue: defaultDelayParams.delay,
+    },
+    {
+      key: 'feedback',
+      name: 'Feedback',
+      range: [0, 1],
+      step: 0.1,
+      defaultValue: defaultDelayParams.feedback,
+    },
+    {
+      key: 'cutoff',
+      name: 'Cutoff',
+      range: [0, 22050],
+      step: 50,
+      defaultValue: defaultDelayParams.cutoff,
+    },
+    {
+      key: 'offset',
+      name: 'Offset',
+      range: [-0.5, 0.5],
+      step: 0.01,
+      defaultValue: defaultDelayParams.offset,
+    },
+    {
+      key: 'dry',
+      name: 'Dry',
+      range: [0, 1],
+      step: 0.01,
+      defaultValue: defaultDelayParams.dry,
+    },
+  ],
+  [Effects.FILTER]: [
+    {
+      key: 'frequency',
+      name: 'Frequency',
+      range: [20, 20000],
+      step: 1,
+      defaultValue: defaultFilterParams.frequency,
+    },
+    {
+      key: 'quality',
+      name: 'Quality',
+      range: [0, 1],
+      step: 0.01,
+      defaultValue: defaultFilterParams.quality,
+    },
+    {
+      key: 'gain',
+      name: 'Gain',
+      range: [-40, 40],
+      step: 0.01,
+      defaultValue: defaultFilterParams.gain,
+    },
+    {
+      key: 'wet',
+      name: 'Wet',
+      range: [0, 1],
+      step: 1,
+      defaultValue: defaultFilterParams.wet,
+    },
+    {
+      key: 'dry',
+      name: 'Dry',
+      range: [0, 1],
+      step: 0,
+      defaultValue: defaultFilterParams.dry,
+    },
+  ],
+  [Effects.EQUALIZER]: [
+    {
+      key: 'low',
+      name: 'Low',
+      range: [0, 1],
+      step: 0.01,
+      defaultValue: defaultEqulizerParams.low,
+    },
+    {
+      key: 'mid',
+      name: 'Mid',
+      range: [0, 1],
+      step: 0.01,
+      defaultValue: defaultEqulizerParams.mid,
+    },
+    {
+      key: 'high',
+      name: 'High',
+      range: [0, 1],
+      step: 0.01,
+      defaultValue: defaultEqulizerParams.high,
+    },
+  ],
+  [Effects.REVERB]: [
+    {
+      key: 'seconds',
+      name: 'Seconds',
+      range: [1, 10],
+      step: 1,
+      defaultValue: defaultReverbParams.seconds,
+    },
+    {
+      key: 'decay',
+      name: 'Decay',
+      range: [0, 100],
+      step: 1,
+      defaultValue: defaultReverbParams.decay,
+    },
+    {
+      key: 'delay',
+      name: 'Delay',
+      range: [0, 100],
+      step: 1,
+      defaultValue: defaultReverbParams.delay,
+    },
+  ],
+  [Effects.TREMOLO]: [
+    {
+      key: 'speed',
+      name: 'Speed',
+      range: [0, 20],
+      step: 0.1,
+      defaultValue: defaultTremoloParams.speed,
+    },
+    {
+      key: 'depth',
+      name: 'Depth',
+      range: [0, 10],
+      step: 0.1,
+      defaultValue: defaultTremoloParams.depth,
     },
   ]
 }

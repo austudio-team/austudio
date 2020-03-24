@@ -5,15 +5,9 @@ import { ConnectedProps, connect } from 'react-redux';
 import { channelItemSelector } from '@redux/selectors/channel';
 import { effectByIdSelector } from '@redux/selectors/audioEffect';
 import { closeEffectPanel, modifyEffect } from '@redux/actions/audioEffect';
-import { effectName, Effects } from '@constants';
+import { effectName } from '@constants';
 import eventEmitter from '@utils/event';
 import { EffectPanelEvent } from '@events/effectPanel';
-import CompressorPannel from '@components/effect-audio-node/compressor';
-import DelayPannel from '@components/effect-audio-node/delay';
-import FilterPannel from '@components/effect-audio-node/filter';
-import EqualizerPannel from '@components/effect-audio-node/equalizer';
-import ReverbPannel from '@components/effect-audio-node/reverb';
-import TremoloPannel from '@components/effect-audio-node/tremolo';
 import { StyledSelect } from '@components/styled/select';
 import { Option } from 'rc-select';
 import EffectAudioNode from '@components/effect-audio-node';
@@ -152,7 +146,6 @@ const EffectPanel: React.FC<Props> = props => {
         </SelectContainer>
       </TemplateWrapper>
       <ParamsContainer>
-        {/* <EffectComponent channelId={channelId} effect={effect}></EffectComponent> */}
         <EffectAudioNode effect={effect} onChange={handleFormChange} />
       </ParamsContainer>
     </EffectPanelContainer>
