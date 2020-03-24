@@ -339,7 +339,6 @@ const Editor: React.FC<Props> = props => {
       <VerticalScroller />
       <ZoomSlider />
       <HorizontalScroller maxWidth={maxWidth} />
-      <EffectPanel />
     </EditorContainer>
   );
 };

@@ -7,3 +7,9 @@ export const channelEffectSelector = (state: AudioEffectState, channelId: string
 export const openedEffectSelector = (state: AudioEffectState) => {
   return state.openedEffects;
 }
+
+export const effectByIdSelector = (state: AudioEffectState, channelId: string, effectId: string) => {
+  const effects = channelEffectSelector(state, channelId);
+  const effect = effects.filter(v => v.id === effectId);
+  return effect[0] || null;
+}

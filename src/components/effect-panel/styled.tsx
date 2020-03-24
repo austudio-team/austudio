@@ -1,43 +1,23 @@
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { ReactComponent as Close } from '@assets/svg/close.svg';
+import { inAnimation } from '@components/context-menu/styled';
 
 interface EffectPanelContainerProps {
-  show?: boolean;
+  inited: boolean;
+  selected: boolean;
 }
-
-const inKeyframe = keyframes`
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-`; 
-
-const outKeyframe = keyframes`
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-100%);
-  }
-`; 
 
 export const EffectPanelContainer = styled.div<EffectPanelContainerProps>`
   position: absolute;
-  z-index: 999;
-  left: 50px;
-  top: 100px;
+  z-index: ${p => p.selected ? 201 : 200};
   width: 360px;
-  height: 240px;
+  height: 600px;
   background: ${p => p.theme.colors.N600};
   color: ${p => p.theme.colors.N100};
-  animation: ${props => props.show ? inKeyframe : outKeyframe} 0.3s ${props => props.theme.animation.normal} forwards;
+  opacity: ${p => p.inited ? 1 : 0};
+  animation: ${p => p.inited ? css`${inAnimation} 0.3s ${p.theme.animation.normal} backwards` : 'none'};
   font-size: 13px;
   box-shadow: 0px 0px 16px ${p => p.theme.colors.N800};
-  /* &:hover {
-    background-color: ${p => p.theme.colors.N450};
-  } */
 `;
 
 export const CloseIcon = styled(Close)`

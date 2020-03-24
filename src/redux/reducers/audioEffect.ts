@@ -52,8 +52,8 @@ export function AudioEffectReducer(state: AudioEffectState = initialState, actio
           [action.payload.channelId]: originEffects,
         }
       };
-    case AudioEffectAction.OPEN_PANEL:
-      const { channelId, effectId } = action.payloiad;
+    case AudioEffectAction.OPEN_PANEL: {
+      const { channelId, effectId } = action.payload;
       return {
         ...state,
         openedEffects: [...state.openedEffects, {
@@ -61,9 +61,10 @@ export function AudioEffectReducer(state: AudioEffectState = initialState, actio
             effectId,
           }],
       };
-    case AudioEffectAction.CLOSE_PANEL:
-      const newOpenedEffects = [...openedEffects];
-      const { channelId, effectId } = action.payloiad;
+    }
+    case AudioEffectAction.CLOSE_PANEL: {
+      const newOpenedEffects = [...state.openedEffects];
+      const { channelId, effectId } = action.payload;
       for (const [i, v] of newOpenedEffects.entries()) {
         if (v.channelId === channelId && effectId === v.effectId) {
           newOpenedEffects.splice(i, 1);
@@ -73,6 +74,7 @@ export function AudioEffectReducer(state: AudioEffectState = initialState, actio
         ...state,
         openedEffects: newOpenedEffects,
       };
+    }
     default:
       return state;
   }

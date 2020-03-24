@@ -5,7 +5,7 @@ import DropdownItem from './DropdownItem';
 import { RootState } from '@redux/reducers';
 import { connect, ConnectedProps } from 'react-redux';
 import { channelEffectSelector } from '@redux/selectors/audioEffect';
-import { addEffect, removeEffect } from '@redux/actions/audioEffect';
+import { addEffect, removeEffect, openEffectPanel } from '@redux/actions/audioEffect';
 import { Effects } from '@constants';
 
 interface DropdownProps {
@@ -21,22 +21,28 @@ const mapState = (state: RootState, ownProps: DropdownProps) => ({
 });
 const mapDispatch = {
   addEffect,
-  removeEffect
+  removeEffect,
+  openEffectPanel,
 }
 const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & DropdownProps;
 
 const Dropdown: React.FC<Props> = props => {
-  const { width, margin, value = '', channelId, effects, addEffect, removeEffect } = props;
+  const { width, margin, value = '', channelId, effects, addEffect, removeEffect, openEffectPanel } = props;
   const container = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<boolean>(false);
-  // const [selectItems, setSelectItems] = useState<string[]>([]);
+  const contextMenuOpenRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (open) {
       const detect = (e: MouseEvent) => {
         if (!container.current) return;
-        !container.current.contains((e.target as any)) && setOpen(false);
+        if (
+          !container.current.contains((e.target as any))
+          && !contextMenuOpenRef.current
+        ) {
+          setOpen(false);
+        }
       };
       window.addEventListener('mousedown', detect);
       return () => {
@@ -88,7 +94,10 @@ const Dropdown: React.FC<Props> = props => {
           addEffect(channelId, Effects.TREMOLO);
         },
       }
-    ]);
+    ], () => {
+      contextMenuOpenRef.current = false;
+    });
+    contextMenuOpenRef.current = true;
   }, [addEffect, channelId]);
 
   return (
@@ -107,7 +116,13 @@ const Dropdown: React.FC<Props> = props => {
           <DropdownItemWrapper>
           {
             effects && effects.map(v => (
-              <DropdownItem item={v} key={v.id} channelId={channelId} removeEffect={removeEffect}></DropdownItem>
+              <DropdownItem
+                item={v}
+                key={v.id}
+                channelId={channelId}
+                removeEffect={removeEffect}
+                openEffectPanel={openEffectPanel}
+              />
             ))
           }
           </DropdownItemWrapper>

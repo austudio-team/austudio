@@ -55,7 +55,7 @@ export interface ModifyEffectAction {
   }
 }
 
-export interface OpenPanelAction {
+export interface OpenEffectPanelAction {
   type: typeof AudioEffectAction.OPEN_PANEL,
   payload: {
     channelId: string,
@@ -63,7 +63,7 @@ export interface OpenPanelAction {
   }
 }
 
-export interface ClosePanelAction {
+export interface CloseEffectPanelAction {
   type: typeof AudioEffectAction.CLOSE_PANEL,
   payload: {
     channelId: string,
@@ -71,4 +71,4 @@ export interface ClosePanelAction {
   }
 }
 
-export type AudioEffectActionType = AddEffectAction | RemoveEffectAction | ModifyEffectAction | OpenPanelAction | ClosePanelAction;
+export type AudioEffectActionType = AddEffectAction | RemoveEffectAction | ModifyEffectAction | OpenEffectPanelAction | CloseEffectPanelAction;
