@@ -1,4 +1,4 @@
-import { AddEffectAction, RemoveEffectAction, ModifyEffectAction,  AudioEffectAction} from "../types/audioEffect";
+import { AddEffectAction, RemoveEffectAction, ModifyEffectAction,  AudioEffectAction, OpenEffectPanelAction, CloseEffectPanelAction} from "../types/audioEffect";
 import { Effects } from '@constants/effects';
 
 export function addEffect(channelId: string, effectType: Effects): AddEffectAction {
@@ -29,5 +29,25 @@ export function modifyEffect(channelId: string, effectId: string, effectParams: 
       effectId,
       effectParams
     }
+  };
+}
+
+export function closeEffectPanel(channelId: string, effectId: string): CloseEffectPanelAction {
+  return {
+    type: AudioEffectAction.CLOSE_PANEL,
+    payload: {
+      channelId,
+      effectId,
+    },
+  };
+}
+
+export function openEffectPanel(channelId: string, effectId: string): OpenEffectPanelAction {
+  return {
+    type: AudioEffectAction.OPEN_PANEL,
+    payload: {
+      channelId,
+      effectId,
+    },
   };
 }

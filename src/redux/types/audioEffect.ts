@@ -3,7 +3,9 @@ import { Effects } from '@constants/effects';
 export enum AudioEffectAction {
   'ADD_EFFECT' = 'ADD_EFFECT',
   'REMOVE_EFFECT' = 'REMOVE_EFFECT',
-  'MODIFY_EFFECT' = 'MODIFY_EFFECT'
+  'MODIFY_EFFECT' = 'MODIFY_EFFECT',
+  'OPEN_PANEL' = 'OPEN_PANEL',
+  'CLOSE_PANEL' = 'CLOSE_PANEL',
 }
 
 export interface Effect {
@@ -14,10 +16,16 @@ export interface Effect {
   }
 }
 
+export interface EffectPanelParam {
+  channelId: string;
+  effectId: string;
+}
+
 export interface AudioEffectState {
   channelEffects: {
     [channelId: string]: Effect[];
-  }
+  };
+  openedEffects: EffectPanelParam[];
 }
 
 export type addEffectParams = Omit<Effect, 'id'>
@@ -47,4 +55,20 @@ export interface ModifyEffectAction {
   }
 }
 
-export type AudioEffectActionType = AddEffectAction | RemoveEffectAction | ModifyEffectAction;
+export interface OpenEffectPanelAction {
+  type: typeof AudioEffectAction.OPEN_PANEL,
+  payload: {
+    channelId: string,
+    effectId: string,
+  }
+}
+
+export interface CloseEffectPanelAction {
+  type: typeof AudioEffectAction.CLOSE_PANEL,
+  payload: {
+    channelId: string,
+    effectId: string,
+  }
+}
+
+export type AudioEffectActionType = AddEffectAction | RemoveEffectAction | ModifyEffectAction | OpenEffectPanelAction | CloseEffectPanelAction;

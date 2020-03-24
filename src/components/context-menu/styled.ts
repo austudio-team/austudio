@@ -2,7 +2,7 @@ import styled, { keyframes } from "styled-components";
 import { transparentize } from 'polished';
 import { theme } from "@constants/theme";
 
-const inAnimation = keyframes`
+export const inAnimation = keyframes`
   0% {
     opacity: 0%;
     transform: scale(0);

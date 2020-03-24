@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { defaultParams } from '@constants/effectParams';
 
 const initialState: AudioEffectState = {
-  channelEffects: {}
+  channelEffects: {},
+  openedEffects: [],
 }
 
 export function AudioEffectReducer(state: AudioEffectState = initialState, action: AudioEffectActionType): AudioEffectState {
@@ -51,6 +52,29 @@ export function AudioEffectReducer(state: AudioEffectState = initialState, actio
           [action.payload.channelId]: originEffects,
         }
       };
+    case AudioEffectAction.OPEN_PANEL: {
+      const { channelId, effectId } = action.payload;
+      return {
+        ...state,
+        openedEffects: [...state.openedEffects, {
+            channelId,
+            effectId,
+          }],
+      };
+    }
+    case AudioEffectAction.CLOSE_PANEL: {
+      const newOpenedEffects = [...state.openedEffects];
+      const { channelId, effectId } = action.payload;
+      for (const [i, v] of newOpenedEffects.entries()) {
+        if (v.channelId === channelId && effectId === v.effectId) {
+          newOpenedEffects.splice(i, 1);
+        }
+      }
+      return {
+        ...state,
+        openedEffects: newOpenedEffects,
+      };
+    }
     default:
       return state;
   }
