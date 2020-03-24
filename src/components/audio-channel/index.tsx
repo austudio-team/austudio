@@ -9,8 +9,10 @@ import { channelItemSelector } from '@redux/selectors/channel';
 import { updateMute, updateRecord, updatePan,
         updateName, updateSolo, updateVol, deleteChannel } from '@redux/actions/channel';
 import { StyledSlider } from '@components/styled/slider';
+import { Option } from 'rc-select';
 import { createContextMenu } from '@utils/context-menu';
 import ChannelNameInput from './ChannelNameInput';
+import { StyledSelect } from '@components/styled/select';
 
 interface AudioChannelProps {
   channelId: string;
@@ -126,6 +128,10 @@ const AudioChannel: React.FC<Props> = props => {
         </ChannelButtonGroup>
       </TopChannel>
       <MiddleChannel>
+        <StyledSelect>
+          <Option value="123">Hello1</Option>
+          <Option value="234">Hello2</Option>
+        </StyledSelect>
         <RangeContainer>
           <span>V:</span>
           <Tooltip title={volStr}>
