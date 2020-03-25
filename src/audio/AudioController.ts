@@ -10,7 +10,7 @@ import audioNodeMap from './AudioNodeMap';
 import { EditorEvent } from '@events';
 
 export class AudioController {
-  private audioContext: AudioContext;
+  public audioContext: AudioContext;
   constructor() {
     this.initEvent();
     this.audioContext = new AudioContext();
