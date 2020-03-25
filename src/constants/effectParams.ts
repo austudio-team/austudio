@@ -3,7 +3,7 @@ import { Effects } from "@constants/effects"
 interface compressorParams {
   attack: number,
   release: number,
-  ration: number,
+  ratio: number,
   threshold: number,
   gain: number
 }
@@ -11,7 +11,7 @@ interface compressorParams {
 export const defaultCompressorParams: compressorParams = {
   attack: 0.3,
   release: 0.15,
-  ration: 10,
+  ratio: 10,
   threshold: -50,
   gain: 0.3
 }

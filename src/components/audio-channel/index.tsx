@@ -126,6 +126,10 @@ const AudioChannel: React.FC<Props> = props => {
         </ChannelButtonGroup>
       </TopChannel>
       <MiddleChannel>
+        {/* <StyledSelect>
+          <Option value="123">Hello1</Option>
+          <Option value="234">Hello2</Option>
+        </StyledSelect> */}
         <RangeContainer>
           <span>V:</span>
           <Tooltip title={volStr}>
