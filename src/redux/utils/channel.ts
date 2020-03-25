@@ -18,14 +18,6 @@ export function genenrateDefaultChannel(): ChannelState {
     ...defaultChannel,
     name: `${prefix}${i + 1}`,
     id: uuidv4(),
-    // slices: [{
-    //   id: uuidv4(),
-    //   offset: Math.round(Math.random() * 6000),
-    //   start: -1,
-    //   end: -1,
-    //   stretch: 0,
-    //   audioId: 'test',
-    // }],
   }));
   const channelMap: any = {};
   channels.forEach(v => {
