@@ -1,14 +1,8 @@
 import { LibraryAction, LibraryActionType, LibraryState, Audio } from "@redux/types/library";
 
 const initialState: LibraryState = {
-  audioInfo: {
-    'test': {
-      fileName: 'Audio音频.mp3',
-      id: 'test',
-      length: 60000,
-    }
-  },
-  audioList: ['test'],
+  audioInfo: {},
+  audioList: [],
   draggingAudioId: null,
 }
 

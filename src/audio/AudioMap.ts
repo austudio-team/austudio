@@ -1,5 +1,8 @@
 interface AudioMap {
-  [id: string]: File | Blob;
+  [id: string]: {
+    file: File | Blob,
+    audioBuffer: AudioBuffer,
+  };
 }
 
 const audioMap: AudioMap = {};
