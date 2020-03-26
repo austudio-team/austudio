@@ -19,6 +19,7 @@ import HorizontalScroller from '@components/horizontal-scroller';
 import { usePrevious } from '@hooks';
 import { isMac } from '@utils/browser';
 import { getAudioController } from '@audio/AudioController';
+import { currentTime } from '@utils/time';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
@@ -69,10 +70,10 @@ const Editor: React.FC<Props> = props => {
     eventEmitter.emit(EditorEvent.editorScrollXChanged, { scrollLeft: -editorX.current });
   }, [maxLength, zoom]);
 
-  const rerenderIndicator = useCallback(() => {
-    if (indicatorDraggingX.current !== -1) {
+  const rerenderIndicator = useCallback((userTrigger = false) => {
+    if (indicatorDraggingX.current !== -1 && userTrigger) {
       indicatorOffset.current = (indicatorDraggingX.current - editorChannelWidth - editorX.current) * zoom;
-      eventEmitter.emit(EditorEvent.editorIndicatorChanged, {
+      eventEmitter.emit(EditorEvent.editorIndicatorShouldChange, {
         offset: indicatorOffset.current,
       });
     }
@@ -94,7 +95,7 @@ const Editor: React.FC<Props> = props => {
     if (cWrapper && tWrapper) {
       cWrapper.style.transform = `translateY(${editorY.current}px)`;
       tWrapper.style.transform = `translateX(${editorX.current}px) translateY(${editorY.current}px)`;
-      rerenderIndicator();
+      rerenderIndicator(false);
     }
   }, [rerenderIndicator]);
 
@@ -161,6 +162,7 @@ const Editor: React.FC<Props> = props => {
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    eventEmitter.emit(EditorEvent.editorIndicatorDragStart);
     setDragging(true);
   }, []);
 
@@ -183,7 +185,7 @@ const Editor: React.FC<Props> = props => {
         }
         const left = indicatorLimiter(e.clientX, editorWidth.current);
         indicatorDraggingX.current = left;
-        rerenderIndicator();
+        rerenderIndicator(true);
       }
       window.addEventListener('mousemove', handler);
       return () => {
@@ -197,9 +199,11 @@ const Editor: React.FC<Props> = props => {
     if (dragging) {
       const handler = (e: MouseEvent) => {
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
+        currentTime.time = indicatorOffset.current;
         setDragging(false);
+        eventEmitter.emit(EditorEvent.editorIndicatorDragEnd);
         requestAnimationFrame(() => {
-          rerenderIndicator();
+          rerenderIndicator(true);
           indicatorDraggingX.current = -1;
         });
       }
@@ -305,6 +309,19 @@ const Editor: React.FC<Props> = props => {
       audioController.handleFile(files);
     }
   }, []);
+
+  useEffect(() => {
+    if (!dragging) {
+      const handler = () => {
+        indicatorOffset.current = currentTime.time;
+        rerenderIndicator(false);
+      }
+      eventEmitter.on(EditorEvent.editorIndicatorChanged, handler);
+      return () => {
+        eventEmitter.off(EditorEvent.editorIndicatorChanged, handler);
+      }
+    }
+  }, [rerenderIndicator, dragging]);
 
   return (
     <EditorContainer

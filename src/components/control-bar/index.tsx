@@ -10,12 +10,13 @@ import { addChannel } from '@redux/actions/channel';
 import { ConnectedProps, connect } from 'react-redux';
 import { EditorEvent, EditorIndicatorChangeEvent } from '@events';
 import eventEmitter from '@utils/event';
-import { millisecondToString } from '@utils/time';
+import { millisecondToString, currentTime } from '@utils/time';
 import { throttle } from 'lodash';
 import { playingSelector, recordingSelector } from '@redux/selectors/functionBar';
 import { requestPause, requestPlay, requestRecord, stopRecord } from '@redux/actions/functionBar';
 import { KeyEventEmitter } from '@utils/keyevent';
 import { KeyEvent } from '@utils/keyevent_declare';
+import { getAudioController } from '@audio/AudioController';
 
 const mapState = (state: RootState) => ({
   playing: playingSelector(state.functionBar),
@@ -37,6 +38,7 @@ type Props = ConnectedProps<typeof connector>;
 const ControlBar: React.FC<Props> = props => {
   const { playing, recording, requestPause, requestRecord, requestPlay, stopRecord } = props;
   const timeRef = useRef<HTMLDivElement>(null);
+  const indicatorDragging = useRef<boolean>(false);
 
   // indicatorChangeEffect
   useEffect(() => {
@@ -45,19 +47,68 @@ const ControlBar: React.FC<Props> = props => {
         timeRef.current.innerText = millisecondToString(offset);
       }
     }, 100, { leading: true, trailing: true });
-    eventEmitter.on(EditorEvent.editorIndicatorChanged, handler);
+    eventEmitter.on(EditorEvent.editorIndicatorShouldChange, handler);
     return () => {
-      eventEmitter.off(EditorEvent.editorIndicatorChanged, handler);
+      eventEmitter.off(EditorEvent.editorIndicatorShouldChange, handler);
     }
   }, []);
 
+  useEffect(() => {
+    const handleDragStart = () => {
+      indicatorDragging.current = true;
+    };
+    const handleDragEnd = () => {
+      indicatorDragging.current = false;
+      getAudioController().updatePos();
+    };
+    eventEmitter.on(EditorEvent.editorIndicatorDragStart, handleDragStart);
+    eventEmitter.on(EditorEvent.editorIndicatorDragEnd, handleDragEnd);
+    return () => {
+      eventEmitter.off(EditorEvent.editorIndicatorDragStart, handleDragStart);
+      eventEmitter.off(EditorEvent.editorIndicatorDragEnd, handleDragEnd);
+    }
+  }, []);
+
+  // play raf
+  useEffect(() => {
+    if (playing) {
+      let raf: number;
+      const controller = getAudioController();
+      let lastAudioTime: number;
+      let lastRafTime: number;
+      const updateTime = () => {
+        if (timeRef.current && !indicatorDragging.current) {
+          if (!lastAudioTime) lastAudioTime = controller.audioContext.currentTime;
+          const nowTime = controller.audioContext.currentTime;
+          currentTime.time += Math.floor((nowTime - lastAudioTime) * 1000) ;
+          timeRef.current.innerText = millisecondToString(currentTime.time);
+          eventEmitter.emit(EditorEvent.editorIndicatorChanged);
+          lastAudioTime = nowTime;
+        }
+      }
+      const handler = (time: number) => {
+        if ((time - lastRafTime > 60 || !lastRafTime)) {
+          lastRafTime = time;
+          updateTime();
+        }
+        raf = requestAnimationFrame(handler);
+      }
+      raf = requestAnimationFrame(handler);
+      return () => {
+        cancelAnimationFrame(raf);
+        updateTime();
+      }
+    }
+  }, [playing])
+
   const handlePlayClick = useCallback(() => {
     requestPlay();
-    eventEmitter.emit('requestPlay');
+    eventEmitter.emit(EditorEvent.requestPlay);
   }, [requestPlay]);
 
   const handlePauseClick = useCallback(() => {
     requestPause();
+    eventEmitter.emit(EditorEvent.requestPause);
   }, [requestPause]);
 
   const handleRecordClick = useCallback(() => {
@@ -66,9 +117,11 @@ const ControlBar: React.FC<Props> = props => {
   }, [recording, stopRecord, requestRecord]);
 
   const handleStopClick = useCallback(() => {
-    requestPause();
-    // todo...
-  }, [requestPause]);
+    handlePauseClick();
+    eventEmitter.emit(EditorEvent.editorIndicatorShouldChange, { offset: 0 });
+    currentTime.time = 0;
+    eventEmitter.emit(EditorEvent.editorIndicatorChanged);
+  }, [handlePauseClick]);
 
 
   useEffect(() => {
