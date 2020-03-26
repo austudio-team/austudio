@@ -14,6 +14,7 @@ export enum EditorEvent {
   'editorTrackMouseEnter' = 'editorTrackMouseEnter',
   'requestPlay' = 'requestPlay',
   'requestPause' = 'requestPause',
+  'editorIndicatorDragStart' = 'editorIndicatorDragStart',
   'editorIndicatorDragEnd' = 'editorIndicatorDragEnd',
 }
 

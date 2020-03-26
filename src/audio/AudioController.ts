@@ -8,9 +8,11 @@ import { ChannelEvent } from '@events/channel';
 import { AudioSlice, Channel } from '@redux/types/channel';
 import audioNodeMap from './AudioNodeMap';
 import { EditorEvent } from '@events';
+import { computeStartParams } from './utils';
 
 export class AudioController {
   public audioContext: AudioContext;
+  public playing = false;
   constructor() {
     this.initEvent();
     this.audioContext = new AudioContext();
@@ -20,6 +22,7 @@ export class AudioController {
     eventEmitter.on(MenuEvent.MENU_IMPORT, this.selectFile);
     eventEmitter.on(ChannelEvent.CHANNEL_ADD_SLICE, this.addSlice);
     eventEmitter.on(EditorEvent.requestPlay, this.play);
+    eventEmitter.on(EditorEvent.requestPause, this.pause);
   }
 
   private mesureByAudio = (url: string) => {
@@ -87,10 +90,6 @@ export class AudioController {
 
   private addSlice = ({ channelId, slice } : { channelId: string, slice: AudioSlice } ) => {
     this.addChannel(channelId);
-    const dataSource = this.audioContext.createBufferSource();
-    dataSource.buffer = audioMap[slice.audioId].audioBuffer;
-    dataSource.connect(audioNodeMap[channelId].node);
-    audioNodeMap[channelId].slices[slice.id] = { node: dataSource };
   }
 
   private addChannel = (channelId: string) => {
@@ -105,16 +104,14 @@ export class AudioController {
   }
 
   private play = () => {
-    const { channel: stateChannel } = store.getState();
+    this.playing = true;
+    const { channel: stateChannel, library } = store.getState();
     const soloChannel: Channel[] = [];
-    const muteChannel: Channel[] = [];
     const normalChannel: Channel[] = [];
     for (const channel of Object.values(stateChannel.channel)) {
-      if (channel.mute) {
-        muteChannel.push(channel);
-      } else if (channel.solo) {
+    if (channel.solo) {
         soloChannel.push(channel);
-      } else {
+      } else if (!channel.mute) {
         normalChannel.push(channel);
       }
     }
@@ -122,9 +119,43 @@ export class AudioController {
     const targetChannel = soloChannel.length > 0 ? soloChannel : normalChannel;
     for (const channel of targetChannel) {
       for (const slice of channel.slices) {
-        const sliceNode = audioNodeMap[channel.id].slices[slice.id];
-        sliceNode.node.start(time + slice.offset / 1000);
+        const dataSource = this.audioContext.createBufferSource();
+        dataSource.buffer = audioMap[slice.audioId].audioBuffer;
+        dataSource.connect(audioNodeMap[channel.id].node);
+        audioNodeMap[channel.id].slices[slice.id] = { node: dataSource };
+        const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId]);
+        dataSource.start(time + when, offset, duration);
       }
+    }
+  }
+
+  private pause = () => {
+    this.playing = false;
+    const { channel: stateChannel } = store.getState();
+    const soloChannel: Channel[] = [];
+    const normalChannel: Channel[] = [];
+    for (const channel of Object.values(stateChannel.channel)) {
+      if (channel.solo) {
+        soloChannel.push(channel);
+      } else if (!channel.mute) {
+        normalChannel.push(channel);
+      }
+    }
+    const targetChannel = soloChannel.length > 0 ? soloChannel : normalChannel;
+    for (const channel of targetChannel) {
+      for (const slice of channel.slices) {
+        const sliceNode = audioNodeMap[channel.id].slices[slice.id];
+        sliceNode.node.stop();
+        sliceNode.node.disconnect();
+        delete audioNodeMap[channel.id].slices[slice.id].node;
+      }
+    }
+  }
+
+  public updatePos = () => {
+    if (this.playing) {
+      this.pause();
+      this.play();
     }
   }
 }

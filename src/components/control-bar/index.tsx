@@ -38,6 +38,7 @@ type Props = ConnectedProps<typeof connector>;
 const ControlBar: React.FC<Props> = props => {
   const { playing, recording, requestPause, requestRecord, requestPlay, stopRecord } = props;
   const timeRef = useRef<HTMLDivElement>(null);
+  const indicatorDragging = useRef<boolean>(false);
 
   // indicatorChangeEffect
   useEffect(() => {
@@ -52,15 +53,31 @@ const ControlBar: React.FC<Props> = props => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleDragStart = () => {
+      indicatorDragging.current = true;
+    };
+    const handleDragEnd = () => {
+      indicatorDragging.current = false;
+      getAudioController().updatePos();
+    };
+    eventEmitter.on(EditorEvent.editorIndicatorDragStart, handleDragStart);
+    eventEmitter.on(EditorEvent.editorIndicatorDragEnd, handleDragEnd);
+    return () => {
+      eventEmitter.off(EditorEvent.editorIndicatorDragStart, handleDragStart);
+      eventEmitter.off(EditorEvent.editorIndicatorDragEnd, handleDragEnd);
+    }
+  }, []);
+
   // play raf
   useEffect(() => {
     if (playing) {
       let raf: number;
       const controller = getAudioController();
-      let lastAudioTime;
-      let lastRafTime;
+      let lastAudioTime: number;
+      let lastRafTime: number;
       const updateTime = () => {
-        if (timeRef.current) {
+        if (timeRef.current && !indicatorDragging.current) {
           if (!lastAudioTime) lastAudioTime = controller.audioContext.currentTime;
           const nowTime = controller.audioContext.currentTime;
           currentTime.time += Math.floor((nowTime - lastAudioTime) * 1000) ;
@@ -91,6 +108,7 @@ const ControlBar: React.FC<Props> = props => {
 
   const handlePauseClick = useCallback(() => {
     requestPause();
+    eventEmitter.emit(EditorEvent.requestPause);
   }, [requestPause]);
 
   const handleRecordClick = useCallback(() => {
@@ -99,9 +117,11 @@ const ControlBar: React.FC<Props> = props => {
   }, [recording, stopRecord, requestRecord]);
 
   const handleStopClick = useCallback(() => {
-    requestPause();
-    // todo...
-  }, [requestPause]);
+    handlePauseClick();
+    eventEmitter.emit(EditorEvent.editorIndicatorShouldChange, { offset: 0 });
+    currentTime.time = 0;
+    eventEmitter.emit(EditorEvent.editorIndicatorChanged);
+  }, [handlePauseClick]);
 
 
   useEffect(() => {

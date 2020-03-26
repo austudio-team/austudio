@@ -162,6 +162,7 @@ const Editor: React.FC<Props> = props => {
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    eventEmitter.emit(EditorEvent.editorIndicatorDragStart);
     setDragging(true);
   }, []);
 
@@ -200,6 +201,7 @@ const Editor: React.FC<Props> = props => {
         eventEmitter.emit(EditorEvent.editorCancelAutoScrollX);
         currentTime.time = indicatorOffset.current;
         setDragging(false);
+        eventEmitter.emit(EditorEvent.editorIndicatorDragEnd);
         requestAnimationFrame(() => {
           rerenderIndicator(true);
           indicatorDraggingX.current = -1;
@@ -309,15 +311,17 @@ const Editor: React.FC<Props> = props => {
   }, []);
 
   useEffect(() => {
-    const handler = () => {
-      indicatorOffset.current = currentTime.time;
-      rerenderIndicator(false);
+    if (!dragging) {
+      const handler = () => {
+        indicatorOffset.current = currentTime.time;
+        rerenderIndicator(false);
+      }
+      eventEmitter.on(EditorEvent.editorIndicatorChanged, handler);
+      return () => {
+        eventEmitter.off(EditorEvent.editorIndicatorChanged, handler);
+      }
     }
-    eventEmitter.on(EditorEvent.editorIndicatorChanged, handler);
-    return () => {
-      eventEmitter.off(EditorEvent.editorIndicatorChanged, handler);
-    }
-  }, [rerenderIndicator]);
+  }, [rerenderIndicator, dragging]);
 
   return (
     <EditorContainer
