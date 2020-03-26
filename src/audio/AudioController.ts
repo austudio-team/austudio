@@ -168,17 +168,19 @@ export class AudioController {
   }
 
   private updateSlice = ({ sliceId, oldChannelId, newChannelId }) => {
-    this.stopSlice(oldChannelId, sliceId);
-    const { library, channel } = store.getState();
-    this.addChannel(newChannelId);
-    const slice = channel.channel[newChannelId].slices.filter(v => v.id === sliceId)[0];
-    const dataSource = this.generateSourceNode(
-      slice,
-      newChannelId,
-    );
-    const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId]);
-    dataSource.playbackRate.value = 1 / slice.stretch;
-    dataSource.start(this.audioContext.currentTime + when, offset, duration);
+    if (this.playing) {
+      this.stopSlice(oldChannelId, sliceId);
+      const { library, channel } = store.getState();
+      this.addChannel(newChannelId);
+      const slice = channel.channel[newChannelId].slices.filter(v => v.id === sliceId)[0];
+      const dataSource = this.generateSourceNode(
+        slice,
+        newChannelId,
+      );
+      const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId]);
+      dataSource.playbackRate.value = 1 / slice.stretch;
+      dataSource.start(this.audioContext.currentTime + when, offset, duration);
+    }
   }
 
   public updatePos = () => {
