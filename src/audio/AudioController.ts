@@ -9,6 +9,19 @@ import { AudioSlice, Channel } from '@redux/types/channel';
 import audioNodeMap from './AudioNodeMap';
 import { EditorEvent } from '@events';
 import { computeStartParams } from './utils';
+import { Compressor, Reverb, Filter, Delay, Equalizer, Tremolo } from '@shyrii/web-audio-effects';
+import { Effects } from '@constants';
+import { AudioEffectEvent } from '@events/audioEffects';
+import { Effect } from '@redux/types/audioEffect';
+
+const EffectMap = {
+  [Effects.COMPRESSOR]: Compressor,
+  [Effects.DELAY]: Delay,
+  [Effects.EQUALIZER]: Equalizer,
+  [Effects.FILTER]: Filter,
+  [Effects.REVERB]: Reverb,
+  [Effects.TREMOLO]: Tremolo,
+}
 
 export class AudioController {
   public audioContext: AudioContext;
@@ -27,6 +40,9 @@ export class AudioController {
     eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_CHANNEL, this.restartPlay);
     eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_CHANNEL_VOL, this.updateVol);
     eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_CHANNEL_PAN, this.updatePan);
+    eventEmitter.on(AudioEffectEvent.EFFECT_ADD_EFFECT, this.addEffect);
+    eventEmitter.on(AudioEffectEvent.EFFECT_UPDATE_EFFECT, this.updateEffect);
+    eventEmitter.on(AudioEffectEvent.EFFECT_DELETE_EFFECT, this.removeEffect);
     eventEmitter.on(EditorEvent.requestPlay, this.play);
     eventEmitter.on(EditorEvent.requestPause, this.pause);
   }
@@ -114,6 +130,7 @@ export class AudioController {
       audioNodeMap[channelId] = {
         gainNode,
         panNode,
+        effects: [],
         slices: {},
       }
     }
@@ -219,10 +236,58 @@ export class AudioController {
       audioNodeMap[channelId].gainNode.gain.value = vol;
     }
   }
+
   private updatePan = ({ channelId, pan }: { channelId: string, pan: number }) => {
     if (audioNodeMap[channelId]) {
       audioNodeMap[channelId].panNode.pan.value = pan;
     }
+  }
+
+  private addEffect = ({ channelId, effect }: { channelId: string, effect: Effect }) => {
+    this.addChannel(channelId);
+    const effectNode = new EffectMap[effect.type](this.audioContext, effect.params);
+    const targetChannelNode = audioNodeMap[channelId];
+    if (targetChannelNode.effects.length === 0) {
+      targetChannelNode.panNode.disconnect();
+      targetChannelNode.panNode.connect(effectNode.input);
+    } else {
+      const lastEffect = targetChannelNode.effects[targetChannelNode.effects.length - 1];
+      lastEffect.node.disconnect();
+      lastEffect.node.connect(effectNode.input);
+    }
+    effectNode.connect(this.audioContext.destination);
+    targetChannelNode.effects.push({
+      effectId: effect.id,
+      node: effectNode,
+    });
+  }
+
+  private updateEffect = ({ channelId, effectParams, index}: { channelId: string, effectParams: any, index: number}) => {
+    const targetChannelNode = audioNodeMap[channelId];
+    const targetNode = targetChannelNode.effects[index];
+    console.log(effectParams);
+    targetNode.node.updateParams(effectParams);
+  }
+
+  private removeEffect = ({ channelId, effectId }: { channelId: string, effectId: string }) => {
+    this.addChannel(channelId);
+    const targetChannelNode = audioNodeMap[channelId];
+    const index = targetChannelNode.effects.findIndex(v => v.effectId === effectId);
+    const targetEffectNode = targetChannelNode.effects[index];
+    targetEffectNode.node.disconnect();
+    if (targetChannelNode.effects.length === 1) {
+      targetChannelNode.panNode.disconnect();
+      targetChannelNode.panNode.connect(this.audioContext.destination);
+    } else if (index > 0) {
+      const lastEffect = targetChannelNode.effects[index - 1];
+      const nextEffect = index < targetChannelNode.effects.length - 1 ? targetChannelNode.effects[index + 1].node.input : this.audioContext.destination;
+      lastEffect.node.disconnect();
+      lastEffect.node.connect(nextEffect);
+    } else {
+      targetChannelNode.panNode.disconnect();
+      targetChannelNode.panNode.connect(targetChannelNode.effects[0].node.input);
+    }
+    targetChannelNode.effects.splice(index, 1);
   }
 }
 

@@ -46,7 +46,7 @@ const EffectPanel: React.FC<Props> = props => {
   const panelY = useRef<number>(0);
   const [inited, setInited] = useState<boolean>(false);
   const [selected, setSelected] = useState<boolean>(false);
-
+  
   const { channel, effect, effectId, channelId, closeEffectPanel, modifyEffect } = props;
 
   const rerenderPos = useCallback(() => {
