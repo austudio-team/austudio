@@ -19,7 +19,7 @@ const DropdownItem: React.FC<DropdownItemProps> = props => {
     e.stopPropagation();
     closeEffectPanel(channelId, item.id);
     removeEffect(channelId, item.id);
-  }, [removeEffect, channelId, item]);
+  }, [removeEffect, channelId, item, closeEffectPanel]);
 
   const handleOpenEffectPanel = useCallback(() => {
     openEffectPanel(channelId, item.id);
