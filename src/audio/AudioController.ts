@@ -23,6 +23,10 @@ export class AudioController {
     eventEmitter.on(ChannelEvent.CHANNEL_ADD_SLICE, this.addSlice);
     eventEmitter.on(ChannelEvent.CHANNEL_DELETE_SLICE, this.deleteSlice);
     eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_SLICE, this.updateSlice);
+    eventEmitter.on(ChannelEvent.CHANNEL_DELETE_CHANNEL, this.removeChannel);
+    eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_CHANNEL, this.restartPlay);
+    eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_CHANNEL_VOL, this.updateVol);
+    eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_CHANNEL_PAN, this.updatePan);
     eventEmitter.on(EditorEvent.requestPlay, this.play);
     eventEmitter.on(EditorEvent.requestPause, this.pause);
   }
@@ -103,10 +107,13 @@ export class AudioController {
 
   private addChannel = (channelId: string) => {
     if (!audioNodeMap[channelId]) {
-      const node = this.audioContext.createGain();
-      node.connect(this.audioContext.destination);
+      const gainNode = this.audioContext.createGain();
+      const panNode = this.audioContext.createStereoPanner();
+      gainNode.connect(panNode);
+      panNode.connect(this.audioContext.destination);
       audioNodeMap[channelId] = {
-        node,
+        gainNode,
+        panNode,
         slices: {},
       }
     }
@@ -139,7 +146,7 @@ export class AudioController {
   private generateSourceNode = (slice: AudioSlice, channelId: string) => {
     const dataSource = this.audioContext.createBufferSource();
     dataSource.buffer = audioMap[slice.audioId].audioBuffer;
-    dataSource.connect(audioNodeMap[channelId].node);
+    dataSource.connect(audioNodeMap[channelId].gainNode);
     audioNodeMap[channelId].slices[slice.id] = { node: dataSource };
     return dataSource;
   }
@@ -183,10 +190,38 @@ export class AudioController {
     }
   }
 
-  public updatePos = () => {
+  public restartPlay = () => {
     if (this.playing) {
       this.pause();
       this.play();
+    }
+  }
+
+  private stopChannel = (channelId: string) => {
+    if (this.playing) {
+      const channel = audioNodeMap[channelId];
+      channel.gainNode.disconnect();
+      channel.panNode.disconnect();
+      for (const slice of Object.values(channel.slices)) {
+        slice.node.stop();
+        slice.node.disconnect();
+      }
+    }
+  }
+
+  private removeChannel = (channelId: string) => {
+    this.stopChannel(channelId)
+    delete audioNodeMap[channelId];
+  }
+
+  private updateVol = ({ channelId, vol }: { channelId: string, vol: number }) => {
+    if (audioNodeMap[channelId]) {
+      audioNodeMap[channelId].gainNode.gain.value = vol;
+    }
+  }
+  private updatePan = ({ channelId, pan }: { channelId: string, pan: number }) => {
+    if (audioNodeMap[channelId]) {
+      audioNodeMap[channelId].panNode.pan.value = pan;
     }
   }
 }

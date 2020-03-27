@@ -1,6 +1,6 @@
 import { takeEvery, select } from 'redux-saga/effects'
 import { RootState } from '@redux/reducers';
-import { ChannelAction, CreateSliceAction, UpdateSliceAction, DeleteSliceAction, SplitSliceAction } from '@redux/types/channel';
+import { ChannelAction, CreateSliceAction, UpdateSliceAction, DeleteSliceAction, SplitSliceAction, DeleteChannelAction, UpdateSoloAction, UpdateMuteAction, UpdateVolAction, UpdatePanAction } from '@redux/types/channel';
 import { channelItemSelector } from '@redux/selectors/channel';
 import { ChannelEvent } from '@events/channel';
 import eventEmitter from '@utils/event';
@@ -34,9 +34,35 @@ function* splitSliceSaga(action: SplitSliceAction) {
   eventEmitter.emit(ChannelEvent.CHANNEL_ADD_SLICE, { slice: newSlice, channelId });
 }
 
+function deleteChannelSaga(action: DeleteChannelAction) {
+  eventEmitter.emit(ChannelEvent.CHANNEL_DELETE_CHANNEL, action.payload.channelId);
+}
+
+function updateChannelSaga(action: UpdateMuteAction | UpdateSoloAction) {
+  eventEmitter.emit(ChannelEvent.CHANNEL_UPDATE_CHANNEL, action.payload.id);
+}
+
+function updateVolSaga(action: UpdateVolAction) {
+  eventEmitter.emit(ChannelEvent.CHANNEL_UPDATE_CHANNEL_VOL, {
+    channelId: action.payload.id,
+    vol: action.payload.value / 100,
+  });
+}
+
+function updatePanSaga(action: UpdatePanAction) {
+  eventEmitter.emit(ChannelEvent.CHANNEL_UPDATE_CHANNEL_PAN, {
+    channelId: action.payload.id,
+    pan: action.payload.value / 100,
+  });
+}
+
 export default function* watchChannelSagas() {
   yield takeEvery(ChannelAction.CREATE_SLICE, addSliceSaga);
   yield takeEvery(ChannelAction.UPDATE_SLICE, updateSliceSaga);
   yield takeEvery(ChannelAction.DELETE_SLICE, deleteSliceSaga);
   yield takeEvery(ChannelAction.SPLIT_SLICE, splitSliceSaga);
+  yield takeEvery(ChannelAction.DELETE_CHANNEL, deleteChannelSaga);
+  yield takeEvery([ChannelAction.UPDATE_SOLO, ChannelAction.UPDATE_MUTE], updateChannelSaga);
+  yield takeEvery(ChannelAction.UPDATE_VOL, updateVolSaga);
+  yield takeEvery(ChannelAction.UPDATE_PAN, updatePanSaga);
 }

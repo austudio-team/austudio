@@ -59,7 +59,7 @@ const ControlBar: React.FC<Props> = props => {
     };
     const handleDragEnd = () => {
       indicatorDragging.current = false;
-      getAudioController().updatePos();
+      getAudioController().restartPlay();
     };
     eventEmitter.on(EditorEvent.editorIndicatorDragStart, handleDragStart);
     eventEmitter.on(EditorEvent.editorIndicatorDragEnd, handleDragEnd);

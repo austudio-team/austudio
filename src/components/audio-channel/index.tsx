@@ -86,7 +86,7 @@ const AudioChannel: React.FC<Props> = props => {
         handler: () => { console.log('hello') },
       },
       {
-        name: "Move below",
+        name: "Insert below",
         handler: () => { console.log('hello') },
       },
       'divider',
@@ -138,7 +138,7 @@ const AudioChannel: React.FC<Props> = props => {
               value={channel.vol}
               onChange={volHandler}
               min={0}
-              max={100}
+              max={125}
               step={1}
             />
           </Tooltip>

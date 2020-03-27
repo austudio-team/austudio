@@ -1,6 +1,7 @@
 interface AudioNodeMap {
   [channelId: string]: {
-    node: AudioNode;
+    gainNode: GainNode;
+    panNode: StereoPannerNode;
     slices: {
       [sliceId: string]: {
         node: AudioBufferSourceNode;
