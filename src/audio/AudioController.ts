@@ -142,14 +142,14 @@ export class AudioController {
     const soloChannel: Channel[] = [];
     const normalChannel: Channel[] = [];
     for (const channel of Object.values(stateChannel.channel)) {
-    if (channel.solo && !channel.mute) {
+    if (channel.solo) {
         soloChannel.push(channel);
       } else if (!channel.mute) {
         normalChannel.push(channel);
       }
     }
     const time = this.audioContext.currentTime;
-    const targetChannel = soloChannel.length > 0 ? soloChannel : normalChannel;
+    const targetChannel = soloChannel.length > 0 ? soloChannel.filter(v => v.mute === false) : normalChannel;
     for (const channel of targetChannel) {
       for (const slice of channel.slices) {
         const dataSource = this.generateSourceNode(slice, channel.id);
