@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyledAudioBlock, AudioName, CutLine, LeftStretcher, RightStretcher } from './styled';
+import { StyledAudioBlock, AudioName, CutLine, LeftStretcher, RightStretcher, VisualEffectImage } from './styled';
 import { AudioSlice } from '@redux/types/channel';
 import { RootState } from '@redux/reducers';
 import { audioItemSelector } from '@redux/selectors/library';
@@ -17,6 +17,7 @@ import { StretchingType } from './types';
 import { KeyEventEmitter } from '@utils/keyevent';
 import { KeyEvent } from '@utils/keyevent_declare';
 import { createContextMenu } from '@utils/context-menu';
+import { getCanvas } from '@audio/VisualEffect';
 
 interface AudioBlockProps {
   slice: AudioSlice;
@@ -66,6 +67,15 @@ const AudioBlock: React.FC<Props> = props => {
   const stretchingEnd = useRef<number>(0);
   const stretchingOffset = useRef<number>(0);
   const stretchingStretch = useRef<number>(0);
+  const visualEffectImageRef = useRef<HTMLImageElement>(null);
+
+  // graphEffect
+  useEffect(() => {
+    const ref = visualEffectImageRef.current;
+    if (ref) {
+      ref.src = getCanvas(audio.id);
+    }
+  }, [audio.id]);
 
   // DragRaf
   // draggingEffect
@@ -348,6 +358,7 @@ const AudioBlock: React.FC<Props> = props => {
       {
         cursorType === FunctionBarCursorType.cut && cutHover && <CutLine ref={cutLineRef} />
       }
+      <VisualEffectImage ref={visualEffectImageRef} />
       <LeftStretcher
         onMouseDown={stretcherMouseDownHandler}
         data-type={StretchingType.left}

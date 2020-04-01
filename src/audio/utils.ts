@@ -22,3 +22,37 @@ export const computeStartParams = (slice: AudioSlice, audio: Audio): [number, nu
   }
   return [when / 1000, offset / 1000, duration / 1000];
 }
+
+export const getPeaks = (buffer: AudioBuffer, perSecPx: number, width: number) => {
+  const { numberOfChannels, sampleRate, length } = buffer;
+  // 每一份的点数=48000 / 10 = 2400
+  // const sampleSize = ~~(sampleRate / perSecPx);
+  const first = 0;
+  const last = Math.floor(width/4);
+  const sampleSize = Math.floor(length / last);
+  // const last = ~~(length / sampleSize);
+  const peaks: number[] = [];
+
+  const chan = buffer.getChannelData(1);
+  for (let i = first; i <= last; i++) {
+    const start = i * sampleSize;
+    const end = start + sampleSize;
+    let min = 0;
+    let max = 0;
+    for (let j = start; j < end; j++) {
+      const value = chan[j];
+      if (value > max) {
+        max = value;
+      }
+      if (value < min) {
+        min = value;
+      }
+    }
+    // 波峰
+    peaks[2 * i] = max;
+    // 波谷
+    peaks[2 * i + 1] = min;
+  }
+
+  return peaks;
+};

@@ -313,6 +313,7 @@ const Editor: React.FC<Props> = props => {
     }
   }, []);
 
+  // editorIndicatorChangedEffect
   useEffect(() => {
     if (!dragging) {
       const handler = () => {

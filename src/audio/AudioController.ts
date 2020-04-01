@@ -280,7 +280,7 @@ export class AudioController {
     });
   }
 
-  private updateEffect = ({ channelId, effectParams, index}: { channelId: string, effectParams: any, index: number}) => {
+  private updateEffect = ({ channelId, effectParams, index }: { channelId: string, effectParams: any, index: number}) => {
     const targetChannelNode = audioNodeMap[channelId];
     const targetNode = targetChannelNode.effects[index];
     console.log(effectParams);

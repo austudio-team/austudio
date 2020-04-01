@@ -16,6 +16,7 @@ export const LeftStretcher = styled.div`
   border-left: 10px solid ${p => p.theme.colors.N700};
   cursor: w-resize;
   opacity: 0;
+  z-index: 1;
 `;
 
 export const RightStretcher = styled(LeftStretcher)`
@@ -24,6 +25,7 @@ export const RightStretcher = styled(LeftStretcher)`
   border-right: 10px solid ${p => p.theme.colors.N700};
   border-left: 5px solid transparent;
   cursor: e-resize;
+  z-index: 1;
 `;
 
 export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
@@ -33,6 +35,7 @@ export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
   top: 0;
   color: ${p => p.theme.colors.N200};
   z-index: ${p => p.selected ? '99 !important' : 'initial'};
+  overflow: hidden;
 
   :hover {
     ${LeftStretcher} {
@@ -73,6 +76,14 @@ export const CutLine = styled.div`
   height: 100%;
   width: 1px;
   top: 0;
+  z-index: 3;
   background-color: ${p => p.theme.colors.N300};
+  pointer-events: none;
+`;
+
+export const VisualEffectImage = styled.img`
+  position: absolute;
+  top: 18px;
+  height: 104px;
   pointer-events: none;
 `;
