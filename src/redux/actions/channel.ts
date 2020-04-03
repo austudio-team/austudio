@@ -1,8 +1,21 @@
-import { AddChannelAction, ChannelAction, UpdateVolAction, UpdatePanAction, UpdateMuteAction, UpdateRecordAction, UpdateSoloAction, UpdateNameAction, AudioSliceParam, UpdateSliceAction, CreateSliceAction, DeleteSliceAction, SplitSliceAction, DeleteChannelAction } from "@redux/types/channel";
+import { AddChannelAction, ChannelAction, UpdateVolAction, UpdatePanAction, UpdateMuteAction, UpdateRecordAction, UpdateSoloAction, UpdateNameAction, AudioSliceParam, UpdateSliceAction, CreateSliceAction, DeleteSliceAction, SplitSliceAction, DeleteChannelAction, MoveChannelAction } from "@redux/types/channel";
 
-export function addChannel(): AddChannelAction {
+export function addChannel(index?: number): AddChannelAction {
   return {
     type: ChannelAction.ADD_CHANNEL,
+    payload: {
+      index,
+    }
+  };
+}
+
+export function moveChannel(index: number, newIndex: number): MoveChannelAction {
+  return {
+    type: ChannelAction.MOVE_CHANNEL,
+    payload: {
+      index,
+      newIndex,
+    }
   };
 }
 
