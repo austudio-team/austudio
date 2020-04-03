@@ -112,7 +112,7 @@ const AudioBlock: React.FC<Props> = props => {
     if (stretching) {
       let raf: number;
       const rafHandler = () => {
-        if (audioBlockRef.current) {
+        if (audioBlockRef.current && visualEffectImageRef.current) {
           if (cursorType === FunctionBarCursorType.stretch) {
             const { width: newWidth, offset: newOffset, stretch } = computeStretch(editorScrollLeft.current,
               editorDraggingScrollLeft.current,
@@ -147,6 +147,7 @@ const AudioBlock: React.FC<Props> = props => {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
             } else {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
+              visualEffectImageRef.current.style.transform = `translateX(${-Math.ceil(start / zoom)}px)`;
               audioBlockRef.current.style.transform = `translateX(${Math.ceil((newOffset - offset) / zoom)}px)`;
             }
           }
