@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { ContextMenuWrapper, ContextMenuItemWrapper, ContextMenuDivider } from './styled';
+import { ContextMenuWrapper, ContextMenuItemWrapper, ContextMenuDivider, ContextMenuWrapperPos } from './styled';
 
 interface ContextMenuClickable {
   name: string;
@@ -19,6 +19,7 @@ interface ContextMenuProps {
 
 const ContextMenu: React.FC<ContextMenuProps> = props => {
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const { pos: { x, y }, onClose, items } = props;
 
   useEffect(() => {
     const detect = (e: MouseEvent) => {
@@ -31,13 +32,32 @@ const ContextMenu: React.FC<ContextMenuProps> = props => {
     };
   }, [props]);
 
-  return <ContextMenuWrapper ref={wrapperRef} style={{ left: props.pos.x, top: props.pos.y }}>
+  const { clientHeight, clientWidth } = document.body;
+  const height = 24 * items.length;
+  const width = 200;
+
+  let pos: ContextMenuWrapperPos = 'topLeft';
+  if (height + y > clientHeight && width + x < clientWidth) {
+    pos = 'topRight';
+  } else if (height + y > clientHeight && width + x < clientWidth) {
+    pos = 'topLeft';
+  } else if (height + y < clientHeight && width + x > clientWidth) {
+    pos = 'bottomLeft';
+  } else {
+    pos = 'bottomRight';
+  }
+
+  return <ContextMenuWrapper
+    ref={wrapperRef}
+    style={{ left: props.pos.x, top: props.pos.y }}
+    pos={pos}
+  >
     {
-      props.items.map((v, i) => (
+      items.map((v, i) => (
         v === 'divider' ?
           <ContextMenuDivider key={i} /> :
           (<ContextMenuItemWrapper key={i} onClick={() => {
-            props.onClose();
+            onClose();
             v.handler();
           }}>{v.name}</ContextMenuItemWrapper>)
       ))

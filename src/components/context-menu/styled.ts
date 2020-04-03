@@ -1,25 +1,82 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 import { transparentize } from 'polished';
 import { theme } from "@constants/theme";
 
-export const inAnimation = keyframes`
+export const inAnimationBottomRight = keyframes`
   0% {
     opacity: 0%;
     transform: scale(0);
   }
 
-  50% {
+  60% {
     opacity: 90%;
     transform: scale(1.1);
   }
 
-  80% {
+  100% {
     opacity: 100%;
     transform: scale(1);
   }
 `;
 
-export const ContextMenuWrapper = styled.div`
+export const inAnimationBottomLeft = keyframes`
+  0% {
+    opacity: 0%;
+    transform: translateX(-100%) scale(0);
+  }
+
+  60% {
+    opacity: 90%;
+    transform: translateX(-100%) scale(1.1);
+  }
+
+  100% {
+    opacity: 100%;
+    transform: translateX(-100%) scale(1);
+  }
+`;
+
+
+export const inAnimationTopLeft = keyframes`
+  0% {
+    opacity: 0%;
+    transform: translate(-100%, 100%) scale(0);
+  }
+
+  60% {
+    opacity: 90%;
+    transform: translate(-100%, 100%) scale(1.1);
+  }
+
+  100% {
+    opacity: 100%;
+    transform: translate(-100%, 100%) scale(1);
+  }
+`;
+
+export const inAnimationTopRight = keyframes`
+  0% {
+    opacity: 0%;
+    transform: translateY(-100%) scale(0);
+  }
+
+  60% {
+    opacity: 90%;
+    transform: translateY(-100%) scale(1.1);
+  }
+
+  100% {
+    opacity: 100%;
+    transform: translateY(-100%) scale(1);
+  }
+`;
+
+export type ContextMenuWrapperPos = 'topLeft' | 'topRight' | 'bottomLeft' | 'bottomRight';
+interface ContextMenuWrapperProps {
+  pos: ContextMenuWrapperPos;
+}
+
+export const ContextMenuWrapper = styled.div<ContextMenuWrapperProps>`
   display: block;
   position: absolute;
   top: 100%;
@@ -29,9 +86,19 @@ export const ContextMenuWrapper = styled.div`
   z-index: 999;
   background-color: ${theme.colors.N700};
   border: 1px solid ${theme.colors.N500};
-  transform-origin: 0 0;
+  transform-origin: ${
+    p => p.pos === 'topLeft' ? '100% 100%' : (
+      p.pos === 'topRight' ? '0 100%' : (
+        p.pos === 'bottomLeft' ? '100% 0' : '0 0'
+      )
+    )
+  };
   box-shadow: 2px 2px 8px ${transparentize(0.6, theme.colors.N800)};
-  animation: ${inAnimation} 0.3s ease-in-out;
+  animation: ${p => p.pos === 'topLeft' ? css`${inAnimationTopLeft}` : (
+      p.pos === 'topRight' ? css`${inAnimationTopRight}` : (
+        p.pos === 'bottomLeft' ? css`${inAnimationBottomLeft}` : css`${inAnimationBottomRight}`
+      )
+    )} 0.3s ease-in-out both;
 `;
 
 export const ContextMenuItemWrapper = styled.div`
