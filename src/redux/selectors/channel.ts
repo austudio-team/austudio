@@ -4,6 +4,10 @@ export const channelListSelector = (state: ChannelState) => {
   return state.channelList;
 }
 
+export const channelListLengthSelector = (state: ChannelState) => {
+  return state.channelList.length;
+}
+
 export const channelMapSelector = (state: ChannelState) => {
   return state.channel;
 }

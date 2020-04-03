@@ -36,7 +36,7 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector>;
 
 const ControlBar: React.FC<Props> = props => {
-  const { playing, recording, requestPause, requestRecord, requestPlay, stopRecord } = props;
+  const { playing, recording, requestPause, requestRecord, requestPlay, stopRecord, addChannel } = props;
   const timeRef = useRef<HTMLDivElement>(null);
   const indicatorDragging = useRef<boolean>(false);
 
@@ -140,10 +140,14 @@ const ControlBar: React.FC<Props> = props => {
     }
   }, [handlePlayClick, handlePauseClick, handleRecordClick, playing]);
 
+  const handleAddChannelClick = useCallback(() => {
+    addChannel();
+  }, [addChannel]);
+
   return (
     <FunctionBarcontainer>
       <ButtonGroup>
-        <TextButton icon={Plus} text="Add Track" onClick={props.addChannel} width={181} />
+        <TextButton icon={Plus} text="Add Track" onClick={handleAddChannelClick} width={181} />
       </ButtonGroup>
       <ButtonGroup>
         <Tooltip title="Stop">

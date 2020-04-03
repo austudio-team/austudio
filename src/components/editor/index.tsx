@@ -333,8 +333,8 @@ const Editor: React.FC<Props> = props => {
       <AudioChannelWrapper>
         <AudioChannelScroller ref={channelWrapperRef}>
           {
-            channelList.map(v => (
-              <AudioChannel channelId={v} key={v} />
+            channelList.map((v, i) => (
+              <AudioChannel channelId={v} key={v} index={i} />
             ))
           }
         </AudioChannelScroller>

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { ReactComponent as Close } from '@assets/svg/close.svg';
-import { inAnimation } from '@components/context-menu/styled';
+import { inAnimationBottomRight } from '@components/context-menu/styled';
 
 interface EffectPanelContainerProps {
   inited: boolean;
@@ -14,7 +14,7 @@ export const EffectPanelContainer = styled.div<EffectPanelContainerProps>`
   background: ${p => p.theme.colors.N600};
   color: ${p => p.theme.colors.N100};
   opacity: ${p => p.inited ? 1 : 0};
-  animation: ${p => p.inited ? css`${inAnimation} 0.3s ${p.theme.animation.normal} backwards` : 'none'};
+  animation: ${p => p.inited ? css`${inAnimationBottomRight} 0.3s ${p.theme.animation.normal} backwards` : 'none'};
   font-size: 13px;
   box-shadow: 0px 0px 16px ${p => p.theme.colors.N800};
 `;
