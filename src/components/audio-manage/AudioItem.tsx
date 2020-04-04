@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import { Audio } from '@redux/types/library';
 import { ReactComponent as MusicIcon } from '@assets/svg/music.svg';
 import { AudioIconWrapper, StyledAudioItem, AudioInfoFileName,
-          AudioInfoWrapper, AudioInfoFileLength, DeleteIcon } from './styled';
+          AudioInfoWrapper, AudioInfoFileLength, DeleteIcon, LoadingIcon, LoadingMask } from './styled';
 import { millisecondToString } from '@utils/time';
 import { connect, ConnectedProps } from 'react-redux';
 import { requestDeleteAudio } from '@redux/actions/library';
@@ -28,8 +28,8 @@ const AudioItem: React.FC<Props> = props => {
   const { onDragStart, onDragEnd, audioInfo, deleteAudio } = props;
 
   const onDragHanlder = useCallback(() => {
-    onDragStart(audioInfo.id);
-  }, [audioInfo.id, onDragStart]);
+    audioInfo.ready && onDragStart(audioInfo.id);
+  }, [audioInfo.id, audioInfo.ready, onDragStart]);
 
   const handleDeleteClick = useCallback(() => {
     deleteAudio(audioInfo.id);
@@ -42,9 +42,14 @@ const AudioItem: React.FC<Props> = props => {
       </AudioIconWrapper>
       <AudioInfoWrapper>
         <AudioInfoFileName>{audioInfo.fileName}</AudioInfoFileName>
-        <AudioInfoFileLength>{millisecondToString(audioInfo.length, false)}</AudioInfoFileLength>
+        {audioInfo.ready && <AudioInfoFileLength>{millisecondToString(audioInfo.length, false)}</AudioInfoFileLength>}
       </AudioInfoWrapper>
       <DeleteIcon onClick={handleDeleteClick} />
+      {!audioInfo.ready && (
+        <LoadingMask>
+          <LoadingIcon />
+        </LoadingMask>
+      )}
     </StyledAudioItem>
   );
 }

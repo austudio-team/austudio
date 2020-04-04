@@ -4,12 +4,14 @@ export enum LibraryAction {
   'DRAG_END' = 'LIB_DRAG_END',
   'DELETE_AUDIO' = 'DELETE_AUDIO',
   'REQUEST_DELETE_AUDIO' = 'REQUEST_DELETE_AUDIO',
+  'MARK_AUDIO_READY' = 'MARK_AUDIO_READY',
 }
 
 export interface Audio {
   fileName: string;
   length: number;
   id: string;
+  ready: boolean;
 }
 
 export interface LibraryState {
@@ -26,6 +28,15 @@ export interface AddAudioAction {
     fileName: string,
     length: number,
     id: string,
+    ready: boolean,
+  }
+}
+
+export interface MarkAudioReadyAction {
+  type: typeof LibraryAction.MARK_AUDIO_READY,
+  payload: {
+    id: string,
+    length?: number,
   }
 }
 
@@ -54,4 +65,4 @@ export interface LibraryDragEndAction {
   type: typeof LibraryAction.DRAG_END,
 }
 
-export type LibraryActionType = AddAudioAction | LibraryDragStartAction | LibraryDragEndAction | DeleteAudioAction;
+export type LibraryActionType = AddAudioAction | LibraryDragStartAction | LibraryDragEndAction | DeleteAudioAction | MarkAudioReadyAction;

@@ -2,6 +2,7 @@ import styled, { keyframes } from "styled-components";
 import { transparentize } from 'polished';
 import { ReactComponent as Close } from '@assets/svg/close.svg';
 import { ReactComponent as Empty } from '@assets/svg/empty.svg';
+import { ReactComponent as Loading } from '@assets/svg/loading.svg';
 
 const inKeyframe = keyframes`
   from {
@@ -70,6 +71,7 @@ export const AudioItemWrapper = styled.div`
 `;
 
 export const StyledAudioItem = styled.div`
+  position: relative;
   display: flex;
   height: 52px;
   align-items: center;
@@ -164,4 +166,20 @@ export const DeleteIcon = styled(Close)`
       fill: ${p => p.theme.colors.N300};
     } 
   }
+`;
+
+export const LoadingMask = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: ${p => transparentize(0.6, p.theme.colors.N800)};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const LoadingIcon = styled(Loading)`
+  height: 52px;
 `;

@@ -1,7 +1,7 @@
 import eventEmitter from '@utils/event';
 import { MenuEvent } from '@events/menu';
 import store from '@redux';
-import { addAudio } from '@redux/actions/library';
+import { addAudio, markAudioReady } from '@redux/actions/library';
 import { v4 as uuidv4 } from 'uuid';
 import audioMap from './AudioMap';
 import { ChannelEvent } from '@events/channel';
@@ -75,13 +75,21 @@ export class AudioController {
   }
 
   public handleFile = async (files: FileList) => {
+    const filesWithId: { f: File, id: string }[] = [];
     for (const f of files) {
+      const id = uuidv4();
+      store.dispatch(addAudio(f.name, 0, id, false));
+      filesWithId.push({
+        id,
+        f,
+      });
+    }
+    for (const { id, f } of filesWithId) {
       const blob = URL.createObjectURL(f);
       const duration = await this.mesureByAudio(blob);
       const arrayBuffer = await this.fileAsArrayBuffer(f);
       const decoded = await this.decodeAudio(arrayBuffer);
-      const id = uuidv4();
-      store.dispatch(addAudio(f.name, Math.floor(duration * 1000), id));
+      store.dispatch(markAudioReady(id, Math.floor(duration * 1000)));
       audioMap[id] = {
         file: f,
         audioBuffer: decoded,
