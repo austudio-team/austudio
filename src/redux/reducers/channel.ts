@@ -23,13 +23,31 @@ export function channelReducer(state: ChannelState = initialState, action: Chann
   switch (action.type) {
     case ChannelAction.ADD_CHANNEL: {
       newChannel = generateNewChannel(state.channelList);
+      const channelList = [...state.channelList];
+      const { index } = action.payload;
+      if (typeof index === 'number') {
+        channelList.splice(index, 0, newChannel.id);
+      } else {
+        channelList.push(newChannel.id);
+      }
       return {
         ...state,
         channel: {
           ...state.channel,
           [newChannel.id]: newChannel,
         },
-        channelList: [...state.channelList, newChannel.id],
+        channelList,
+      }
+    }
+    case ChannelAction.MOVE_CHANNEL: {
+      const { newIndex, index } = action.payload;
+      const channelList = [...state.channelList];
+      const origin = channelList[index];
+      channelList[index] = channelList[newIndex];
+      channelList[newIndex] = origin;
+      return {
+        ...state,
+        channelList,
       }
     }
     case ChannelAction.UPDATE_MUTE: {

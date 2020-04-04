@@ -1,5 +1,6 @@
 export enum ChannelAction {
   'ADD_CHANNEL' = 'ADD_CHANNEL',
+  'MOVE_CHANNEL' = 'MOVE_CHANNEL',
   'UPDATE_VOL' = 'UPDATE_VOL',
   'UPDATE_PAN' = 'UPDATE_PAN',
   'UPDATE_SOLO' = 'UPDATE_SOLO',
@@ -44,6 +45,18 @@ export interface ChannelState {
 
 export interface AddChannelAction {
   type: typeof ChannelAction.ADD_CHANNEL;
+  payload: {
+    index?: number;
+  }
+}
+
+
+export interface MoveChannelAction {
+  type: typeof ChannelAction.MOVE_CHANNEL;
+  payload: {
+    index: number;
+    newIndex: number;
+  }
 }
 
 export interface UpdateVolAction {
@@ -150,4 +163,5 @@ export type ChannelActionType =
   | UpdateSliceAction
   | DeleteSliceAction
   | SplitSliceAction
-  | DeleteChannelAction;
+  | DeleteChannelAction
+  | MoveChannelAction;

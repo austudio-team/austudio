@@ -5,19 +5,22 @@ import Tooltip from '@components/tooltip';
 import { Dropdown } from '@components/dropdown';
 import { RootState } from '@redux/reducers';
 import { ConnectedProps, connect } from 'react-redux';
-import { channelItemSelector } from '@redux/selectors/channel';
+import { channelItemSelector, channelListLengthSelector } from '@redux/selectors/channel';
 import { updateMute, updateRecord, updatePan,
-        updateName, updateSolo, updateVol, deleteChannel } from '@redux/actions/channel';
+        updateName, updateSolo, updateVol, deleteChannel, addChannel, moveChannel } from '@redux/actions/channel';
 import { StyledSlider } from '@components/styled/slider';
 import { createContextMenu } from '@utils/context-menu';
 import ChannelNameInput from './ChannelNameInput';
+import { ContextMenuItem } from '@components/context-menu';
 
 interface AudioChannelProps {
   channelId: string;
+  index: number;
 }
 
 const mapState = (state: RootState, ownProps: AudioChannelProps) => ({
   channel: channelItemSelector(state.channel, ownProps.channelId),
+  channelLength: channelListLengthSelector(state.channel),
 });
 
 const mapDispatch = {
@@ -28,6 +31,8 @@ const mapDispatch = {
   updateSolo,
   updateVol,
   deleteChannel,
+  addChannel,
+  moveChannel,
 };
 
 const connector = connect(mapState, mapDispatch);
@@ -35,9 +40,9 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & AudioChannelProps;
 
 const AudioChannel: React.FC<Props> = props => {
-  const { channel, updateMute, updateRecord,
+  const { channel, updateMute, updateRecord, moveChannel,
           updatePan, updateSolo, updateVol, updateName,
-          deleteChannel } = props;
+          deleteChannel, index, channelLength, addChannel } = props;
 
   const [editing, setEditing] = useState<boolean>(false);
 
@@ -75,36 +80,47 @@ const AudioChannel: React.FC<Props> = props => {
   }, [setEditing, channel.id, channel.name, updateName]);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
-    createContextMenu(e, [
+    const items: ContextMenuItem[] = [
       {
         name: "Rename",
         handler: () => { setEditing(true) },
       },
       'divider',
-      {
+    ];
+    if (index !== 0) {
+      items.push({
         name: "Insert above",
-        handler: () => { console.log('hello') },
-      },
-      {
+        handler: () => { addChannel(index) },
+      })
+    }
+    if (index !== channelLength - 1) {
+      items.push({
         name: "Insert below",
-        handler: () => { console.log('hello') },
-      },
-      'divider',
-      {
+        handler: () => { addChannel(index + 1) },
+      });
+    }
+    items.push('divider');
+    if (index !== 0) {
+      items.push({
         name: "Move up",
-        handler: () => { console.log('hello') },
-      },
-      {
+        handler: () => { moveChannel(index, index - 1) },
+      });
+    }
+    if (index !== channelLength - 1) {
+      items.push({
         name: "Move down",
-        handler: () => { console.log('hello') },
-      },
+        handler: () => { moveChannel(index, index + 1) },
+      });
+    }
+    items.push(
       'divider',
       {
         name: "Delete",
         handler: () => { deleteChannel(channel.id) },
       }
-    ]);
-  }, [setEditing, deleteChannel, channel.id]);
+    );
+    createContextMenu(e, items);
+  }, [setEditing, channelLength, index, deleteChannel, channel.id, addChannel, moveChannel]);
 
   return (
     <AudioChannelContainer onContextMenu={handleContextMenu}>
