@@ -87,18 +87,13 @@ const AudioChannel: React.FC<Props> = props => {
       },
       'divider',
     ];
-    if (index !== 0) {
-      items.push({
-        name: "Insert above",
-        handler: () => { addChannel(index) },
-      })
-    }
-    if (index !== channelLength - 1) {
-      items.push({
-        name: "Insert below",
-        handler: () => { addChannel(index + 1) },
-      });
-    }
+    items.push({
+      name: "Insert above",
+      handler: () => { addChannel(index) },
+    }, {
+      name: "Insert below",
+      handler: () => { addChannel(index + 1) },
+    });
     items.push('divider');
     if (index !== 0) {
       items.push({
