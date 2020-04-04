@@ -18,19 +18,17 @@ export const defaultCompressorParams: compressorParams = {
 
 interface delayParams {
   type: number,
-  delay: number,
+  delayLeft: number,
+  delayRight: number,
   feedback: number,
-  cutoff: number,
-  offset: number,
   dry: number
 }
 
 export const defaultDelayParams: delayParams = {
   type: 0,
-  delay: 1,
+  delayLeft: 0.2,
+  delayRight: 0.2,
   feedback: 0.5,
-  cutoff: 8000,
-  offset: 0,
   dry: 1
 }
 
@@ -59,23 +57,23 @@ export const defaultFilterParams: filterParams = {
   type: 'lowpass',
   frequency: 8000,
   quality: 1,
-  gain: 1,
-  wet: 1,
-  dry: 0
+  gain: 0,
+  wet: 0.8,
+  dry: 0.2
 }
 
 interface reverbParams {
   seconds: number,
   decay: number,
-  delay: number,
-  reverse: boolean
+  wet: number,
+  dry: number
 }
 
 export const defaultReverbParams: reverbParams = {
-  seconds: 3,
-  decay: 2,
-  delay: 2,
-  reverse: false
+  seconds: 0.01,
+  decay: 0.01,
+  wet: 1,
+  dry: 1
 }
 
 interface tremoloParams {
@@ -84,8 +82,8 @@ interface tremoloParams {
 }
 
 export const defaultTremoloParams: tremoloParams = {
-  speed: 0.7,
-  depth: 0.5
+  speed: 4,
+  depth: 1
 }
 
 export const defaultParams = {
