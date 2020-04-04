@@ -59,7 +59,7 @@ const ControlBar: React.FC<Props> = props => {
     };
     const handleDragEnd = () => {
       indicatorDragging.current = false;
-      getAudioController().updatePos();
+      getAudioController().restartPlay();
     };
     eventEmitter.on(EditorEvent.editorIndicatorDragStart, handleDragStart);
     eventEmitter.on(EditorEvent.editorIndicatorDragEnd, handleDragEnd);
@@ -118,9 +118,11 @@ const ControlBar: React.FC<Props> = props => {
 
   const handleStopClick = useCallback(() => {
     handlePauseClick();
-    eventEmitter.emit(EditorEvent.editorIndicatorShouldChange, { offset: 0 });
-    currentTime.time = 0;
-    eventEmitter.emit(EditorEvent.editorIndicatorChanged);
+    requestAnimationFrame(() => {
+      eventEmitter.emit(EditorEvent.editorIndicatorShouldChange, { offset: 0 });
+      currentTime.time = 0;
+      eventEmitter.emit(EditorEvent.editorIndicatorChanged);
+    })
   }, [handlePauseClick]);
 
 

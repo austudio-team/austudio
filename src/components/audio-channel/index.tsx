@@ -154,7 +154,7 @@ const AudioChannel: React.FC<Props> = props => {
               value={channel.vol}
               onChange={volHandler}
               min={0}
-              max={100}
+              max={125}
               step={1}
             />
           </Tooltip>

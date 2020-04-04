@@ -5,7 +5,7 @@ import DropdownItem from './DropdownItem';
 import { RootState } from '@redux/reducers';
 import { connect, ConnectedProps } from 'react-redux';
 import { channelEffectSelector } from '@redux/selectors/audioEffect';
-import { addEffect, removeEffect, openEffectPanel } from '@redux/actions/audioEffect';
+import { addEffect, removeEffect, openEffectPanel, closeEffectPanel } from '@redux/actions/audioEffect';
 import { Effects } from '@constants';
 
 interface DropdownProps {
@@ -23,12 +23,13 @@ const mapDispatch = {
   addEffect,
   removeEffect,
   openEffectPanel,
+  closeEffectPanel,
 }
 const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & DropdownProps;
 
 const Dropdown: React.FC<Props> = props => {
-  const { width, margin, value = '', channelId, effects, addEffect, removeEffect, openEffectPanel } = props;
+  const { width, margin, value = '', channelId, effects, addEffect, removeEffect, openEffectPanel, closeEffectPanel } = props;
   const container = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<boolean>(false);
   const contextMenuOpenRef = useRef<boolean>(false);
@@ -122,6 +123,7 @@ const Dropdown: React.FC<Props> = props => {
                 channelId={channelId}
                 removeEffect={removeEffect}
                 openEffectPanel={openEffectPanel}
+                closeEffectPanel={closeEffectPanel}
               />
             ))
           }
