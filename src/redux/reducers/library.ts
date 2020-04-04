@@ -24,6 +24,19 @@ export function libraryReducer(state: LibraryState = initialState, action: Libra
         audioList: [...state.audioList, newAudio.id],
       };
     }
+    case LibraryAction.DELETE_AUDIO: {
+      const { id } = action.payload;
+      const audioInfo = { ...state.audioInfo }
+      delete audioInfo[id];
+      const audioList = [...state.audioList];
+      const index = audioList.findIndex(v => v === id);
+      audioList.splice(index, 1);
+      return {
+        ...state,
+        audioInfo,
+        audioList,
+      };
+    }
     case LibraryAction.DRAG_START: {
       const { audioId } = action.payload;
       return {

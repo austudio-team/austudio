@@ -13,6 +13,7 @@ import { Compressor, Reverb, Filter, Delay, Equalizer, Tremolo } from '@shyrii/w
 import { Effects } from '@constants';
 import { AudioEffectEvent } from '@events/audioEffects';
 import { Effect } from '@redux/types/audioEffect';
+import { LibraryEvent } from '@events/library';
 
 const EffectMap = {
   [Effects.COMPRESSOR]: Compressor,
@@ -45,6 +46,7 @@ export class AudioController {
     eventEmitter.on(AudioEffectEvent.EFFECT_DELETE_EFFECT, this.removeEffect);
     eventEmitter.on(EditorEvent.requestPlay, this.play);
     eventEmitter.on(EditorEvent.requestPause, this.pause);
+    eventEmitter.on(LibraryEvent.DELETE_AUDIO, this.deleteAudio);
   }
 
   private mesureByAudio = (url: string) => {
@@ -108,6 +110,10 @@ export class AudioController {
     }
     window.addEventListener('focus', handleBlur);
     input.click();
+  }
+
+  private deleteAudio = (id: string) => {
+    delete audioMap[id];
   }
 
   private addSlice = ({ channelId, slice } : { channelId: string, slice: AudioSlice } ) => {

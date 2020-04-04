@@ -73,6 +73,7 @@ export const StyledAudioItem = styled.div`
   display: flex;
   height: 52px;
   align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
   &:hover {
     background-color: ${p => p.theme.colors.N600};
@@ -86,6 +87,7 @@ export const AudioIconWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 
   svg {
     width: 36px;
@@ -97,6 +99,8 @@ export const AudioInfoWrapper = styled.div`
   margin-left: 12px;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
 `;
 
 export const AudioInfoFileName = styled.div`
@@ -144,4 +148,20 @@ export const EmptyTitle = styled(EmptyTip)`
   font-weight: 600;
   color: ${p => p.theme.colors.N200};
   margin: 8px 0;
+`;
+
+export const DeleteIcon = styled(Close)`
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  path {
+    fill: ${p => p.theme.colors.N400};
+  }
+
+  &:hover {
+    path {
+      fill: ${p => p.theme.colors.N300};
+    } 
+  }
 `;
