@@ -4,7 +4,7 @@ import { toggleLibrary } from '@redux/actions/functionBar';
 import { ConnectedProps, connect } from 'react-redux';
 import { FunctionState } from '@redux/types/functionBar';
 import { librarySelector } from '@redux/selectors/functionBar';
-import { AudioManageContainer, CloseIcon, Title, AudioItemWrapper } from './styled';
+import { AudioManageContainer, CloseIcon, Title, AudioItemWrapper, EmptyContainer, EmptyIcon, EmptyTip, EmptyTitle } from './styled';
 import { audioListSelector, audioMapSelector } from '@redux/selectors/library';
 import AudioItem from './AudioItem';
 import { libraryDragStart, libraryDragEnd } from '@redux/actions/library';
@@ -53,6 +53,20 @@ const AudioManage: React.FC<Props> = props => {
             />
           ))
         }
+        {audioList.length === 0 ? (
+          <EmptyContainer>
+            <EmptyIcon />
+            <EmptyTitle>
+              Empty here...
+            </EmptyTitle>
+            <EmptyTip>
+              Drag drop audio file to editor
+            </EmptyTip>
+            <EmptyTip>
+              or click "File" -> "Import"
+            </EmptyTip>
+          </EmptyContainer>
+        ) : null}
       </AudioItemWrapper>
     </AudioManageContainer>
   ) : null;

@@ -9,11 +9,12 @@ const initialState: LibraryState = {
 export function libraryReducer(state: LibraryState = initialState, action: LibraryActionType): LibraryState {
   switch (action.type) {
     case LibraryAction.ADD_AUDIO: {
-      const { fileName, length, id } = action.payload;
+      const { fileName, length, id, ready } = action.payload;
       const newAudio: Audio = {
         fileName,
         length,
         id,
+        ready,
       };
       return {
         ...state,
@@ -22,6 +23,33 @@ export function libraryReducer(state: LibraryState = initialState, action: Libra
           [newAudio.id]: newAudio,
         },
         audioList: [...state.audioList, newAudio.id],
+      };
+    }
+    case LibraryAction.MARK_AUDIO_READY: {
+      const { id, length } = action.payload;
+      return {
+        ...state,
+        audioInfo: {
+          ...state.audioInfo,
+          [id]: {
+            ...state.audioInfo[id],
+            length: typeof length === 'number' ? length : state.audioInfo[id].length,
+            ready: true,
+          }
+        }
+      }
+    }
+    case LibraryAction.DELETE_AUDIO: {
+      const { id } = action.payload;
+      const audioInfo = { ...state.audioInfo }
+      delete audioInfo[id];
+      const audioList = [...state.audioList];
+      const index = audioList.findIndex(v => v === id);
+      audioList.splice(index, 1);
+      return {
+        ...state,
+        audioInfo,
+        audioList,
       };
     }
     case LibraryAction.DRAG_START: {

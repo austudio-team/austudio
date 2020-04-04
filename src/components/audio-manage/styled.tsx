@@ -1,6 +1,8 @@
 import styled, { keyframes } from "styled-components";
 import { transparentize } from 'polished';
 import { ReactComponent as Close } from '@assets/svg/close.svg';
+import { ReactComponent as Empty } from '@assets/svg/empty.svg';
+import { ReactComponent as Loading } from '@assets/svg/loading.svg';
 
 const inKeyframe = keyframes`
   from {
@@ -69,9 +71,11 @@ export const AudioItemWrapper = styled.div`
 `;
 
 export const StyledAudioItem = styled.div`
+  position: relative;
   display: flex;
   height: 52px;
   align-items: center;
+  justify-content: space-between;
   padding: 0 16px;
   &:hover {
     background-color: ${p => p.theme.colors.N600};
@@ -85,6 +89,7 @@ export const AudioIconWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
 
   svg {
     width: 36px;
@@ -96,6 +101,8 @@ export const AudioInfoWrapper = styled.div`
   margin-left: 12px;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  overflow: hidden;
 `;
 
 export const AudioInfoFileName = styled.div`
@@ -110,4 +117,69 @@ export const AudioInfoFileLength = styled(AudioInfoFileName)`
   margin-top: 2px;
   font-size: 12px;
   color: ${p => p.theme.colors.N300};
+`;
+
+export const EmptyContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+`;
+
+export const EmptyIcon = styled(Empty)`
+  width: 64px;
+  height: 64px;
+  path {
+    fill: ${p => p.theme.colors.N300};
+  }
+`;
+
+export const EmptyTip = styled.div`
+  font-size: 12px;
+  color: ${p => p.theme.colors.N300};
+`;
+
+export const EmptyTitle = styled(EmptyTip)`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${p => p.theme.colors.N200};
+  margin: 8px 0;
+`;
+
+export const DeleteIcon = styled(Close)`
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+  path {
+    fill: ${p => p.theme.colors.N400};
+  }
+
+  &:hover {
+    path {
+      fill: ${p => p.theme.colors.N300};
+    } 
+  }
+`;
+
+export const LoadingMask = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: ${p => transparentize(0.6, p.theme.colors.N800)};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+export const LoadingIcon = styled(Loading)`
+  height: 52px;
 `;

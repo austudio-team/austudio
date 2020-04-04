@@ -1,7 +1,7 @@
 import eventEmitter from '@utils/event';
 import { MenuEvent } from '@events/menu';
 import store from '@redux';
-import { addAudio } from '@redux/actions/library';
+import { addAudio, markAudioReady } from '@redux/actions/library';
 import { v4 as uuidv4 } from 'uuid';
 import audioMap from './AudioMap';
 import { ChannelEvent } from '@events/channel';
@@ -13,6 +13,7 @@ import { Compressor, Reverb, Filter, Delay, Equalizer, Tremolo } from '@shyrii/w
 import { Effects } from '@constants';
 import { AudioEffectEvent } from '@events/audioEffects';
 import { Effect } from '@redux/types/audioEffect';
+import { LibraryEvent } from '@events/library';
 
 const EffectMap = {
   [Effects.COMPRESSOR]: Compressor,
@@ -45,6 +46,7 @@ export class AudioController {
     eventEmitter.on(AudioEffectEvent.EFFECT_DELETE_EFFECT, this.removeEffect);
     eventEmitter.on(EditorEvent.requestPlay, this.play);
     eventEmitter.on(EditorEvent.requestPause, this.pause);
+    eventEmitter.on(LibraryEvent.DELETE_AUDIO, this.deleteAudio);
   }
 
   private mesureByAudio = (url: string) => {
@@ -73,13 +75,21 @@ export class AudioController {
   }
 
   public handleFile = async (files: FileList) => {
+    const filesWithId: { f: File, id: string }[] = [];
     for (const f of files) {
+      const id = uuidv4();
+      store.dispatch(addAudio(f.name, 0, id, false));
+      filesWithId.push({
+        id,
+        f,
+      });
+    }
+    for (const { id, f } of filesWithId) {
       const blob = URL.createObjectURL(f);
       const duration = await this.mesureByAudio(blob);
       const arrayBuffer = await this.fileAsArrayBuffer(f);
       const decoded = await this.decodeAudio(arrayBuffer);
-      const id = uuidv4();
-      store.dispatch(addAudio(f.name, Math.floor(duration * 1000), id));
+      store.dispatch(markAudioReady(id, Math.floor(duration * 1000)));
       audioMap[id] = {
         file: f,
         audioBuffer: decoded,
@@ -108,6 +118,10 @@ export class AudioController {
     }
     window.addEventListener('focus', handleBlur);
     input.click();
+  }
+
+  private deleteAudio = (id: string) => {
+    delete audioMap[id];
   }
 
   private addSlice = ({ channelId, slice } : { channelId: string, slice: AudioSlice } ) => {
