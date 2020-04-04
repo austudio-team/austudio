@@ -1,6 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { transparentize } from 'polished';
 import { ReactComponent as Close } from '@assets/svg/close.svg';
+import { ReactComponent as Empty } from '@assets/svg/empty.svg';
 
 const inKeyframe = keyframes`
   from {
@@ -110,4 +111,37 @@ export const AudioInfoFileLength = styled(AudioInfoFileName)`
   margin-top: 2px;
   font-size: 12px;
   color: ${p => p.theme.colors.N300};
+`;
+
+export const EmptyContainer = styled.div`
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+`;
+
+export const EmptyIcon = styled(Empty)`
+  width: 64px;
+  height: 64px;
+  path {
+    fill: ${p => p.theme.colors.N300};
+  }
+`;
+
+export const EmptyTip = styled.div`
+  font-size: 12px;
+  color: ${p => p.theme.colors.N300};
+`;
+
+export const EmptyTitle = styled(EmptyTip)`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${p => p.theme.colors.N200};
+  margin: 8px 0;
 `;
