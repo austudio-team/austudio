@@ -11,3 +11,7 @@ export function isMenuOpenedSelector(state: MenuState) {
 export function isThisMenuOpenedSelector(state: MenuState, menuKey: string) {
   return state.openedMenu === menuKey;
 }
+
+export function aboutPanelOpenedSelector(state: MenuState) {
+  return state.aboutOpen;
+}
