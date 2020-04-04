@@ -1200,10 +1200,10 @@
   version "0.3.2"
   resolved "https://registry.npm.taobao.org/@sheerun/mutationobserver-shim/download/@sheerun/mutationobserver-shim-0.3.2.tgz#8013f2af54a2b7d735f71560ff360d3a8176a87b"
 
-"@shyrii/web-audio-effects@^1.0.0":
-  version "1.0.0"
-  resolved "https://registry.npm.taobao.org/@shyrii/web-audio-effects/download/@shyrii/web-audio-effects-1.0.0.tgz#b9cf51e8a953d4b016c065a988ba76708183c934"
-  integrity sha1-uc9R6KlT1LAWwGWpiLp2cIGDyTQ=
+"@shyrii/web-audio-effects@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.npm.taobao.org/@shyrii/web-audio-effects/download/@shyrii/web-audio-effects-1.0.3.tgz#8bac2885fdae35d940cf045e919ae4d14d4dc5af"
+  integrity sha1-i6wohf2uNdlAzwRekZrk0U1Nxa8=
   dependencies:
     "@babel/polyfill" "^7.8.3"
     core-js "3"
