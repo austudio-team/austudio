@@ -8,6 +8,7 @@ const canvasMap: {
 } = {};
 
 let zoom = 100;
+let channel = 0;
 
 
 const drawRect = (canvas: HTMLCanvasElement, peaks: number[], width: number) => {
@@ -38,8 +39,8 @@ const drawRect = (canvas: HTMLCanvasElement, peaks: number[], width: number) => 
 
     for(let i = 0; i < points.length - 1; i++) {
       ctx.beginPath();
-      ctx.moveTo(i, points[i][1]);
-      ctx.lineTo(i, points[i + 1][1]);
+      ctx.moveTo(i * 0.25, points[i][1]);
+      ctx.lineTo(i * 0.25, points[i + 1][1]);
       ctx.strokeStyle = "#fff";
       ctx.lineWidth = 0.5;
       ctx.stroke();
@@ -52,7 +53,7 @@ const generateCanvas = (audioId: string) => {
   const { library }: RootState = store.getState();
   const audio = library.audioInfo[audioId];
   const width = audio.length / zoom;
-  const peaks = getPeaks(audioMap[audioId].audioBuffer, 10, width);
+  const peaks = getPeaks(audioMap[audioId].audioBuffer, channel, width);
   const canvas = document.createElement('canvas');
   canvas.height = 104;
   canvas.width = width;
@@ -69,3 +70,4 @@ export const getCanvas = (audioId: string): string => {
   }
   return canvasMap[audioId];
 }
+ 
