@@ -183,3 +183,147 @@ export const EffectForm = {
     },
   ]
 }
+
+export const EffectTemplate = {
+  [Effects.COMPRESSOR]: {
+    Default: {
+      attack: 0.3,
+      release: 0.15,
+      ratio: 10,
+      threshold: -50,
+      gain: 0.3
+    },
+    Vocals: {
+      attack: 0.9,
+      release: 0.13,
+      ratio: 14,
+      threshold: -31,
+      gain: 0.51
+    },
+    HeavyRockDrums: {
+      attack: 0,
+      release: 0.08,
+      ratio: 8.6,
+      threshold: -35,
+      gain: 0.66
+    },
+    AcousticGuitar: {
+      attack: 0.08,
+      release: 0.2,
+      ratio: 10,
+      threshold: -40,
+      gain: 0.45
+    },
+    BaseRunningHot: {
+      attack: 0.09,
+      release: 0.23,
+      ratio: 14.4,
+      threshold: -26,
+      gain: 0.55
+    }
+  },
+  [Effects.DELAY]: {
+    Default: {
+      type: 0,
+      delayLeft: 0.2,
+      delayRight: 0.2,
+      feedback: 0.5,
+      dry: 1
+    },
+    FunkyGuitar: {
+      type: 0,
+      delayLeft: 0.4,
+      delayRight: 0.39,
+      feedback: 0.23,
+      dry: 0.8
+    },
+    LongVocals: {
+      type: 0,
+      delayLeft: 0.75,
+      delayRight: 0.72,
+      feedback: 0.13,
+      dry: 0.8
+    },
+    ShortVocals: {
+      type: 0,
+      DelayLeft: 0.41,
+      delayRight: 0.42,
+      feedback: 0.21,
+      dry: 0.8
+    },
+    SlapBack: {
+      type: 0,
+      DelayLeft: 0.35,
+      delayRight: 0.35,
+      feedback: 0.15,
+      dry: 0.8
+    }
+  },
+  [Effects.EQUALIZER]: {
+    Default: {
+      low: 0.5,
+      mid: 0.5,
+      high: 0.5
+    }
+  },
+  [Effects.FILTER]: {
+    Default: {
+      type: 'lowpass',
+      frequency: 8000,
+      quality: 1,
+      gain: 0,
+      wet: 0.8,
+      dry: 0.2
+    }
+  },
+  [Effects.REVERB]: {
+    Default: {
+      seconds: 0.01,
+      decay: 0.01,
+      wet: 1,
+      dry: 1
+    },
+    Brass: {
+      seconds: 4.3,
+      decay: 7.9,
+      wet: 0.29,
+      dry: 1,
+    },
+    ColdCave: {
+      seconds: 8.9,
+      decay: 6.7,
+      wet: 0.09,
+      dry: 1
+    },
+    Drums: {
+      seconds: 3.1,
+      decay: 6.7,
+      wet: 0.09,
+      dry: 1,
+    },
+    Vocals: {
+      seconds: 3.1,
+      decay: 8.6,
+      wet: 0.5,
+      dry: 1
+    }
+  },
+  [Effects.TREMOLO]: {
+    Default: {
+      speed: 4,
+      depth: 1
+    },
+    FakeLFO: {
+      speed: 11,
+      depth: 1
+    },
+    Siren: {
+      speed: 7,
+      depth: 0.77
+    },
+    Spinning: {
+      speed: 7.4,
+      depth: 0.63
+    }
+  }
+}

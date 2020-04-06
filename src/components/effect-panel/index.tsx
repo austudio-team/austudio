@@ -11,6 +11,8 @@ import { EffectPanelEvent } from '@events/effectPanel';
 import { StyledSelect } from '@components/styled/select';
 import { Option } from 'rc-select';
 import EffectAudioNode from '@components/effect-audio-node';
+import { EffectTemplate } from '@constants/effectForm';
+import './style.less';
 
 interface EffectPanelProps {
   channelId: string;
@@ -48,6 +50,7 @@ const EffectPanel: React.FC<Props> = props => {
   const [selected, setSelected] = useState<boolean>(false);
   
   const { channel, effect, effectId, channelId, closeEffectPanel, modifyEffect } = props;
+  const templateType = EffectTemplate[effect.type];
 
   const rerenderPos = useCallback(() => {
     const EffectPanel = EffectPanelRef.current;
@@ -126,6 +129,10 @@ const EffectPanel: React.FC<Props> = props => {
     modifyEffect(channelId, effect.id, e);
   }, [channelId, modifyEffect, effect.id]);
 
+  const handleOptionChange = useCallback((v) => {
+    modifyEffect(channelId, effect.id, templateType[v]);
+  }, [channelId, modifyEffect, effect.id, templateType]);
+
   return (
     <EffectPanelContainer
       onMouseDown={handleMouseDown}
@@ -140,8 +147,16 @@ const EffectPanel: React.FC<Props> = props => {
       <TemplateWrapper>
         <span>{effectName[effect.type]}</span>
         <SelectContainer>
-          <StyledSelect defaultValue='Present'>
-            <Option value='Prensent'>Present</Option>
+          <StyledSelect onChange={handleOptionChange} defaultValue='Default'>
+            {/* <Option value='Default'>Default</Option> */}
+            {
+              templateType && Object.entries(templateType).map(([k, v]) => {
+                return(
+                  <Option value={k}>{k}</Option>
+                );
+              }
+              )
+            }
           </StyledSelect>
         </SelectContainer>
       </TemplateWrapper>
