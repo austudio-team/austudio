@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StyledAudioBlock, AudioName, CutLine, LeftStretcher, RightStretcher, VisualEffectImage } from './styled';
+import { StyledAudioBlock, AudioName, CutLine, LeftStretcher, RightStretcher, VisualEffectImage, RollingIcon } from './styled';
 import { AudioSlice } from '@redux/types/channel';
 import { RootState } from '@redux/reducers';
 import { audioItemSelector } from '@redux/selectors/library';
@@ -18,6 +18,7 @@ import { KeyEventEmitter } from '@utils/keyevent';
 import { KeyEvent } from '@utils/keyevent_declare';
 import { createContextMenu } from '@utils/context-menu';
 import { getCanvas } from '@audio/VisualEffect';
+import { debounce } from 'lodash';
 
 interface AudioBlockProps {
   slice: AudioSlice;
@@ -68,15 +69,46 @@ const AudioBlock: React.FC<Props> = props => {
   const stretchingOffset = useRef<number>(0);
   const stretchingStretch = useRef<number>(0);
   const visualEffectImageRef = useRef<HTMLImageElement>(null);
+  const [visualEffectImageLoaded, setVisualEffectImageLoaded] = useState<boolean>(false);
+
+  const currentScale = useRef<number>(slice.stretch / zoom);
+  const visualEffectImageOffset = useRef<number>(-Math.ceil(slice.start * slice.stretch / zoom));
 
   // graphEffect
   useEffect(() => {
     const ref = visualEffectImageRef.current;
     if (ref) {
-      ref.src = getCanvas(audio.id);
+      ref.src = getCanvas(audio.id, currentScale.current);
     }
+    setVisualEffectImageLoaded(true);
   }, [audio.id]);
 
+  const fetchGraph = useCallback(debounce((scale: number) => {
+    currentScale.current = scale;
+    const ref = visualEffectImageRef.current;
+    if (ref) {
+      ref.style.transform = `translateX(-${visualEffectImageOffset.current}px)`;
+      ref.src = getCanvas(audio.id, scale);
+    }
+    setVisualEffectImageLoaded(true);
+  }, 200, { trailing: true, leading: false }), [setVisualEffectImageLoaded]);
+
+  const updateGraph = useCallback(() => {
+    setVisualEffectImageLoaded(false);
+    const targetScale = stretchingStretch.current !== 0 ? (stretchingStretch.current / zoom) : slice.stretch / zoom;
+    fetchGraph(targetScale);
+    const base = targetScale / currentScale.current;
+    const ref = visualEffectImageRef.current;
+    if (ref) {
+      ref.style.transform = `translateX(-${visualEffectImageOffset.current * base}px) scaleX(${base})`;
+    }
+  }, [fetchGraph, zoom, slice.stretch]);
+
+  // zoomEffect
+  useEffect(() => {
+    updateGraph();
+  }, [zoom, updateGraph])
+  
   // DragRaf
   // draggingEffect
   useEffect(() => {
@@ -147,7 +179,8 @@ const AudioBlock: React.FC<Props> = props => {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
             } else {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
-              visualEffectImageRef.current.style.transform = `translateX(${-Math.ceil(start / zoom)}px)`;
+              visualEffectImageOffset.current = -Math.ceil(start * slice.stretch / zoom);
+              visualEffectImageRef.current.style.transform = `translateX(${visualEffectImageOffset.current}}px)`;
               audioBlockRef.current.style.transform = `translateX(${Math.ceil((newOffset - offset) / zoom)}px)`;
             }
           }
@@ -159,7 +192,7 @@ const AudioBlock: React.FC<Props> = props => {
         cancelAnimationFrame(raf);
       }
     }
-  }, [cursorType, stretching, audio, slice, zoom, offset]);
+  }, [cursorType, stretching, audio, slice, zoom, offset, updateGraph]);
 
   const initDrag = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     clickXRef.current = e.clientX;
@@ -219,6 +252,9 @@ const AudioBlock: React.FC<Props> = props => {
           } else {
             eventEmitter.emit(EditorEvent.editorCancelAutoScrollY);
           }
+          if (cursorType === FunctionBarCursorType.stretch && stretching) {
+            updateGraph();
+          }
         }
       }
       window.addEventListener('mousemove', handler);
@@ -226,7 +262,7 @@ const AudioBlock: React.FC<Props> = props => {
         window.removeEventListener('mousemove', handler);
       }
     }
-  }, [dragging, stretching, offset]);
+  }, [dragging, stretching, offset, cursorType, updateGraph]);
 
   // editorScrollXChangeEventEffect
   useEffect(() => {
@@ -262,9 +298,12 @@ const AudioBlock: React.FC<Props> = props => {
             newChannel = newChannelId;
           }
         }
-        updateSlice(channelId, slice.id, {
-          offset: computeDraggingX(editorScrollLeft.current, editorDraggingScrollLeft.current, offset, mouseMovement.current) * zoom,
-        }, newChannel);
+        const targetOffset = computeDraggingX(editorScrollLeft.current, editorDraggingScrollLeft.current, offset, mouseMovement.current) * zoom;
+        if (targetOffset !== slice.offset || newChannel) {
+          updateSlice(channelId, slice.id, {
+            offset: targetOffset,
+          }, newChannel);
+        }
       }
       window.addEventListener('mouseup', handler);
       return () => {
@@ -287,13 +326,14 @@ const AudioBlock: React.FC<Props> = props => {
             end: stretchingEnd.current,
           }, null);
         }
+        stretchingStretch.current = 0;
       }
       window.addEventListener('mouseup', handler);
       return () => {
         window.removeEventListener('mouseup', handler);
       }
     }
-  }, [dragging, stretching, setStretching, setDragging, channelId, slice.id, updateSlice, zoom, offset, cursorType]);
+  }, [dragging, stretching, setStretching, setDragging, channelId, slice.id, slice.offset, updateSlice, zoom, offset, cursorType]);
 
   const cutMouseOverHandler = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     // 防止 Block 的 MouseEnter 上升到 Track，导致拖拽时来回在原轨道和新轨道之间鬼畜
@@ -359,7 +399,8 @@ const AudioBlock: React.FC<Props> = props => {
       {
         cursorType === FunctionBarCursorType.cut && cutHover && <CutLine ref={cutLineRef} />
       }
-      <VisualEffectImage ref={visualEffectImageRef} />
+      <RollingIcon loaded={visualEffectImageLoaded} />
+      <VisualEffectImage ref={visualEffectImageRef} style={{ transform: `translateX(${visualEffectImageOffset}px)`}} />
       <LeftStretcher
         onMouseDown={stretcherMouseDownHandler}
         data-type={StretchingType.left}

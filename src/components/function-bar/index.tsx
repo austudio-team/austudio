@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react';
 import { FunctionBarcontainer } from '@components/styled';
-import { ButtonGroup, UndoButton, RedoButton, PointerButton, CutButton, FolderButton, ResizeButton } from '@components/styled/functionBar';
+import { ButtonGroup, PointerButton, CutButton, FolderButton, ResizeButton } from '@components/styled/functionBar';
 import Tooltip from '@components/tooltip';
 import { RootState } from '@redux/reducers';
 import { toggleLibrary, toggleCursorType } from '@redux/actions/functionBar';
@@ -40,10 +40,10 @@ const FunctionBar: React.FC<Props> = props => {
 
   return (
     <FunctionBarcontainer>
-      <ButtonGroup>
+      {/* <ButtonGroup>
         <Tooltip title="Undo"><UndoButton /></Tooltip>
         <Tooltip title="Redo"><RedoButton disable /></Tooltip>
-      </ButtonGroup>
+      </ButtonGroup> */}
       <ButtonGroup>
         <Tooltip title="Select">
           <PointerButton

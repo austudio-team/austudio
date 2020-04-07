@@ -4,18 +4,18 @@ import { RootState } from "@redux/reducers";
 import store from "@redux";
 
 const canvasMap: {
-  [audioId: string]: string;
+  [audioId: string]: {
+    [zoom: string]: string,
+  };
 } = {};
 
-let zoom = 100;
 let channel = 0;
-
 
 const drawRect = (canvas: HTMLCanvasElement, peaks: number[], width: number) => {
   const ctx = canvas.getContext && canvas.getContext('2d');
   if (ctx) {
-    ctx.fillStyle = "#555555";
-    ctx.fillRect(0, 0, width, 104);
+    // ctx.fillStyle = theme.colors.N600;
+    // ctx.fillRect(0, 0, width, 104);
     // ctx.translate(0, 100);
 
     const height = 104;
@@ -49,10 +49,10 @@ const drawRect = (canvas: HTMLCanvasElement, peaks: number[], width: number) => 
   }
 }
 
-const generateCanvas = (audioId: string) => {
+const generateCanvas = (audioId: string, scale: number) => {
   const { library }: RootState = store.getState();
   const audio = library.audioInfo[audioId];
-  const width = audio.length / zoom;
+  const width = audio.length * scale;
   const peaks = getPeaks(audioMap[audioId].audioBuffer, channel, width);
   const canvas = document.createElement('canvas');
   canvas.height = 104;
@@ -60,14 +60,14 @@ const generateCanvas = (audioId: string) => {
   document.body.appendChild(canvas);
   drawRect(canvas, peaks, width);
   const data = canvas.toDataURL();
-  canvasMap[audioId] = data;
+  if (!canvasMap[audioId]) canvasMap[audioId] = {};
+  canvasMap[audioId][(1000 * scale).toFixed(2)] = data;
   canvas.remove();
 }
 
-export const getCanvas = (audioId: string): string => {
-  if (!canvasMap[audioId]) {
-    generateCanvas(audioId);
+export const getCanvas = (audioId: string, scale: number): string => {
+  if (!canvasMap[audioId] || !canvasMap[audioId][(1000 * scale).toFixed(2)]) {
+    generateCanvas(audioId, scale);
   }
-  return canvasMap[audioId];
+  return canvasMap[audioId][(1000 * scale).toFixed(2)];
 }
- 

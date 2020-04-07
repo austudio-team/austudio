@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { ReactComponent as Rolling } from '@assets/svg/rolling.svg';
 
 interface StyledAudioBlockProps {
   selected?: boolean;
@@ -86,4 +87,24 @@ export const VisualEffectImage = styled.img`
   top: 18px;
   height: 104px;
   pointer-events: none;
+  transform-origin: 0;
+`;
+
+interface RollingIconProps {
+  loaded: boolean;
+}
+
+export const RollingIcon = styled(Rolling)<RollingIconProps>`
+  width: 22px;
+  height: 22px;
+  margin: 0 !important;
+  position: absolute;
+  top: 24px;
+  left: 12px;
+  z-index: 3;
+  opacity: ${p => p.loaded ? 0 : 1};
+  transition: opacity 0.2s ease;
+  circle {
+    stroke: ${p => p.theme.colors.N200};
+  }
 `;
