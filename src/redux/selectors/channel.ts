@@ -15,3 +15,7 @@ export const channelMapSelector = (state: ChannelState) => {
 export const channelItemSelector = (state: ChannelState, id: string) => {
   return state.channel[id];
 }
+
+export const recordChannelSelector = (state: ChannelState) => {
+  return Object.values(state.channel).find(v => v.record);
+}

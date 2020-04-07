@@ -12,6 +12,7 @@ import { StyledSlider } from '@components/styled/slider';
 import { createContextMenu } from '@utils/context-menu';
 import ChannelNameInput from './ChannelNameInput';
 import { ContextMenuItem } from '@components/context-menu';
+import { recordingSelector } from '@redux/selectors/functionBar';
 
 interface AudioChannelProps {
   channelId: string;
@@ -21,6 +22,7 @@ interface AudioChannelProps {
 const mapState = (state: RootState, ownProps: AudioChannelProps) => ({
   channel: channelItemSelector(state.channel, ownProps.channelId),
   channelLength: channelListLengthSelector(state.channel),
+  recording: recordingSelector(state.functionBar),
 });
 
 const mapDispatch = {
@@ -41,7 +43,7 @@ type Props = ConnectedProps<typeof connector> & AudioChannelProps;
 
 const AudioChannel: React.FC<Props> = props => {
   const { channel, updateMute, updateRecord, moveChannel,
-          updatePan, updateSolo, updateVol, updateName,
+          updatePan, updateSolo, updateVol, updateName, recording,
           deleteChannel, index, channelLength, addChannel } = props;
 
   const [editing, setEditing] = useState<boolean>(false);
@@ -65,8 +67,9 @@ const AudioChannel: React.FC<Props> = props => {
   }, [channel.id, channel.mute, updateMute]);
 
   const handleRecord = useCallback(() => {
+    if (recording) return;
     updateRecord(channel.id, !channel.record);
-  }, [channel.id, channel.record, updateRecord]);
+  }, [channel.id, channel.record, updateRecord, recording]);
 
   const handleNameDoubleClick = useCallback(() => {
     if (!editing) setEditing(true);

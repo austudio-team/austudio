@@ -1363,6 +1363,11 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/dom-mediacapture-record@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.npm.taobao.org/@types/dom-mediacapture-record/download/@types/dom-mediacapture-record-1.0.4.tgz#d3f89a4ba641b5333ca8c9f2244799cf973570a4"
+  integrity sha1-0/iaS6ZBtTM8qMnyJEeZz5c1cKQ=
+
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.npm.taobao.org/@types/eslint-visitor-keys/download/@types/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"

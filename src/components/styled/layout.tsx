@@ -35,3 +35,9 @@ export const EditorContainer = styled.div`
   background-color: ${props => props.theme.colors.N800};
 `;
 
+export const Overlay = styled.div`
+  position: fixed;
+  z-index: 99999;
+  left: 0;
+  top: 0;
+`;

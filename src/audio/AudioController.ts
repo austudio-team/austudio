@@ -14,6 +14,10 @@ import { Effects } from '@constants';
 import { AudioEffectEvent } from '@events/audioEffects';
 import { Effect } from '@redux/types/audioEffect';
 import { LibraryEvent } from '@events/library';
+import { currentTime } from '@utils/time';
+import { recordChannelSelector } from '@redux/selectors/channel';
+import { createSlice } from '@redux/actions/channel';
+import { AudioControllerEvent } from '@events/audioController';
 
 const EffectMap = {
   [Effects.COMPRESSOR]: Compressor,
@@ -52,7 +56,7 @@ export class AudioController {
   private mesureByAudio = (url: string) => {
     return new Promise<number>((resolve, reject) => {
       const audio = document.createElement('audio');
-      audio.oncanplay = () => {
+      audio.onloadeddata = () => {
         resolve(audio.duration);
       };
       audio.src = url;
@@ -74,7 +78,7 @@ export class AudioController {
     return this.audioContext.decodeAudioData(array);
   }
 
-  public handleFile = async (files: FileList) => {
+  public handleFile = async (files: FileList | File[]) => {
     const filesWithId: { f: File, id: string }[] = [];
     for (const f of files) {
       const id = uuidv4();
@@ -86,16 +90,16 @@ export class AudioController {
     }
     for (const { id, f } of filesWithId) {
       const blob = URL.createObjectURL(f);
-      const duration = await this.mesureByAudio(blob);
       const arrayBuffer = await this.fileAsArrayBuffer(f);
       const decoded = await this.decodeAudio(arrayBuffer);
-      store.dispatch(markAudioReady(id, Math.floor(duration * 1000)));
+      store.dispatch(markAudioReady(id, Math.floor(decoded.duration * 1000)));
       audioMap[id] = {
         file: f,
         audioBuffer: decoded,
       };
       URL.revokeObjectURL(blob);
     }
+    return filesWithId.map(v => v.id);
   }
   
   public selectFile = () => {
@@ -302,6 +306,93 @@ export class AudioController {
       targetChannelNode.panNode.connect(targetChannelNode.effects[0].node.input);
     }
     targetChannelNode.effects.splice(index, 1);
+  }
+
+  // private tempOriginDatas: Float32Array[] = [];
+  // private recordStream: MediaStream | null = null;
+  // private tempGainNode: GainNode | null = null;
+  private mediaRecorder: MediaRecorder | null = null;
+  private recordedChunks: Blob[] = [];
+  private recordShouldStop = false;
+  private recordStoped = true;
+  public recordStartOffset = 0;
+
+  public startRecord = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      // const input = this.audioContext.createMediaStreamSource(stream);
+      // this.recordStream = stream;
+      // const tracks = stream.getAudioTracks();
+      // const processor = this.audioContext.createScriptProcessor(1024, tracks.length, tracks.length);
+      // input.connect(processor);
+      // const gain = this.audioContext.createGain();
+      // gain.gain.value = 0;
+      // processor.connect(gain);
+      // this.tempGainNode = gain;
+      // gain.connect(this.audioContext.destination);
+      // this.tempOriginDatas = Array(tracks.length).fill(0).map(() => new Float32Array());
+      // let offset = 0;
+      // processor.onaudioprocess = ev => {
+      //   for (let i = 0; i < ev.inputBuffer.numberOfChannels; i++) {
+      //     const data = ev.inputBuffer.getChannelData(i);
+      //     console.log(data);
+      //     this.tempOriginDatas[i].set(data, offset);
+      //     if (i === ev.inputBuffer.numberOfChannels - 1) offset += data.length;
+      //   }
+      // };
+      this.recordStartOffset = currentTime.time;
+      this.recordedChunks = [];
+      this.recordShouldStop = false;
+      this.recordStoped = false;
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+      this.mediaRecorder = mediaRecorder;
+      this.mediaRecorder.ondataavailable = (e) => {
+        this.recordedChunks.push(e.data);
+        if(this.recordShouldStop === true && this.recordStoped === false) {
+          mediaRecorder.stop();
+          this.recordStoped = true;
+        }
+      }
+      this.mediaRecorder.onstop = async e => {
+        stream.getTracks().forEach(track => track.stop());
+        const file = new File(this.recordedChunks, `record_${uuidv4().slice(9, 13)}.wav`);
+        const ids = await this.handleFile([file]);
+        const audio = ids[0];
+        const recordChannel = recordChannelSelector(store.getState().channel);
+        if (recordChannel) {
+          store.dispatch(createSlice(recordChannel.id, {
+            offset: this.recordStartOffset,
+            start: -1,
+            end: -1,
+            stretch: 1,
+            audioId: audio,
+          }));
+        }
+      }
+      mediaRecorder.start(100);
+      eventEmitter.emit(AudioControllerEvent.AUDIO_CONTROLLER_RECORD_STARTED);
+    }).catch();
+  }
+
+  public stopRecord = () => {
+    // console.log(this.tempOriginDatas);
+    // if (this.recordStream) {
+    //   this.recordStream.getTracks().forEach(track => track.stop());
+    //   delete this.recordStream;
+    // }
+    // if (this.tempGainNode) {
+    //   this.tempGainNode.disconnect();
+    //   delete this.tempGainNode;
+    // }
+    if (this.mediaRecorder) {
+      this.recordShouldStop = true;
+      delete this.mediaRecorder;
+    }
+  }
+
+  public tryRecord = () => {
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+      stream.getTracks().forEach(track => track.stop());
+    }).catch();
   }
 }
 

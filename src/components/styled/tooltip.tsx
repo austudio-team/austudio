@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const TooltipPop = styled.div<{ show?: boolean }>`
+export const StyledTooltipPop = styled.div<{ show?: boolean }>`
   display: ${props => props.show ? 'block' : 'none' };
   position: absolute;
   top: 100%;
@@ -13,4 +13,5 @@ export const TooltipPop = styled.div<{ show?: boolean }>`
   background-color: ${props => props.theme.colors.N700};
   border: 1px solid ${props => props.theme.colors.N500};
   z-index: 999;
+  transform: translateX(-50%);
 `;

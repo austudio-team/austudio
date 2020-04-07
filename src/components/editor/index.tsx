@@ -20,11 +20,13 @@ import { usePrevious } from '@hooks';
 import { isMac } from '@utils/browser';
 import { getAudioController } from '@audio/AudioController';
 import { currentTime } from '@utils/time';
+import { recordingSelector } from '@redux/selectors/functionBar';
 
 const mapState = (state: RootState) => ({
   channelList: channelListSelector(state.channel),
   maxLength: maxLengthSelector(state.editor),
   zoom: zoomSelector(state.editor),
+  recording: recordingSelector(state.functionBar),
 });
 
 const mapDispatch = {
@@ -49,7 +51,7 @@ const Editor: React.FC<Props> = props => {
   const indicatorDraggingX = useRef<number>(-1);
   const indicatorOffset = useRef<number>(0);
 
-  const { channelList, selectBlock, maxLength, zoom, updateZoom } = props;
+  const { channelList, selectBlock, maxLength, zoom, updateZoom, recording } = props;
 
   const maxWidth = maxLength / zoom;
 
@@ -162,9 +164,10 @@ const Editor: React.FC<Props> = props => {
 
   const [dragging, setDragging] = useState<boolean>(false);
   const indicatorMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (recording) return;
     eventEmitter.emit(EditorEvent.editorIndicatorDragStart);
     setDragging(true);
-  }, []);
+  }, [recording]);
 
   // mouseMoveEffect
   useEffect(() => {
