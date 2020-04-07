@@ -1,0 +1,3 @@
+export enum AudioControllerEvent {
+  'AUDIO_CONTROLLER_RECORD_STARTED' = 'AUDIO_CONTROLLER_RECORD_STARTED',
+}

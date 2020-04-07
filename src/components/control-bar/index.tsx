@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { FunctionBarcontainer } from '@components/styled';
 import { ReactComponent as Plus } from '@assets/svg/plus.svg';
 import Tooltip from '@components/tooltip';
@@ -17,6 +17,10 @@ import { requestPause, requestPlay, requestRecord, stopRecord } from '@redux/act
 import { KeyEventEmitter } from '@utils/keyevent';
 import { KeyEvent } from '@utils/keyevent_declare';
 import { getAudioController } from '@audio/AudioController';
+import { TooltipOverlay } from '@layout/base';
+import ReactDOM from 'react-dom';
+import DeniedTip from './DeniedTip';
+import PromptingTip from './PromptingTip';
 
 const mapState = (state: RootState) => ({
   playing: playingSelector(state.functionBar),
@@ -39,6 +43,8 @@ const ControlBar: React.FC<Props> = props => {
   const { playing, recording, requestPause, requestRecord, requestPlay, stopRecord, addChannel } = props;
   const timeRef = useRef<HTMLDivElement>(null);
   const indicatorDragging = useRef<boolean>(false);
+  const [prompting, setPrompting] = useState<boolean>(false);
+  const [denied, setDenied] = useState<boolean>(false);
 
   // indicatorChangeEffect
   useEffect(() => {
@@ -99,22 +105,78 @@ const ControlBar: React.FC<Props> = props => {
         updateTime();
       }
     }
-  }, [playing])
+  }, [playing]);
 
   const handlePlayClick = useCallback(() => {
     requestPlay();
     eventEmitter.emit(EditorEvent.requestPlay);
   }, [requestPlay]);
 
-  const handlePauseClick = useCallback(() => {
-    requestPause();
-    eventEmitter.emit(EditorEvent.requestPause);
-  }, [requestPause]);
+
+  const resultRef = useRef<PermissionStatus | null>(null);
 
   const handleRecordClick = useCallback(() => {
-    if (recording) stopRecord();
-    else requestRecord();
-  }, [recording, stopRecord, requestRecord]);
+    const handler = () => {
+      if (recording) {
+        eventEmitter.emit(EditorEvent.requestPause);
+        requestPause();
+        stopRecord();
+        getAudioController().stopRecord();
+      }
+      else {
+        if (!playing) {
+          handlePlayClick();
+        }
+        requestRecord();
+        getAudioController().startRecord();
+      }
+    }
+    const resultHandler = (result: PermissionStatus) => {
+      if (result.state === 'granted') {
+        handler();
+        setPrompting(false)
+        setDenied(false);
+      } else if (result.state === 'prompt') {
+        getAudioController().tryRecord();
+        setDenied(false);
+        setPrompting(true)
+      } else if (result.state === 'denied') {
+        getAudioController().tryRecord();
+        setDenied(true);
+        setPrompting(false);
+      }
+    }
+    navigator.permissions.query({ name: 'microphone' }).then(result => {
+      resultRef.current && (resultRef.current.onchange = null);
+      resultRef.current = result;
+      resultHandler(result);
+      if (result.state === 'granted') return;
+      result.onchange = function() {
+        resultHandler(this);
+        if (this.state === 'granted') {
+          resultRef.current && (resultRef.current.onchange = null);
+        }
+      };
+    });
+  }, [recording, stopRecord, requestRecord, handlePlayClick, requestPause, playing]);
+
+  const handlePauseClick = useCallback(() => {
+    requestPause();
+    if (recording) {
+      handleRecordClick();
+    }
+    eventEmitter.emit(EditorEvent.requestPause);
+  }, [requestPause, recording, handleRecordClick]);
+
+  const handleCloseDeniedTip = useCallback(() => {
+    resultRef.current && (resultRef.current.onchange = null);
+    setDenied(false);
+  }, []);
+
+  const handleClosePromptingTip = useCallback(() => {
+    resultRef.current && (resultRef.current.onchange = null);
+    setPrompting(false);
+  }, []);
 
   const handleStopClick = useCallback(() => {
     handlePauseClick();
@@ -124,7 +186,6 @@ const ControlBar: React.FC<Props> = props => {
       eventEmitter.emit(EditorEvent.editorIndicatorChanged);
     })
   }, [handlePauseClick]);
-
 
   useEffect(() => {
     const playHandler = () => {
@@ -163,6 +224,8 @@ const ControlBar: React.FC<Props> = props => {
         </Tooltip>
         <Tooltip title="Record" style={{ marginRight: 6 }}>
           <RecordButton onClick={handleRecordClick} active={recording} />
+          {prompting && ReactDOM.createPortal(<PromptingTip onClose={handleClosePromptingTip} />, TooltipOverlay!)}
+          {denied && ReactDOM.createPortal(<DeniedTip onClose={handleCloseDeniedTip} />, TooltipOverlay!)}
         </Tooltip>
       </ButtonGroup>
       <ButtonGroup>

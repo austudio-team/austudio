@@ -9,6 +9,8 @@ import { zoomSelector } from '@redux/selectors/editor';
 import { editorChannelWidth } from '@components/editor/constants';
 import { EditorScrollXChangeEvent, EditorEvent } from '@events';
 import eventEmitter from '@utils/event';
+import { recordingSelector } from '@redux/selectors/functionBar';
+import RecordingBlock from '@components/recording-block';
 
 interface TrackProps {
   channelId: string;
@@ -19,6 +21,7 @@ interface TrackProps {
 const mapState = (state: RootState, ownProps: TrackProps) => ({
   channel: channelItemSelector(state.channel, ownProps.channelId),
   zoom: zoomSelector(state.editor),
+  recording: recordingSelector(state.functionBar)
 });
 
 const mapDispatch = {
@@ -30,7 +33,7 @@ const connector = connect(mapState, mapDispatch);
 type Props = ConnectedProps<typeof connector> & TrackProps;
 
 const Track: React.FC<Props> = props => {
-  const { channel, audioDrop, zoom, width, index } = props;
+  const { channel, audioDrop, zoom, width, index, recording } = props;
 
   const scrollLeftRef = useRef<number>(0);
 
@@ -71,6 +74,9 @@ const Track: React.FC<Props> = props => {
         channel.slices.map(v => (
           <AudioBlock channelId={channel.id} slice={v} key={v.id} channelIndex={index} />
         ))
+      }
+      {
+        channel.record && recording && <RecordingBlock />
       }
     </TrackContainer>
   );

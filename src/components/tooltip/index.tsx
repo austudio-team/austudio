@@ -1,5 +1,5 @@
 import React, { ReactNode, useCallback, useState, useRef, useEffect, CSSProperties } from 'react';
-import { TooltipPop } from '@components/styled/tooltip';
+import TooltipPop from './TooltipPop';
 
 interface TooltipProps {
   children: ReactNode;
@@ -10,6 +10,7 @@ interface TooltipProps {
 const Tooltip: React.FC<TooltipProps> = props => {
   const [show, setShow] = useState<boolean>(false);
   const timeout = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const mouseEnter = useCallback(() => {
     timeout.current = setTimeout(() => {
       setShow(true);
@@ -27,15 +28,23 @@ const Tooltip: React.FC<TooltipProps> = props => {
       timeout.current && clearTimeout(timeout.current);
     }
   }, []);
+
+  const style: CSSProperties = {};
+  if (show && containerRef.current) {
+    const { height, width, x, y } = containerRef.current.getBoundingClientRect();
+    style.left = `${x + width / 2}px`;
+    style.top = `${y + height}px`;
+  }
   return (
     <div
+      ref={containerRef}
       onMouseEnter={mouseEnter}
       onMouseLeave={mouseLeave}
       onClick={mouseLeave}
       style={{ ...props.style, position: 'relative' }}
     >
       {props.children}
-      <TooltipPop show={show}>{props.title}</TooltipPop>
+      <TooltipPop style={style} show={show} title={props.title} />
     </div>
   );
 }
