@@ -1,6 +1,8 @@
 import { AudioSlice } from '@redux/types/channel';
 import { Audio } from '@redux/types/library';
 import { StretchingType } from './types';
+import { throttle } from 'lodash';
+import { getCanvas } from '@audio/VisualEffect';
 
 export const getLength = (slice: AudioSlice, audio: Audio) => {
   const start = slice.start === -1 ? 0 : slice.start;
@@ -83,3 +85,5 @@ export const computeStretch = (
     };
   }
 }
+
+export const trottledGetCanvas = throttle(getCanvas, 200, { leading: false, trailing: true });

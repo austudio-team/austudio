@@ -75,7 +75,7 @@ const ControlBar: React.FC<Props> = props => {
     }
   }, []);
 
-  // play raf
+  // playRafEffect
   useEffect(() => {
     if (playing) {
       let raf: number;

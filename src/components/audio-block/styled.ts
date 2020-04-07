@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { ReactComponent as Rolling } from '@assets/svg/rolling.svg';
 
 interface StyledAudioBlockProps {
   selected?: boolean;
@@ -16,6 +17,7 @@ export const LeftStretcher = styled.div`
   border-left: 10px solid ${p => p.theme.colors.N700};
   cursor: w-resize;
   opacity: 0;
+  z-index: 1;
 `;
 
 export const RightStretcher = styled(LeftStretcher)`
@@ -24,6 +26,7 @@ export const RightStretcher = styled(LeftStretcher)`
   border-right: 10px solid ${p => p.theme.colors.N700};
   border-left: 5px solid transparent;
   cursor: e-resize;
+  z-index: 1;
 `;
 
 export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
@@ -33,6 +36,7 @@ export const StyledAudioBlock = styled.div<StyledAudioBlockProps>`
   top: 0;
   color: ${p => p.theme.colors.N200};
   z-index: ${p => p.selected ? '99 !important' : 'initial'};
+  overflow: hidden;
 
   :hover {
     ${LeftStretcher} {
@@ -73,6 +77,34 @@ export const CutLine = styled.div`
   height: 100%;
   width: 1px;
   top: 0;
+  z-index: 3;
   background-color: ${p => p.theme.colors.N300};
   pointer-events: none;
+`;
+
+export const VisualEffectImage = styled.img`
+  position: absolute;
+  top: 18px;
+  height: 104px;
+  pointer-events: none;
+  transform-origin: 0;
+`;
+
+interface RollingIconProps {
+  loaded: boolean;
+}
+
+export const RollingIcon = styled(Rolling)<RollingIconProps>`
+  width: 22px;
+  height: 22px;
+  margin: 0 !important;
+  position: absolute;
+  top: 24px;
+  left: 12px;
+  z-index: 3;
+  opacity: ${p => p.loaded ? 0 : 1};
+  transition: opacity 0.2s ease;
+  circle {
+    stroke: ${p => p.theme.colors.N200};
+  }
 `;

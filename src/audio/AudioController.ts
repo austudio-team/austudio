@@ -181,6 +181,9 @@ export class AudioController {
   private generateSourceNode = (slice: AudioSlice, channelId: string) => {
     const dataSource = this.audioContext.createBufferSource();
     dataSource.buffer = audioMap[slice.audioId].audioBuffer;
+    if (!audioNodeMap[channelId]) {
+      this.addChannel(channelId);
+    }
     dataSource.connect(audioNodeMap[channelId].gainNode);
     audioNodeMap[channelId].slices[slice.id] = { node: dataSource };
     return dataSource;
@@ -280,7 +283,7 @@ export class AudioController {
     });
   }
 
-  private updateEffect = ({ channelId, effectParams, index}: { channelId: string, effectParams: any, index: number}) => {
+  private updateEffect = ({ channelId, effectParams, index }: { channelId: string, effectParams: any, index: number}) => {
     const targetChannelNode = audioNodeMap[channelId];
     const targetNode = targetChannelNode.effects[index];
     console.log(effectParams);
