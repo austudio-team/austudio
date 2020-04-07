@@ -124,7 +124,9 @@ const ControlBar: React.FC<Props> = props => {
         getAudioController().stopRecord();
       }
       else {
-        handlePlayClick();
+        if (!playing) {
+          handlePlayClick();
+        }
         requestRecord();
         getAudioController().startRecord();
       }
@@ -156,7 +158,7 @@ const ControlBar: React.FC<Props> = props => {
         }
       };
     });
-  }, [recording, stopRecord, requestRecord, handlePlayClick, requestPause]);
+  }, [recording, stopRecord, requestRecord, handlePlayClick, requestPause, playing]);
 
   const handlePauseClick = useCallback(() => {
     requestPause();
