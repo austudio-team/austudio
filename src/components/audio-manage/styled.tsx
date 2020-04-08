@@ -24,7 +24,7 @@ const outKeyframe = keyframes`
 
 interface AudioManageContainerProps {
   show?: boolean;
-  supportBackdopFilter?: boolean;
+  supportBackdropFilter?: boolean;
 }
 
 export const AudioManageContainer = styled.div<AudioManageContainerProps>`
@@ -34,7 +34,7 @@ export const AudioManageContainer = styled.div<AudioManageContainerProps>`
   top: 0;
   width: 360px;
   height: 100%;
-  background: ${props => props.supportBackdopFilter ? transparentize(0.4, props.theme.colors.N800) : transparentize(0.1, props.theme.colors.N800)};
+  background: ${props => props.supportBackdropFilter ? transparentize(0.4, props.theme.colors.N800) : transparentize(0.1, props.theme.colors.N800)};
   backdrop-filter: blur(10px) brightness(60%);
   animation: ${props => props.show ? inKeyframe : outKeyframe} 0.3s ${props => props.theme.animation.normal} forwards;
   color: ${p => p.theme.colors.N100};

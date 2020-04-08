@@ -40,7 +40,7 @@ const AudioManage: React.FC<Props> = props => {
   return inited ? (
     <AudioManageContainer
       show={libraryState === FunctionState.ACTIVE}
-      supportBackdopFilter={!isFirefox}
+      supportBackdropFilter={!isFirefox}
     >
       <Title>LIBRARY</Title>
       <CloseIcon onClick={toggleLibrary} />
