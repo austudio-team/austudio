@@ -17,7 +17,7 @@ import ZoomSlider from '@components/zoom-slider';
 import { maxLengthSelector, zoomSelector } from '@redux/selectors/editor';
 import HorizontalScroller from '@components/horizontal-scroller';
 import { usePrevious } from '@hooks';
-import { isMac } from '@utils/browser';
+import { isMac, isFirefox } from '@utils/browser';
 import { getAudioController } from '@audio/AudioController';
 import { currentTime } from '@utils/time';
 import { recordingSelector } from '@redux/selectors/functionBar';
@@ -150,8 +150,8 @@ const Editor: React.FC<Props> = props => {
             updateZoom(zoom + 10);
           }
         } else {
-          scrollYUpdater(e.deltaY);
-          scrollXUpdater(e.deltaX);
+          scrollYUpdater(e.deltaY * (isFirefox ? 10 : 1));
+          scrollXUpdater(e.deltaX * (isFirefox ? 10 : 1));
           rerenderScroll();
         }
       }

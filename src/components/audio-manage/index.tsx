@@ -8,6 +8,7 @@ import { AudioManageContainer, CloseIcon, Title, AudioItemWrapper, EmptyContaine
 import { audioListSelector, audioMapSelector } from '@redux/selectors/library';
 import AudioItem from './AudioItem';
 import { libraryDragStart, libraryDragEnd } from '@redux/actions/library';
+import { isFirefox } from '@utils/browser';
 
 const mapState = (state: RootState) => ({
   libraryState: librarySelector(state.functionBar),
@@ -39,6 +40,7 @@ const AudioManage: React.FC<Props> = props => {
   return inited ? (
     <AudioManageContainer
       show={libraryState === FunctionState.ACTIVE}
+      supportBackdopFilter={!isFirefox}
     >
       <Title>LIBRARY</Title>
       <CloseIcon onClick={toggleLibrary} />
