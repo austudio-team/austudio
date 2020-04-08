@@ -346,7 +346,7 @@ export class AudioController {
       this.recordedChunks = [];
       this.recordShouldStop = false;
       this.recordStoped = false;
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+      const mediaRecorder = new MediaRecorder(stream);
       this.mediaRecorder = mediaRecorder;
       this.mediaRecorder.ondataavailable = (e) => {
         this.recordedChunks.push(e.data);
@@ -393,9 +393,12 @@ export class AudioController {
   }
 
   public tryRecord = () => {
-    navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-      stream.getTracks().forEach(track => track.stop());
-    }).catch();
+    return new Promise((resolve, reject) => {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+        stream.getTracks().forEach(track => track.stop());
+        resolve();
+      }).catch(e => reject());
+    })
   }
 }
 

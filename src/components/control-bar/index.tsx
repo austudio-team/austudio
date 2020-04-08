@@ -21,6 +21,7 @@ import { TooltipOverlay } from '@layout/base';
 import ReactDOM from 'react-dom';
 import DeniedTip from './DeniedTip';
 import PromptingTip from './PromptingTip';
+import { isFirefox } from '@utils/browser';
 
 const mapState = (state: RootState) => ({
   playing: playingSelector(state.functionBar),
@@ -115,7 +116,7 @@ const ControlBar: React.FC<Props> = props => {
 
   const resultRef = useRef<PermissionStatus | null>(null);
 
-  const handleRecordClick = useCallback(() => {
+  const handleRecordClick = useCallback(async () => {
     const handler = () => {
       if (recording) {
         eventEmitter.emit(EditorEvent.requestPause);
@@ -131,33 +132,46 @@ const ControlBar: React.FC<Props> = props => {
         getAudioController().startRecord();
       }
     }
-    const resultHandler = (result: PermissionStatus) => {
-      if (result.state === 'granted') {
+    if (isFirefox) {
+      setDenied(false);
+      setPrompting(true)
+      getAudioController().tryRecord().then(() => {
         handler();
         setPrompting(false)
         setDenied(false);
-      } else if (result.state === 'prompt') {
-        getAudioController().tryRecord();
-        setDenied(false);
-        setPrompting(true)
-      } else if (result.state === 'denied') {
-        getAudioController().tryRecord();
+      }).catch(() => {
         setDenied(true);
         setPrompting(false);
-      }
-    }
-    navigator.permissions.query({ name: 'microphone' }).then(result => {
-      resultRef.current && (resultRef.current.onchange = null);
-      resultRef.current = result;
-      resultHandler(result);
-      if (result.state === 'granted') return;
-      result.onchange = function() {
-        resultHandler(this);
-        if (this.state === 'granted') {
-          resultRef.current && (resultRef.current.onchange = null);
+      });
+    } else {
+      const resultHandler = (result: PermissionStatus) => {
+        if (result.state === 'granted') {
+          handler();
+          setPrompting(false)
+          setDenied(false);
+        } else if (result.state === 'prompt') {
+          getAudioController().tryRecord();
+          setDenied(false);
+          setPrompting(true)
+        } else if (result.state === 'denied') {
+          getAudioController().tryRecord();
+          setDenied(true);
+          setPrompting(false);
         }
-      };
-    });
+      }
+      navigator.permissions.query({ name: 'microphone' }).then(result => {
+        resultRef.current && (resultRef.current.onchange = null);
+        resultRef.current = result;
+        resultHandler(result);
+        if (result.state === 'granted') return;
+        result.onchange = function() {
+          resultHandler(this);
+          if (this.state === 'granted') {
+            resultRef.current && (resultRef.current.onchange = null);
+          }
+        };
+      });
+    }
   }, [recording, stopRecord, requestRecord, handlePlayClick, requestPause, playing]);
 
   const handlePauseClick = useCallback(() => {
