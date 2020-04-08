@@ -147,7 +147,7 @@ const EffectPanel: React.FC<Props> = props => {
       <TemplateWrapper>
         <span>{effectName[effect.type]}</span>
         <SelectContainer>
-          <StyledSelect onChange={handleOptionChange} defaultValue='Default'>
+          <StyledSelect style={{width: 110}} onChange={handleOptionChange} defaultValue='Default'>
             {/* <Option value='Default'>Default</Option> */}
             {
               templateType && Object.entries(templateType).map(([k, v]) => {
