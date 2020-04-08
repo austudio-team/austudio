@@ -15,7 +15,6 @@ export const defaultCompressorParams: compressorParams = {
   threshold: -50,
   gain: 0.3
 }
-
 interface delayParams {
   type: number,
   delayLeft: number,
