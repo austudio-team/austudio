@@ -78,6 +78,13 @@ export const EffectForm = {
   ],
   [Effects.FILTER]: [
     {
+      key: 'type',
+      name: 'Type',
+      range: [0, 1],
+      step: 1,
+      defaultValue: defaultFilterParams.type,
+    },
+    {
       key: 'frequency',
       name: 'Frequency',
       range: [20, 20050],
