@@ -44,7 +44,7 @@ export const defaultEqulizerParams: equlizerParams = {
 }
 
 interface filterParams {
-  type: string,
+  type: number,
   frequency: number,
   quality: number,
   gain: number,
@@ -53,7 +53,7 @@ interface filterParams {
 }
 
 export const defaultFilterParams: filterParams = {
-  type: 'lowpass',
+  type: 0,
   frequency: 8000,
   quality: 1,
   gain: 0,
