@@ -8,7 +8,7 @@ import { ChannelEvent } from '@events/channel';
 import { AudioSlice, Channel } from '@redux/types/channel';
 import audioNodeMap from './AudioNodeMap';
 import { EditorEvent } from '@events';
-import { computeStartParams } from './utils';
+import { computeStartParams, getMaxLength } from './utils';
 import { Compressor, Reverb, Filter, Delay, Equalizer, Tremolo } from '@shyrii/web-audio-effects';
 import { Effects } from '@constants';
 import { AudioEffectEvent } from '@events/audioEffects';
@@ -38,6 +38,7 @@ export class AudioController {
 
   private initEvent = () => {
     eventEmitter.on(MenuEvent.MENU_IMPORT, this.selectFile);
+    eventEmitter.on(MenuEvent.MENU_EXPORT, this.export);
     eventEmitter.on(ChannelEvent.CHANNEL_ADD_SLICE, this.addSlice);
     eventEmitter.on(ChannelEvent.CHANNEL_DELETE_SLICE, this.deleteSlice);
     eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_SLICE, this.updateSlice);
@@ -160,7 +161,7 @@ export class AudioController {
     const soloChannel: Channel[] = [];
     const normalChannel: Channel[] = [];
     for (const channel of Object.values(stateChannel.channel)) {
-    if (channel.solo) {
+      if (channel.solo) {
         soloChannel.push(channel);
       } else if (!channel.mute) {
         normalChannel.push(channel);
@@ -399,6 +400,62 @@ export class AudioController {
         resolve();
       }).catch(e => reject());
     })
+  }
+
+  private export = () => {
+    const { audioEffect, channel, library } = store.getState();
+    const length = getMaxLength(channel.channel, library.audioInfo);
+    const offlineAudioContext = new OfflineAudioContext(2, 44100 * length / 1000, 44100); 
+    const soloChannel: Channel[] = [];
+    const normalChannel: Channel[] = [];
+    for (const c of Object.values(channel.channel)) {
+      if (c.solo) {
+        soloChannel.push(c);
+      } else if (!c.mute) {
+        normalChannel.push(c);
+      }
+    }
+    const targetChannel = soloChannel.length > 0 ? soloChannel.filter(v => v.mute === false) : normalChannel;
+    const time = offlineAudioContext.currentTime;
+    for (const c of targetChannel) {
+      const gainNode = offlineAudioContext.createGain();
+      gainNode.gain.value = c.vol / 100;
+      const panNode = offlineAudioContext.createStereoPanner();
+      panNode.pan.value = c.pan / 100;
+      gainNode.connect(panNode);
+      panNode.connect(offlineAudioContext.destination);
+      const effects = audioEffect.channelEffects[c.id];
+      let lastNode: any = null;
+      if (effects && effects.length > 0) {
+        panNode.disconnect();
+        for (const [i, effect] of effects.entries()) {
+          const effectNode = new EffectMap[effect.type](this.audioContext, effect.params);
+          if (i === 0) {
+            panNode.connect(effectNode.input);
+          } else {
+            lastNode.connect(effectNode.input);
+          }
+          if (i === effects.length - 1) {
+            effectNode.connect(offlineAudioContext.destination);
+          }
+          lastNode = effectNode;
+        }
+      }
+      for (const slice of c.slices) {
+        const dataSource = offlineAudioContext.createBufferSource();
+        dataSource.buffer = audioMap[slice.audioId].audioBuffer;
+        dataSource.connect(gainNode);
+        dataSource.playbackRate.value = 1 / slice.stretch;
+        const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId]);
+        dataSource.start(time + when, offset, duration);
+      }
+    }
+    offlineAudioContext.startRendering().then(res => {
+      const source = this.audioContext.createBufferSource();
+      source.buffer = res;
+      source.connect(this.audioContext.destination);
+      source.start();
+    }).catch(e => console.log(e));
   }
 }
 
