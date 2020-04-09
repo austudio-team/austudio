@@ -92,7 +92,7 @@ export class AudioController {
       });
     }
     for (const { id, f } of filesWithId) {
-      const blob = URL.createObjectURL(f);
+      // const blob = URL.createObjectURL(f);
       const arrayBuffer = await this.fileAsArrayBuffer(f);
       const decoded = await this.decodeAudio(arrayBuffer);
       store.dispatch(markAudioReady(id, Math.floor(decoded.duration * 1000)));
@@ -100,7 +100,7 @@ export class AudioController {
         file: f,
         audioBuffer: decoded,
       };
-      URL.revokeObjectURL(blob);
+      // URL.revokeObjectURL(blob);
     }
     return filesWithId.map(v => v.id);
   }
@@ -256,12 +256,14 @@ export class AudioController {
   }
 
   private updateVol = ({ channelId, vol }: { channelId: string, vol: number }) => {
+    this.addChannel(channelId);
     if (audioNodeMap[channelId]) {
       audioNodeMap[channelId].gainNode.gain.value = vol;
     }
   }
 
   private updatePan = ({ channelId, pan }: { channelId: string, pan: number }) => {
+    this.addChannel(channelId);
     if (audioNodeMap[channelId]) {
       audioNodeMap[channelId].panNode.pan.value = pan;
     }
@@ -289,7 +291,6 @@ export class AudioController {
   private updateEffect = ({ channelId, effectParams, index }: { channelId: string, effectParams: any, index: number}) => {
     const targetChannelNode = audioNodeMap[channelId];
     const targetNode = targetChannelNode.effects[index];
-    console.log(effectParams);
     targetNode.node.updateParams(effectParams);
   }
 
@@ -309,7 +310,7 @@ export class AudioController {
       lastEffect.node.connect(nextEffect);
     } else {
       targetChannelNode.panNode.disconnect();
-      targetChannelNode.panNode.connect(targetChannelNode.effects[0].node.input);
+      targetChannelNode.panNode.connect(targetChannelNode.effects[1].node.input);
     }
     targetChannelNode.effects.splice(index, 1);
   }
