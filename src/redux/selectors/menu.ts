@@ -15,3 +15,7 @@ export function isThisMenuOpenedSelector(state: MenuState, menuKey: string) {
 export function aboutPanelOpenedSelector(state: MenuState) {
   return state.aboutOpen;
 }
+
+export function exportPanelOpenedSelector(state: MenuState) {
+  return state.exportOpen;
+}

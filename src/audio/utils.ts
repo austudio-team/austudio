@@ -2,21 +2,25 @@ import { AudioSlice, ChannelMap } from "@redux/types/channel";
 import { currentTime } from "@utils/time";
 import { Audio, LibraryState } from "@redux/types/library";
 
-export const computeStartParams = (slice: AudioSlice, audio: Audio): [number, number, number] => {
-  const when = currentTime.time > slice.offset ? 0 : slice.offset - currentTime.time;
+export const computeStartParams = (slice: AudioSlice, audio: Audio, exporting = false): [number, number, number] => {
+  let cTime = currentTime.time;
+  if (exporting) {
+    cTime = 0;
+  }
+  const when = cTime > slice.offset ? 0 : slice.offset - cTime;
   let offset: number;
   let duration: number;
   const sliceStart = slice.start === -1 ? 0 : slice.start;
   const sliceEnd = slice.end === -1 ? audio.length : slice.end;
   const length = sliceEnd - sliceStart;
-  if (currentTime.time > slice.offset + length) {
+  if (cTime > slice.offset + length) {
     offset = 0;
     duration = 0;
-  } else if (currentTime.time < slice.offset) {
+  } else if (cTime < slice.offset) {
     offset = sliceStart;
     duration = length;
   } else {
-    const passedTime = currentTime.time - slice.offset;
+    const passedTime = cTime - slice.offset;
     offset = sliceStart + passedTime;
     duration = length - passedTime;
   }
@@ -64,8 +68,8 @@ export const getMaxLength = (channel: ChannelMap, audioMap: LibraryState['audioI
       const sliceStart = slice.start === -1 ? 0 : slice.start;
       const sliceEnd = slice.end === -1 ? audioMap[slice.audioId].length : slice.end;
       const length = (sliceEnd - sliceStart) * slice.stretch;
-      if (length + sliceStart > maxLength) {
-        maxLength = length + sliceStart;
+      if (length + slice.offset > maxLength) {
+        maxLength = length + slice.offset;
       }
     }
   }

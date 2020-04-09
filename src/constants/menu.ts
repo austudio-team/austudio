@@ -25,7 +25,7 @@ export const menu = [
       {
         name: 'Export',
         key: 'FILE_EXPORT',
-        action: MenuEvent.MENU_EXPORT,
+        action: MenuEvent.MENU_EXPORT_DIALOG_OPEN,
       },
     ]
   },

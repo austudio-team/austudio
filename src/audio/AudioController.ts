@@ -18,6 +18,8 @@ import { currentTime } from '@utils/time';
 import { recordChannelSelector } from '@redux/selectors/channel';
 import { createSlice } from '@redux/actions/channel';
 import { AudioControllerEvent } from '@events/audioController';
+import audioEncoder from 'audio-encoder';
+import fileSaver from 'file-saver';
 
 const EffectMap = {
   [Effects.COMPRESSOR]: Compressor,
@@ -402,60 +404,62 @@ export class AudioController {
     })
   }
 
-  private export = () => {
-    const { audioEffect, channel, library } = store.getState();
-    const length = getMaxLength(channel.channel, library.audioInfo);
-    const offlineAudioContext = new OfflineAudioContext(2, 44100 * length / 1000, 44100); 
-    const soloChannel: Channel[] = [];
-    const normalChannel: Channel[] = [];
-    for (const c of Object.values(channel.channel)) {
-      if (c.solo) {
-        soloChannel.push(c);
-      } else if (!c.mute) {
-        normalChannel.push(c);
-      }
-    }
-    const targetChannel = soloChannel.length > 0 ? soloChannel.filter(v => v.mute === false) : normalChannel;
-    const time = offlineAudioContext.currentTime;
-    for (const c of targetChannel) {
-      const gainNode = offlineAudioContext.createGain();
-      gainNode.gain.value = c.vol / 100;
-      const panNode = offlineAudioContext.createStereoPanner();
-      panNode.pan.value = c.pan / 100;
-      gainNode.connect(panNode);
-      panNode.connect(offlineAudioContext.destination);
-      const effects = audioEffect.channelEffects[c.id];
-      let lastNode: any = null;
-      if (effects && effects.length > 0) {
-        panNode.disconnect();
-        for (const [i, effect] of effects.entries()) {
-          const effectNode = new EffectMap[effect.type](this.audioContext, effect.params);
-          if (i === 0) {
-            panNode.connect(effectNode.input);
-          } else {
-            lastNode.connect(effectNode.input);
-          }
-          if (i === effects.length - 1) {
-            effectNode.connect(offlineAudioContext.destination);
-          }
-          lastNode = effectNode;
+  public export = (params: { format: string, sampleRate: number, bitRate: number }) => {
+    return new Promise((resolve, reject) => {
+      const { audioEffect, channel, library } = store.getState();
+      const length = getMaxLength(channel.channel, library.audioInfo);
+      const offlineAudioContext = new OfflineAudioContext(2, params.sampleRate * length / 1000, params.sampleRate);
+      const soloChannel: Channel[] = [];
+      const normalChannel: Channel[] = [];
+      for (const c of Object.values(channel.channel)) {
+        if (c.solo) {
+          soloChannel.push(c);
+        } else if (!c.mute) {
+          normalChannel.push(c);
         }
       }
-      for (const slice of c.slices) {
-        const dataSource = offlineAudioContext.createBufferSource();
-        dataSource.buffer = audioMap[slice.audioId].audioBuffer;
-        dataSource.connect(gainNode);
-        dataSource.playbackRate.value = 1 / slice.stretch;
-        const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId]);
-        dataSource.start(time + when, offset, duration);
+      const targetChannel = soloChannel.length > 0 ? soloChannel.filter(v => v.mute === false) : normalChannel;
+      const time = offlineAudioContext.currentTime;
+      for (const c of targetChannel) {
+        const gainNode = offlineAudioContext.createGain();
+        gainNode.gain.value = c.vol / 100;
+        const panNode = offlineAudioContext.createStereoPanner();
+        panNode.pan.value = c.pan / 100;
+        gainNode.connect(panNode);
+        panNode.connect(offlineAudioContext.destination);
+        const effects = audioEffect.channelEffects[c.id];
+        let lastNode: any = null;
+        if (effects && effects.length > 0) {
+          panNode.disconnect();
+          for (const [i, effect] of effects.entries()) {
+            const effectNode = new EffectMap[effect.type](this.audioContext, effect.params);
+            if (i === 0) {
+              panNode.connect(effectNode.input);
+            } else {
+              lastNode.connect(effectNode.input);
+            }
+            if (i === effects.length - 1) {
+              effectNode.connect(offlineAudioContext.destination);
+            }
+            lastNode = effectNode;
+          }
+        }
+        for (const slice of c.slices) {
+          const dataSource = offlineAudioContext.createBufferSource();
+          dataSource.buffer = audioMap[slice.audioId].audioBuffer;
+          dataSource.connect(gainNode);
+          dataSource.playbackRate.value = 1 / slice.stretch;
+          const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId], true);
+          dataSource.start(time + when, offset, duration);
+        }
       }
-    }
-    offlineAudioContext.startRendering().then(res => {
-      const source = this.audioContext.createBufferSource();
-      source.buffer = res;
-      source.connect(this.audioContext.destination);
-      source.start();
-    }).catch(e => console.log(e));
+      offlineAudioContext.startRendering().then(res => {
+        audioEncoder(res, params.format === 'wav' ? 0 : params.bitRate, null, (res) => {
+          fileSaver.saveAs(res, `export.${params.format}`);
+          resolve();
+        })
+      }).catch(e => reject());
+    });
   }
 }
 

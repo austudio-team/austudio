@@ -3,6 +3,7 @@ import { MenuState, MenuActionType, MenuAction } from "../types/menu"
 const initialState: MenuState = {
   openedMenu: null,
   aboutOpen: false,
+  exportOpen: false,
 }
 
 export function menuReducer(state: MenuState = initialState, action: MenuActionType): MenuState {
@@ -21,6 +22,16 @@ export function menuReducer(state: MenuState = initialState, action: MenuActionT
       return {
         ...state,
         aboutOpen: !state.aboutOpen,
+      };
+    case MenuAction.CLOSE_EXPORT:
+      return {
+        ...state,
+        exportOpen: false,
+      };
+    case MenuAction.OPEN_EXPORT:
+      return {
+        ...state,
+        exportOpen: true,
       };
     default:
       return state;
