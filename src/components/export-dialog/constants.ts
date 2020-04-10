@@ -35,13 +35,13 @@ export const FormatList = [
       bitRate: 0,
     },
   },
-  {
-    displayTitle: 'WAV',
-    displaySubTitle: '48 kHz / 16bit',
-    params: {
-      format: 'wav',
-      sampleRate: 48000,
-      bitRate: 0,
-    },
-  },
+  // {
+  //   displayTitle: 'WAV',
+  //   displaySubTitle: '48 kHz / 16bit',
+  //   params: {
+  //     format: 'wav',
+  //     sampleRate: 48000,
+  //     bitRate: 0,
+  //   },
+  // },
 ];

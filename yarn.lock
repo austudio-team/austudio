@@ -7598,7 +7598,7 @@ rc-align@^3.0.0-rc.0:
     rc-util "^4.12.0"
     resize-observer-polyfill "^1.5.1"
 
-rc-animate@^2.10.0, rc-animate@^2.10.2:
+rc-animate@2.x, rc-animate@^2.10.0, rc-animate@^2.10.2:
   version "2.10.3"
   resolved "https://registry.npm.taobao.org/rc-animate/download/rc-animate-2.10.3.tgz?cache=0&sync_timestamp=1582632991064&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Frc-animate%2Fdownload%2Frc-animate-2.10.3.tgz#163d5e29281a4ff82d53ee7918eeeac856b756f9"
   integrity sha1-Fj1eKSgaT/gtU+55GO7qyFa3Vvk=
@@ -7610,6 +7610,15 @@ rc-animate@^2.10.0, rc-animate@^2.10.2:
     raf "^3.4.0"
     rc-util "^4.15.3"
     react-lifecycles-compat "^3.0.4"
+
+rc-notification@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.npm.taobao.org/rc-notification/download/rc-notification-4.0.0.tgz#ffe59783d6738003972dde8b9658f1acd469cd2c"
+  integrity sha1-/+WXg9ZzgAOXLd6LlljxrNRpzSw=
+  dependencies:
+    classnames "2.x"
+    rc-animate "2.x"
+    rc-util "^4.0.4"
 
 rc-select@^10.1.6:
   version "10.1.6"

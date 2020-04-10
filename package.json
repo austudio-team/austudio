@@ -18,6 +18,7 @@
     "file-saver": "^2.0.2",
     "lodash": "^4.17.15",
     "polished": "^3.4.4",
+    "rc-notification": "^4.0.0",
     "rc-select": "^10.1.6",
     "rc-slider": "^9.2.2",
     "react": "^16.12.0",

@@ -180,7 +180,7 @@ const AudioBlock: React.FC<Props> = props => {
             } else {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
               visualEffectImageOffset.current = -Math.ceil(start * slice.stretch / zoom);
-              visualEffectImageRef.current.style.transform = `translateX(${visualEffectImageOffset.current}}px)`;
+              visualEffectImageRef.current.style.transform = `translateX(${visualEffectImageOffset.current}px)`;
               audioBlockRef.current.style.transform = `translateX(${Math.ceil((newOffset - offset) / zoom)}px)`;
             }
           }
@@ -192,7 +192,7 @@ const AudioBlock: React.FC<Props> = props => {
         cancelAnimationFrame(raf);
       }
     }
-  }, [cursorType, stretching, audio, slice, zoom, offset, updateGraph]);
+  }, [cursorType, stretching, audio, slice, zoom, offset]);
 
   const initDrag = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     clickXRef.current = e.clientX;
@@ -400,7 +400,7 @@ const AudioBlock: React.FC<Props> = props => {
         cursorType === FunctionBarCursorType.cut && cutHover && <CutLine ref={cutLineRef} />
       }
       <RollingIcon loaded={visualEffectImageLoaded} />
-      <VisualEffectImage ref={visualEffectImageRef} style={{ transform: `translateX(${visualEffectImageOffset}px)`}} />
+      <VisualEffectImage ref={visualEffectImageRef} style={{ transform: `translateX(${visualEffectImageOffset.current}px)`}} />
       <LeftStretcher
         onMouseDown={stretcherMouseDownHandler}
         data-type={StretchingType.left}

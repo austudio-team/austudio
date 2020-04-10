@@ -58,7 +58,6 @@ export const ExportDialogContainer = styled.div<ExportDialogContainerProps>`
 export const ExportPanelContainer = styled.div`
   position: absolute;
   z-index: 201;
-  height: 300px;
   width: 480px;
   background: ${p => p.theme.colors.N600};
   color: ${p => p.theme.colors.N100};
@@ -160,13 +159,26 @@ export const ExportButton = styled.div<ExportDialogContainerProps>`
   background-color: ${p => p.theme.colors.N200};
   margin-left: 50%;
   margin-top: 20px;
+  margin-bottom: 32px;
   transform: translateX(-50%);
   transition: all 0.3s ease;
   cursor: ${p => p.rendering ? `not-allowed` : `default`};
 
   :hover {
-    background-color: ${p => p.theme.colors.N100};
+    background-color: ${p => p.rendering ? p.theme.colors.N200 : p.theme.colors.N100};
   }
+`;
+
+export const RenderProgress = styled.div`
+  width: 0;
+  height: 100%;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.1s ease;
+  z-index: -1;
+  background-color: ${p => p.theme.colors.N100};
 `;
 
 export const RollingIcon = styled(Rolling)`

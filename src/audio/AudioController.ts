@@ -409,6 +409,7 @@ export class AudioController {
     return new Promise((resolve, reject) => {
       const { audioEffect, channel, library } = store.getState();
       const length = getMaxLength(channel.channel, library.audioInfo);
+      if (length === 0) reject('Empty project can\'t be exported.');
       const offlineAudioContext = new OfflineAudioContext(2, params.sampleRate * length / 1000, params.sampleRate);
       const soloChannel: Channel[] = [];
       const normalChannel: Channel[] = [];
@@ -455,11 +456,13 @@ export class AudioController {
         }
       }
       offlineAudioContext.startRendering().then(res => {
-        audioEncoder(res, params.format === 'wav' ? 0 : params.bitRate, null, (res) => {
+        audioEncoder(res, params.format === 'wav' ? 0 : params.bitRate, (res) => {
+          eventEmitter.emit(AudioControllerEvent.AUDIO_CONTROLLER_EXPORT_PROGRESS, res);
+        }, (res) => {
           fileSaver.saveAs(res, `export.${params.format}`);
           resolve();
         })
-      }).catch(e => reject());
+      }).catch(e => reject(e));
     });
   }
 }
