@@ -25,17 +25,8 @@ export const menu = [
       {
         name: 'Export',
         key: 'FILE_EXPORT',
-        action: MenuEvent.MENU_EXPORT,
+        action: MenuEvent.MENU_EXPORT_DIALOG_OPEN,
       },
-      {
-        name: 'divider',
-        key: 'FILE_DIVIDER_1'
-      },
-      {
-        name: 'Exit',
-        key: 'SYSTEM_CLOSE',
-        action: MenuEvent.MENU_EXIT,
-      }
     ]
   },
   {

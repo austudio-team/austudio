@@ -14,7 +14,7 @@ export enum ChannelAction {
   'DELETE_CHANNEL' = 'DELETE_CHANNEL',
 }
 
-interface ChannelMap {
+export interface ChannelMap {
   [id: string]: Channel;
 }
 

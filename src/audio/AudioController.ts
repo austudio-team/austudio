@@ -8,7 +8,7 @@ import { ChannelEvent } from '@events/channel';
 import { AudioSlice, Channel } from '@redux/types/channel';
 import audioNodeMap from './AudioNodeMap';
 import { EditorEvent } from '@events';
-import { computeStartParams } from './utils';
+import { computeStartParams, getMaxLength } from './utils';
 import { Compressor, Reverb, Filter, Delay, Equalizer, Tremolo } from '@shyrii/web-audio-effects';
 import { Effects } from '@constants';
 import { AudioEffectEvent } from '@events/audioEffects';
@@ -18,6 +18,8 @@ import { currentTime } from '@utils/time';
 import { recordChannelSelector } from '@redux/selectors/channel';
 import { createSlice } from '@redux/actions/channel';
 import { AudioControllerEvent } from '@events/audioController';
+import audioEncoder from 'audio-encoder';
+import fileSaver from 'file-saver';
 
 const EffectMap = {
   [Effects.COMPRESSOR]: Compressor,
@@ -38,6 +40,7 @@ export class AudioController {
 
   private initEvent = () => {
     eventEmitter.on(MenuEvent.MENU_IMPORT, this.selectFile);
+    eventEmitter.on(MenuEvent.MENU_EXPORT, this.export);
     eventEmitter.on(ChannelEvent.CHANNEL_ADD_SLICE, this.addSlice);
     eventEmitter.on(ChannelEvent.CHANNEL_DELETE_SLICE, this.deleteSlice);
     eventEmitter.on(ChannelEvent.CHANNEL_UPDATE_SLICE, this.updateSlice);
@@ -89,7 +92,7 @@ export class AudioController {
       });
     }
     for (const { id, f } of filesWithId) {
-      const blob = URL.createObjectURL(f);
+      // const blob = URL.createObjectURL(f);
       const arrayBuffer = await this.fileAsArrayBuffer(f);
       const decoded = await this.decodeAudio(arrayBuffer);
       store.dispatch(markAudioReady(id, Math.floor(decoded.duration * 1000)));
@@ -97,7 +100,7 @@ export class AudioController {
         file: f,
         audioBuffer: decoded,
       };
-      URL.revokeObjectURL(blob);
+      // URL.revokeObjectURL(blob);
     }
     return filesWithId.map(v => v.id);
   }
@@ -160,7 +163,7 @@ export class AudioController {
     const soloChannel: Channel[] = [];
     const normalChannel: Channel[] = [];
     for (const channel of Object.values(stateChannel.channel)) {
-    if (channel.solo) {
+      if (channel.solo) {
         soloChannel.push(channel);
       } else if (!channel.mute) {
         normalChannel.push(channel);
@@ -253,12 +256,14 @@ export class AudioController {
   }
 
   private updateVol = ({ channelId, vol }: { channelId: string, vol: number }) => {
+    this.addChannel(channelId);
     if (audioNodeMap[channelId]) {
       audioNodeMap[channelId].gainNode.gain.value = vol;
     }
   }
 
   private updatePan = ({ channelId, pan }: { channelId: string, pan: number }) => {
+    this.addChannel(channelId);
     if (audioNodeMap[channelId]) {
       audioNodeMap[channelId].panNode.pan.value = pan;
     }
@@ -286,7 +291,6 @@ export class AudioController {
   private updateEffect = ({ channelId, effectParams, index }: { channelId: string, effectParams: any, index: number}) => {
     const targetChannelNode = audioNodeMap[channelId];
     const targetNode = targetChannelNode.effects[index];
-    console.log(effectParams);
     targetNode.node.updateParams(effectParams);
   }
 
@@ -306,7 +310,7 @@ export class AudioController {
       lastEffect.node.connect(nextEffect);
     } else {
       targetChannelNode.panNode.disconnect();
-      targetChannelNode.panNode.connect(targetChannelNode.effects[0].node.input);
+      targetChannelNode.panNode.connect(targetChannelNode.effects[1].node.input);
     }
     targetChannelNode.effects.splice(index, 1);
   }
@@ -399,6 +403,67 @@ export class AudioController {
         resolve();
       }).catch(e => reject());
     })
+  }
+
+  public export = (params: { format: string, sampleRate: number, bitRate: number }) => {
+    return new Promise((resolve, reject) => {
+      const { audioEffect, channel, library } = store.getState();
+      const length = getMaxLength(channel.channel, library.audioInfo);
+      if (length === 0) reject('Empty project can\'t be exported.');
+      const offlineAudioContext = new OfflineAudioContext(2, params.sampleRate * length / 1000, params.sampleRate);
+      const soloChannel: Channel[] = [];
+      const normalChannel: Channel[] = [];
+      for (const c of Object.values(channel.channel)) {
+        if (c.solo) {
+          soloChannel.push(c);
+        } else if (!c.mute) {
+          normalChannel.push(c);
+        }
+      }
+      const targetChannel = soloChannel.length > 0 ? soloChannel.filter(v => v.mute === false) : normalChannel;
+      const time = offlineAudioContext.currentTime;
+      for (const c of targetChannel) {
+        const gainNode = offlineAudioContext.createGain();
+        gainNode.gain.value = c.vol / 100;
+        const panNode = offlineAudioContext.createStereoPanner();
+        panNode.pan.value = c.pan / 100;
+        gainNode.connect(panNode);
+        panNode.connect(offlineAudioContext.destination);
+        const effects = audioEffect.channelEffects[c.id];
+        let lastNode: any = null;
+        if (effects && effects.length > 0) {
+          panNode.disconnect();
+          for (const [i, effect] of effects.entries()) {
+            const effectNode = new EffectMap[effect.type](this.audioContext, effect.params);
+            if (i === 0) {
+              panNode.connect(effectNode.input);
+            } else {
+              lastNode.connect(effectNode.input);
+            }
+            if (i === effects.length - 1) {
+              effectNode.connect(offlineAudioContext.destination);
+            }
+            lastNode = effectNode;
+          }
+        }
+        for (const slice of c.slices) {
+          const dataSource = offlineAudioContext.createBufferSource();
+          dataSource.buffer = audioMap[slice.audioId].audioBuffer;
+          dataSource.connect(gainNode);
+          dataSource.playbackRate.value = 1 / slice.stretch;
+          const [when, offset, duration] = computeStartParams(slice, library.audioInfo[slice.audioId], true);
+          dataSource.start(time + when, offset, duration);
+        }
+      }
+      offlineAudioContext.startRendering().then(res => {
+        audioEncoder(res, params.format === 'wav' ? 0 : params.bitRate, (res) => {
+          eventEmitter.emit(AudioControllerEvent.AUDIO_CONTROLLER_EXPORT_PROGRESS, res);
+        }, (res) => {
+          fileSaver.saveAs(res, `export.${params.format}`);
+          resolve();
+        })
+      }).catch(e => reject(e));
+    });
   }
 }
 
