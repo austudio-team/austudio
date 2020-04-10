@@ -84,10 +84,11 @@ const AudioBlock: React.FC<Props> = props => {
   }, [audio.id]);
 
   const fetchGraph = useCallback(debounce((scale: number) => {
+    visualEffectImageOffset.current = visualEffectImageOffset.current * (scale / currentScale.current);
     currentScale.current = scale;
     const ref = visualEffectImageRef.current;
     if (ref) {
-      ref.style.transform = `translateX(-${visualEffectImageOffset.current}px)`;
+      ref.style.transform = `translateX(${visualEffectImageOffset.current}px)`;
       ref.src = getCanvas(audio.id, scale);
     }
     setVisualEffectImageLoaded(true);
@@ -100,7 +101,7 @@ const AudioBlock: React.FC<Props> = props => {
     const base = targetScale / currentScale.current;
     const ref = visualEffectImageRef.current;
     if (ref) {
-      ref.style.transform = `translateX(-${visualEffectImageOffset.current * base}px) scaleX(${base})`;
+      ref.style.transform = `translateX(${visualEffectImageOffset.current * base}px) scaleX(${base})`;
     }
   }, [fetchGraph, zoom, slice.stretch]);
 
@@ -161,7 +162,7 @@ const AudioBlock: React.FC<Props> = props => {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
             } else {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
-              audioBlockRef.current.style.transform = `translateX(${Math.ceil((newOffset - offset) / zoom)}px)`;
+              audioBlockRef.current.style.transform = `translateX(${Math.ceil(newOffset / zoom)}px)`;
             }
           } else {
             const { width: newWidth, offset: newOffset, start, end } = computeWidth(editorScrollLeft.current,
@@ -181,7 +182,7 @@ const AudioBlock: React.FC<Props> = props => {
               audioBlockRef.current.style.width = `${newWidth + 2}px`;
               visualEffectImageOffset.current = -Math.ceil(start * slice.stretch / zoom);
               visualEffectImageRef.current.style.transform = `translateX(${visualEffectImageOffset.current}px)`;
-              audioBlockRef.current.style.transform = `translateX(${Math.ceil((newOffset - offset) / zoom)}px)`;
+              audioBlockRef.current.style.transform = `translateX(${Math.ceil(newOffset / zoom)}px)`;
             }
           }
         }

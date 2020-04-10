@@ -45,7 +45,7 @@ export const computeWidth = (
     const targetDelta = Math.max(-slice.offset, Math.max(-start, Math.min(end - start - 10, delta)));
     return {
       width: Math.ceil((end - start - targetDelta) / zoom * slice.stretch),
-      offset: slice.offset + targetDelta,
+      offset: slice.offset + targetDelta * slice.stretch,
       start: slice.start + targetDelta,
       end: slice.end,
     };
