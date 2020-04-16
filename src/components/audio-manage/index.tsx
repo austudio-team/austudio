@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { RootState } from '@redux/reducers';
 import { toggleLibrary } from '@redux/actions/functionBar';
 import { ConnectedProps, connect } from 'react-redux';
@@ -29,6 +29,20 @@ type Props = ConnectedProps<typeof connector>;
 const AudioManage: React.FC<Props> = props => {
   const { libraryState, toggleLibrary, audioInfo, audioList, libraryDragStart, libraryDragEnd } = props;
   const [inited, setInited] = useState<boolean>(false);
+  const audioItemWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (audioItemWrapperRef.current) {
+      const ref = audioItemWrapperRef.current;
+      const handler = e => {
+        e.stopPropagation();
+      };
+      ref.addEventListener('wheel', handler);
+      return () => {
+        ref.removeEventListener('wheel', handler);
+      }
+    }
+  }, [inited]);
 
   // initEffect
   useEffect(() => {
@@ -44,7 +58,7 @@ const AudioManage: React.FC<Props> = props => {
     >
       <Title>LIBRARY</Title>
       <CloseIcon onClick={toggleLibrary} />
-      <AudioItemWrapper>
+      <AudioItemWrapper ref={audioItemWrapperRef}>
         {
           audioList.map(v => (
             <AudioItem

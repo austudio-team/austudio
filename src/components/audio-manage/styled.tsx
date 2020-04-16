@@ -40,6 +40,8 @@ export const AudioManageContainer = styled.div<AudioManageContainerProps>`
   color: ${p => p.theme.colors.N100};
   font-size: 13px;
   box-shadow: 0px 0px 16px ${p => p.theme.colors.N800};
+  display: flex;
+  flex-direction: column;
 `;
 
 export const CloseIcon = styled(Close)`
@@ -65,10 +67,11 @@ export const Title = styled.div`
   font-weight: 500;
   line-height: 54px;
   padding-left: 16px;
+  flex-shrink: 0;
 `;
 
 export const AudioItemWrapper = styled.div`
-  
+  overflow-y: auto;
 `;
 
 export const StyledAudioItem = styled.div`
