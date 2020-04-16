@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useCallback, useState } from 'react';
 import { EditorContainer } from '@components/styled';
 import AudioChannel from '@components/audio-channel';
-import { AudioChannelWrapper, TrackWrapper, TrackIndicator, AudioChannelScroller, TrackScroller } from './styled';
+import { AudioChannelWrapper, TrackWrapper, TrackIndicator, AudioChannelScroller, TrackScroller, IndicatorClickable } from './styled';
 import Track from '@components/track';
 import AudioManage from '@components/audio-manage';
 import { scrollYLimiter, watchScrollHeight, watchEditorRect, scrollXLimiter, indicatorLimiter } from './utils';
@@ -327,6 +327,16 @@ const Editor: React.FC<Props> = props => {
     }
   }, [rerenderIndicator, dragging]);
 
+  const handleIndicatorBarClick = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    indicatorOffset.current = (e.clientX - editorChannelWidth - editorX.current) * zoom;
+    currentTime.time = indicatorOffset.current;
+    eventEmitter.emit(EditorEvent.editorIndicatorShouldChange, {
+      offset: indicatorOffset.current,
+    });
+    rerenderIndicator();
+    eventEmitter.emit(EditorEvent.editorIndicatorDragEnd);
+  }, [rerenderIndicator, zoom]);
+
   return (
     <EditorContainer
       ref={editorRef}
@@ -343,6 +353,7 @@ const Editor: React.FC<Props> = props => {
           }
         </AudioChannelScroller>
       </AudioChannelWrapper>
+      <IndicatorClickable onClick={handleIndicatorBarClick} />
       <TrackIndicator
         ref={indicatorRef}
         onMouseDown={indicatorMouseDown}

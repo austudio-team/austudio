@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { editorChannelWidth, editorMarginTop } from './constants';
+import { editorChannelWidth, editorMarginTop, scrollerSize } from './constants';
 
 
 export const AudioChannelWrapper = styled.div`
@@ -55,4 +55,12 @@ export const TrackIndicator = styled.div`
     border-top: 16px solid ${props => props.theme.colors.P500};
     cursor: move;
   }
+`;
+
+export const IndicatorClickable = styled.div`
+  position: absolute;
+  left: ${editorChannelWidth}px;
+  top: 0;
+  height: ${editorMarginTop}px;
+  width: calc(100% - ${editorChannelWidth + scrollerSize}px);
 `;
