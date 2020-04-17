@@ -434,7 +434,7 @@ export class AudioController {
         if (effects && effects.length > 0) {
           panNode.disconnect();
           for (const [i, effect] of effects.entries()) {
-            const effectNode = new EffectMap[effect.type](this.audioContext, effect.params);
+            const effectNode = new EffectMap[effect.type](offlineAudioContext, effect.params);
             if (i === 0) {
               panNode.connect(effectNode.input);
             } else {
