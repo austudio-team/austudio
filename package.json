@@ -16,7 +16,7 @@
     "dayjs": "^1.8.21",
     "eventemitter3": "^4.0.0",
     "file-saver": "^2.0.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "polished": "^3.4.4",
     "rc-notification": "^4.0.0",
     "rc-select": "^10.1.6",
